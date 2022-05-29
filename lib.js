@@ -1,9 +1,3 @@
-const generateSessionId = (len) => {
-  const sessionIdVerifier = 'deadbeef'.repeat(len / 8).slice(0, len)
-  const sessionId = `sha256(${sessionIdVerifier})`
-  return { sessionId, sessionIdVerifier }
-}
-
 const objToQuery = (obj) => {
   return Object.entries(obj).map(([key, value]) => { return `${key}=${value}` }).join('&')
 }
@@ -33,7 +27,6 @@ const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
 
 
 module.exports = {
-  generateSessionId,
   objToQuery,
   addQueryStr,
   getRandomStr,

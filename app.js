@@ -1,5 +1,14 @@
+const express = require('express')
+const session = require('express-session')
+const bodyParser = require('body-parser')
+const Redis = require('ioredis')
+const RedisStore = require('connect-redis')(session)
+require('dotenv').config()
+process.env.APP_PATH = `${__dirname}/`
+
 const statusList = require('./statusList.js')
 const lib = require('./lib.js')
+const scc = require('./serverCommonConstant.js')
 
 const CLIENT_LIST = {
   'foo': 'https://sample.reiwa.co/f/xlogin/callback'
@@ -14,30 +23,6 @@ const USER_LIST = {
   }
 }
 
-/* server common constant */
-const scc = {}
-scc.oidc = {}
-scc.oidc.XLOGIN_ISSUER = 'https://xlogin.jp'
-scc.oidc.CODE_L = 64
-scc.oidc.ACCESS_TOKEN_L = 64
-
-scc.url = {}
-scc.url.ERROR_PAGE = '/error'
-scc.url.AFTER_CONNECT = '/login'
-scc.url.AFTER_CHECK_CREDENTIAL = '/confirm'
-
-scc.condition = {}
-scc.condition.LOGIN = 'login'
-scc.condition.CONFIRM = 'confirm'
-scc.condition.CODE = 'code'
-scc.condition.USER_INFO = 'user_info'
-
-scc.session = {}
-scc.session.SESSION_ID_VERIFIER_L = 64
-scc.session.SESSION_ID = 'sid'
-scc.session.SESSION_ID_VERIFIER = 'sidv'
-
-
 /* GET /api/v0.2/auth/connect */
 const handleConnect = (client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
   if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
@@ -45,19 +30,17 @@ const handleConnect = (client_id, redirect_uri, state, scope, response_type, cod
     return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
   }
 
-  const { sessionId, sessionIdVerifier } = lib.generateSessionId(scc.session.SESSION_ID_VERIFIER_L)
-
   const condition = scc.condition.LOGIN
   const newUserSession = { oidc: { condition, state, scope, response_type, code_challenge, code_challenge_method, redirect_uri } }
 
   const status = statusList.OK
-  const redirectTo = `${scc.url.AFTER_CONNECT}/${sessionId}`
-  return { status, cookie: [[scc.session.SESSION_ID, sessionId, {}], [scc.session.SESSION_ID_VERIFIER, sessionIdVerifier, {}]], sessionId, session: newUserSession, response: null, redirect: redirectTo }
+  const redirectTo = scc.url.AFTER_CONNECT
+  return { status, session: newUserSession, response: null, redirect: redirectTo }
 }
 
 /* POST /f/$condition/credential/check */
-const handleCredentialCheck = (condition, emailAddress, passHmac2, sessionId, userSession) => {
-  if (!sessionId || !userSession || !userSession.oidc || userSession.oidc['condition'] !== condition) {
+const handleCredentialCheck = (condition, emailAddress, passHmac2, authSession) => {
+  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== condition) {
     const status = statusList.INVALID_SESSION
     return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
   }
@@ -69,17 +52,17 @@ const handleCredentialCheck = (condition, emailAddress, passHmac2, sessionId, us
 
   const user = USER_LIST[emailAddress]
  
-  const { sessionId: newSessionId, sessionIdVerifier: newSessionIdVerifier } = lib.generateSessionId(scc.session.SESSION_ID_VERIFIER_L)
-  const newUserSession = Object.assign(userSession, { oidc: Object.assign({ condition: scc.condition.CONFIRM }, userSession.oidc) }, { user })
-  const redirectTo = `${scc.url.AFTER_CHECK_CREDENTIAL}/${sessionId}`
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
+  console.log('confirm newUserSession:', newUserSession)
+  const redirectTo = scc.url.AFTER_CHECK_CREDENTIAL
   
   const status = statusList.OK
-  return { status, cookie: [[scc.session.SESSION_ID, newSessionId, {}], [scc.session.SESSION_ID_VERIFIER, newSessionIdVerifier, {}]], sessionId: newSessionId, session: newUserSession, response: null, redirect: redirectTo }
+  return { status, session: newUserSession, response: null, redirect: redirectTo }
 }
 
 /* POST /f/confirm/permission/check */
-const handleConfirm = (permission_list, sessionId, userSession) => {
-  if (!sessionId || !userSession || !userSession.oidc || userSession.oidc['condition'] !== scc.condition.CONFIRM) {
+const handleConfirm = (permission_list, authSession) => {
+  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
     return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
   }
@@ -87,37 +70,35 @@ const handleConfirm = (permission_list, sessionId, userSession) => {
   const code = lib.getRandomStr(scc.oidc.CODE_L)
 
   const iss = scc.oidc.XLOGIN_ISSUER
-  const { redirect_uri, state } = userSession.oidc
+  const { redirect_uri, state } = authSession.oidc
   const redirectTo = lib.addQueryStr(decodeURIComponent(redirect_uri), lib.objToQuery({ state, code, iss }))
 
-  const { sessionId: newSessionId, sessionIdVerifier: newSessionIdVerifier } = lib.generateSessionId(scc.session.SESSION_ID_VERIFIER_L)
-  const newUserSession = Object.assign(userSession, { oidc: Object.assign({ condition: scc.condition.CODE, code, permission_list }, userSession.oidc) })
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CODE, code, permission_list }) })
 
   const status = statusList.OK
-  return { status, cookie: [[scc.session.SESSION_ID, newSessionId, {}], [scc.session.SESSION_ID_VERIFIER, newSessionIdVerifier, {}]], sessionId: newSessionId, session: newUserSession, response: null, redirect: redirectTo }
+  return { status, session: newUserSession, response: null, redirect: redirectTo }
 }
 
 /* GET /api/v0.2/auth/code */
-const handleCode = (client_id, state, code, code_verifier, sessionIdByCode, userSessionByCode, actionRegisterAccessToken) => {
-  const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, userSessionByCode.oidc['code_challenge_method'])
-  if (userSessionByCode.oidc['code_challenge'] !== generatedCodeChallenge) {
+const handleCode = (client_id, state, code, code_verifier, authSessionByCode, actionRegisterAccessToken) => {
+  const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSessionByCode.oidc['code_challenge_method'])
+  if (authSessionByCode.oidc['code_challenge'] !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
     return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
   }
 
   const access_token = lib.getRandomStr(scc.oidc.ACCESS_TOKEN_L)
 
-  const { sessionId: newSessionId, sessionIdVerifier: newSessionIdVerifier } = lib.generateSessionId(scc.session.SESSION_ID_VERIFIER_L)
-  const newUserSession = Object.assign(userSessionByCode, { oidc: Object.assign({ condition: scc.condition.USER_INFO }, userSessionByCode.oidc) })
+  const newUserSession = Object.assign(authSessionByCode, { oidc: Object.assign(authSessionByCode.oidc, { condition: scc.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, userSessionByCode.user)
+  const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSessionByCode.user)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
     return { status, session: {}, response: { error: status } }
   }
 
   const status = statusList.OK
-  return { status, cookie: null, sessionId: newSessionId, session: newUserSession, response: { result: { access_token } }, redirect: null }
+  return { status, session: newUserSession, response: { result: { access_token } }, redirect: null }
 }
 
 /* GET /api/v0.2/user/info */
@@ -130,11 +111,71 @@ const handleUserInfo = (client_id, access_token, actionGetUserByAccessToken) => 
   }
 
   const status = statusList.OK
-  return { status, cookie: null, sessionId: null, session: null, response: { result: { user_info } }, redirect: null }
+  return { status, session: null, response: { result: { user_info } }, redirect: null }
 }
 
 
+const output = (req, res, handleResult) => {
+  console.log('old:', req.session)
+  req.session.auth = handleResult.session
+  console.log('new:', req.session)
+
+  if (handleResult.response) {
+    return res.json(handleResult.response)
+  } else if (handleResult.redirect) {
+    return res.redirect(handleResult.redirect)
+  } else {
+    return res.redirect(scc.url.ERROR_PAGE)
+  }
+}
+
 const main = () => {
+  const expressApp = express()
+
+  const redis = new Redis({
+    port: scc.session.REDIS_PORT,
+    host: scc.session.REDIS_HOST,
+  })
+  expressApp.use(session({
+    secret : process.env.SESSION_SECRET, 
+    resave : true,
+    saveUninitialized : true,                
+    rolling : true,
+    name : scc.session.SESSION_ID,
+    cookie: {
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      secure: scc.session.SESSION_COOKIE_SECURE,
+      httpOnly: true,
+      sameSite: true,
+    },
+    store: new RedisStore({ client: redis }),
+  }))
+
+  expressApp.use(bodyParser.urlencoded({ extended: true }))
+  expressApp.use(bodyParser.json())
+
+  expressApp.get('/api/v0.2/auth/connect', (req, res) => {
+    const { client_id, redirect_uri } = req.query
+    const resultHandleConnect = handleConnect(client_id, redirect_uri)
+    output(req, res, resultHandleConnect)
+  })
+  expressApp.post('/f/:condition/credential/check', (req, res) => {
+    const condition = req.params.condition
+    const { emailAddress, passHmac2 } = req.body
+    const resultHandleCredentialCheck = handleCredentialCheck(condition, emailAddress, passHmac2, req.session.auth)
+    output(req, res, resultHandleCredentialCheck)
+  })
+  expressApp.post('/f/confirm/permission/check', (req, res) => {
+    const { permission_list } = req.body
+    const resultHandleConfirm = handleConfirm(permission_list, req.session.auth)
+    output(req, res, resultHandleConfirm)
+  })
+  expressApp.use(express.static(scc.server.PUBLIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.listen(scc.server.PORT, () => {
+    console.log(`Example app listening at http://localhost:${scc.server.PORT}`)
+  })
+
   console.log('==================================================')
   const CLIENT_ID = 'foo'
   const XLOGIN_REDIRECT_URI = encodeURIComponent('https://sample.reiwa.co/f/xlogin/callback')
@@ -143,16 +184,16 @@ const main = () => {
   console.log(resultHandleConnect)
   console.log('==================================================')
 
-  const resultHandleCredentialCheck = handleCredentialCheck('login', 'user@example.com', 'hmac(hmac(pass))', 'sessionId', { oidc: { condition: 'login' }})
+  const resultHandleCredentialCheck = handleCredentialCheck('login', 'user@example.com', 'hmac(hmac(pass))', { oidc: { condition: 'login' }})
   console.log(resultHandleCredentialCheck)
   console.log('==================================================')
 
-  const resultHandleConfirm = handleConfirm([], 'sessionId', { oidc: { condition: 'confirm', redirect_uri: XLOGIN_REDIRECT_URI, state: 'state' } })
+  const resultHandleConfirm = handleConfirm([], { oidc: { condition: 'confirm', redirect_uri: XLOGIN_REDIRECT_URI, state: 'state' } })
   console.log(resultHandleConfirm)
   console.log('==================================================')
 
   const actionRegisterAccessToken = (client_id, access_token, user) => { return true }
-  const resultHandleCode = handleCode(CLIENT_ID, 'state', 'code', 'code_verifier', 'sessionIdByCode', { oidc: { code_challenge: 'Base64(S256(code_verifier))', code_challenge_method: 'S256' } }, actionRegisterAccessToken)
+  const resultHandleCode = handleCode(CLIENT_ID, 'state', 'code', 'code_verifier', { oidc: { code_challenge: 'Base64(S256(code_verifier))', code_challenge_method: 'S256' } }, actionRegisterAccessToken)
   console.log(resultHandleCode)
   console.log('==================================================')
 
