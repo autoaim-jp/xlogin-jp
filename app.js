@@ -22,6 +22,22 @@ const USER_LIST = {
     },
   }
 }
+const ACCESS_TOKEN_LIST = {}
+
+const actionRegisterAccessToken = (client_id, access_token, user) => {
+  ACCESS_TOKEN_LIST[access_token] = { client_id, user }
+  return true
+}
+
+const actionGetUserByAccessToken = (client_id, access_token) => {
+  if (ACCESS_TOKEN_LIST[access_token] && ACCESS_TOKEN_LIST[access_token].client_id === client_id) {
+    const user = ACCESS_TOKEN_LIST[access_token].user
+    const serviceUserId = user.serviceUserIdList[client_id]
+    return { public: { serviceUserId } }
+  }
+
+  return null
+}
 
 /* GET /api/v0.2/auth/connect */
 const handleConnect = (client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
@@ -53,7 +69,6 @@ const handleCredentialCheck = (condition, emailAddress, passHmac2, authSession) 
   const user = USER_LIST[emailAddress]
  
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
-  console.log('confirm newUserSession:', newUserSession)
   const redirectTo = scc.url.AFTER_CHECK_CREDENTIAL
   
   const status = statusList.OK
@@ -80,18 +95,23 @@ const handleConfirm = (permission_list, authSession) => {
 }
 
 /* GET /api/v0.2/auth/code */
-const handleCode = (client_id, state, code, code_verifier, authSessionByCode, actionRegisterAccessToken) => {
-  const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSessionByCode.oidc['code_challenge_method'])
-  if (authSessionByCode.oidc['code_challenge'] !== generatedCodeChallenge) {
+const handleCode = (client_id, state, code, code_verifier, authSession, actionRegisterAccessToken) => {
+  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
+    const status = statusList.INVALID_SESSION
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+  }
+
+  const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSession.oidc['code_challenge_method'])
+  if (authSession.oidc['code_challenge'] !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
     return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
   }
 
   const access_token = lib.getRandomStr(scc.oidc.ACCESS_TOKEN_L)
 
-  const newUserSession = Object.assign(authSessionByCode, { oidc: Object.assign(authSessionByCode.oidc, { condition: scc.condition.USER_INFO }) })
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSessionByCode.user)
+  const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSession.user)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
     return { status, session: {}, response: { error: status } }
@@ -116,9 +136,7 @@ const handleUserInfo = (client_id, access_token, actionGetUserByAccessToken) => 
 
 
 const output = (req, res, handleResult) => {
-  console.log('old:', req.session)
   req.session.auth = handleResult.session
-  console.log('new:', req.session)
 
   if (handleResult.response) {
     return res.json(handleResult.response)
@@ -156,8 +174,8 @@ const main = () => {
   expressApp.use(bodyParser.json())
 
   expressApp.get('/api/v0.2/auth/connect', (req, res) => {
-    const { client_id, redirect_uri } = req.query
-    const resultHandleConnect = handleConnect(client_id, redirect_uri)
+    const { client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method } = req.query
+    const resultHandleConnect = handleConnect(client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method)
     output(req, res, resultHandleConnect)
   })
   expressApp.post('/f/:condition/credential/check', (req, res) => {
@@ -171,36 +189,27 @@ const main = () => {
     const resultHandleConfirm = handleConfirm(permission_list, req.session.auth)
     output(req, res, resultHandleConfirm)
   })
+  expressApp.get('/api/v0.2/auth/code', (req, res) => {
+    const { client_id, state, code, code_verifier } = req.query
+
+    const resultHandleCode = handleCode(client_id, state, code, code_verifier, req.session.auth, actionRegisterAccessToken)
+    output(req, res, resultHandleCode)
+  })
+  expressApp.get('/api/v0.2/user/info', (req, res) => {
+    console.log(req.headers)
+    const access_token = req.headers['authorization'].slice('Bearer '.length)
+    const client_id = req.headers['x_xlogin_client_id']
+
+    const resultHandleUserInfo = handleUserInfo(client_id, access_token, actionGetUserByAccessToken)
+    output(req, res, resultHandleUserInfo)
+  })
+
   expressApp.use(express.static(scc.server.PUBLIC_DIR, { index: 'index.html', extensions: ['html'] }))
   expressApp.listen(scc.server.PORT, () => {
     console.log(`Example app listening at http://localhost:${scc.server.PORT}`)
   })
 
-  console.log('==================================================')
-  const CLIENT_ID = 'foo'
-  const XLOGIN_REDIRECT_URI = encodeURIComponent('https://sample.reiwa.co/f/xlogin/callback')
-
-  const resultHandleConnect = handleConnect(CLIENT_ID, XLOGIN_REDIRECT_URI)
-  console.log(resultHandleConnect)
-  console.log('==================================================')
-
-  const resultHandleCredentialCheck = handleCredentialCheck('login', 'user@example.com', 'hmac(hmac(pass))', { oidc: { condition: 'login' }})
-  console.log(resultHandleCredentialCheck)
-  console.log('==================================================')
-
-  const resultHandleConfirm = handleConfirm([], { oidc: { condition: 'confirm', redirect_uri: XLOGIN_REDIRECT_URI, state: 'state' } })
-  console.log(resultHandleConfirm)
-  console.log('==================================================')
-
-  const actionRegisterAccessToken = (client_id, access_token, user) => { return true }
-  const resultHandleCode = handleCode(CLIENT_ID, 'state', 'code', 'code_verifier', { oidc: { code_challenge: 'Base64(S256(code_verifier))', code_challenge_method: 'S256' } }, actionRegisterAccessToken)
-  console.log(resultHandleCode)
-  console.log('==================================================')
-
-  const actionGetUserByAccessToken = (client_id, access_token) => { return { public: { serviceUserId: 123456 } } }
-  const resultHandleUserInfo = handleUserInfo(CLIENT_LIST, 'access_token', actionGetUserByAccessToken)
-  console.log(resultHandleUserInfo)
-  console.log('==================================================')
+  console.log('open: http://localhost:3000/api/v0.2/auth/connect?client_id=foo&redirect_uri=https%3A%2F%2Fsample.reiwa.co%2Ff%2Fxlogin%2Fcallback&state=abcde&code_challenge=Base64(S256(code_verifier))&code_challenge_method=S256&scope=r_user&response_type=code')
 }
 
 main()
