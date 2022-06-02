@@ -11,7 +11,7 @@ const lib = require('./lib.js')
 const scc = require('./serverCommonConstant.js')
 
 const CLIENT_LIST = {
-  'foo': 'https://sample.reiwa.co/f/xlogin/callback'
+  'foo': 'http://localhost:3001/f/xlogin/callback'
 }
 
 const USER_LIST = {
@@ -196,7 +196,6 @@ const main = () => {
     output(req, res, resultHandleCode)
   })
   expressApp.get('/api/v0.2/user/info', (req, res) => {
-    console.log(req.headers)
     const access_token = req.headers['authorization'].slice('Bearer '.length)
     const client_id = req.headers['x_xlogin_client_id']
 
@@ -205,11 +204,17 @@ const main = () => {
   })
 
   expressApp.use(express.static(scc.server.PUBLIC_DIR, { index: 'index.html', extensions: ['html'] }))
+
+  expressApp.use((err, req, res, next) => {
+    console.error(err.stack)
+    res.status(500)
+    res.end('Internal Server Error')
+  })
   expressApp.listen(scc.server.PORT, () => {
-    console.log(`Example app listening at http://localhost:${scc.server.PORT}`)
+    console.log(`Example app listening at http://127.0.0.1:${scc.server.PORT}`)
   })
 
-  console.log('open: http://localhost:3000/api/v0.2/auth/connect?client_id=foo&redirect_uri=https%3A%2F%2Fsample.reiwa.co%2Ff%2Fxlogin%2Fcallback&state=abcde&code_challenge=Base64(S256(code_verifier))&code_challenge_method=S256&scope=r_user&response_type=code')
+  console.log('open: http://127.0.0.1:3000/api/v0.2/auth/connect?client_id=foo&redirect_uri=https%3A%2F%2Fsample.reiwa.co%2Ff%2Fxlogin%2Fcallback&state=abcde&code_challenge=Base64(S256(code_verifier))&code_challenge_method=S256&scope=r_user&response_type=code')
 }
 
 main()

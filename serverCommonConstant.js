@@ -2,7 +2,7 @@ const scc = {}
 
 scc.server = {}
 scc.server.PORT = 3000
-scc.server.PUBLIC_DIR = `${process.env.APP_PATH}/public`
+scc.server.PUBLIC_DIR = `${process.env.APP_PATH}public`
 
 scc.oidc = {}
 scc.oidc.XLOGIN_ISSUER = 'https://xlogin.jp'
