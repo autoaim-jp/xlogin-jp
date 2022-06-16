@@ -25,6 +25,7 @@ scc.session.SESSION_ID = 'sid'
 scc.session.SESSION_COOKIE_SECURE = false
 scc.session.REDIS_PORT = 6379
 scc.session.REDIS_HOST = '127.0.0.1'
+scc.session.REDIS_DB = 1
 
 module.exports = scc
 

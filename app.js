@@ -43,7 +43,7 @@ const actionGetUserByAccessToken = (client_id, access_token) => {
 const handleConnect = (client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
   if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
     const status = statusList.INVALID_CLIENT
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_connect_client' }
   }
 
   const condition = scc.condition.LOGIN
@@ -58,12 +58,12 @@ const handleConnect = (client_id, redirect_uri, state, scope, response_type, cod
 const handleCredentialCheck = (condition, emailAddress, passHmac2, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== condition) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_credential_session' }
   }
  
   if (!USER_LIST[emailAddress] || USER_LIST[emailAddress].passHmac2 !== passHmac2) {
     const status = statusList.INVALID_CREDENTIAL
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_credential_credential' }
   }
 
   const user = USER_LIST[emailAddress]
@@ -79,7 +79,7 @@ const handleCredentialCheck = (condition, emailAddress, passHmac2, authSession) 
 const handleConfirm = (permission_list, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_confirm_session' }
   }
 
   const code = lib.getRandomStr(scc.oidc.CODE_L)
@@ -98,13 +98,13 @@ const handleConfirm = (permission_list, authSession) => {
 const handleCode = (client_id, state, code, code_verifier, authSession, actionRegisterAccessToken) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_code_session' }
   }
 
   const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSession.oidc['code_challenge_method'])
   if (authSession.oidc['code_challenge'] !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE }
+    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_code_challenge' }
   }
 
   const access_token = lib.getRandomStr(scc.oidc.ACCESS_TOKEN_L)
@@ -114,7 +114,7 @@ const handleCode = (client_id, state, code, code_verifier, authSession, actionRe
   const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSession.user)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
-    return { status, session: {}, response: { error: status } }
+    return { status, session: {}, response: { error: status }, error: 'handle_code_access_token' }
   }
 
   const status = statusList.OK
@@ -127,7 +127,7 @@ const handleUserInfo = (client_id, access_token, actionGetUserByAccessToken) => 
 
   if (!user_info) {
     const status = statusList.SERVER_ERROR
-    return { status, session: {}, response: { error: status } }
+    return { status, session: {}, response: { error: status }, error: 'handle_user_info_access_token' }
   }
 
   const status = statusList.OK
@@ -136,6 +136,7 @@ const handleUserInfo = (client_id, access_token, actionGetUserByAccessToken) => 
 
 
 const output = (req, res, handleResult) => {
+  console.log('output error:', handleResult.error)
   req.session.auth = handleResult.session
 
   if (handleResult.response) {
@@ -153,6 +154,7 @@ const main = () => {
   const redis = new Redis({
     port: scc.session.REDIS_PORT,
     host: scc.session.REDIS_HOST,
+    db: scc.session.REDIS_DB,
   })
   expressApp.use(session({
     secret : process.env.SESSION_SECRET, 
@@ -165,7 +167,7 @@ const main = () => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       secure: scc.session.SESSION_COOKIE_SECURE,
       httpOnly: true,
-      sameSite: true,
+      sameSite: 'lax',
     },
     store: new RedisStore({ client: redis }),
   }))
