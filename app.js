@@ -205,7 +205,8 @@ const main = () => {
     output(req, res, resultHandleUserInfo)
   })
 
-  expressApp.use(express.static(scc.server.PUBLIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.use(express.static(scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.use(express.static(scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
 
   expressApp.use((err, req, res, next) => {
     console.error(err.stack)
