@@ -1,12 +1,11 @@
 const scc = {}
 
 scc.server = {}
-scc.server.PORT = 3000
 scc.server.PUBLIC_BUILD_DIR = `${process.env.APP_PATH}view/build`
 scc.server.PUBLIC_STATIC_DIR = `${process.env.APP_PATH}view/static`
 
 scc.oidc = {}
-scc.oidc.XLOGIN_ISSUER = 'https://xlogin.jp'
+scc.oidc.XLOGIN_ISSUER = process.env.SERVER_ORIGIN 
 scc.oidc.CODE_L = 64
 scc.oidc.ACCESS_TOKEN_L = 64
 

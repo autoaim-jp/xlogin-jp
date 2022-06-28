@@ -1,3 +1,4 @@
+const https = require('https')
 const express = require('express')
 const session = require('express-session')
 const bodyParser = require('body-parser')
@@ -11,7 +12,8 @@ const lib = require('./lib.js')
 const scc = require('./serverCommonConstant.js')
 
 const CLIENT_LIST = {
-  'foo': 'http://localhost:3001/f/xlogin/callback'
+  'foo': 'http://localhost:3001/f/xlogin/callback',
+  'sample_xlogin_jp': 'https://sample.xlogin.jp/f/xlogin/callback'
 }
 
 const USER_LIST = {
@@ -213,9 +215,21 @@ const main = () => {
     res.status(500)
     res.end('Internal Server Error')
   })
-  expressApp.listen(scc.server.PORT, () => {
-    console.log(`Example app listening at http://127.0.0.1:${scc.server.PORT}`)
-  })
+
+  if (process.env.SERVER_ORIGIN.indexOf('https') >= 0) {
+    const tlsConfig = {
+      key: fs.readFileSync(process.env.TLS_KEY_PATH),
+      cert: fs.readFileSync(process.env.TLS_CERT_PATH),
+    }
+    const server = https.createServer(tlsConfig, expressApp)
+    server.listen(process.env.SERVER_PORT, () => {
+      console.log(`Example app listening at port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    })
+  } else {
+    expressApp.listen(process.env.SERVER_PORT, () => {
+      console.log(`Example app listening at port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    })
+  }
 
   console.log('open: http://127.0.0.1:3000/api/v0.2/auth/connect?client_id=foo&redirect_uri=https%3A%2F%2Fsample.reiwa.co%2Ff%2Fxlogin%2Fcallback&state=abcde&code_challenge=Base64(S256(code_verifier))&code_challenge_method=S256&scope=r_user&response_type=code')
 }
