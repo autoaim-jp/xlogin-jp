@@ -33,5 +33,15 @@ export const ejsConfig = {
     externalScriptList: [],
 
   },
+  register: {
+    title: 'register | xlogin.jp',
+    description: 'register page',
+    author: 'autoaim_jp',
+
+    inlineCssList: [],
+    externalCssList: ['/css/tailwind.css'],
+    inlineScriptList: ['/js/register/app.js'],
+    externalScriptList: [],
+  },
 }
 
