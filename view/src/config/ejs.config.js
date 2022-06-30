@@ -12,17 +12,6 @@ export const ejsConfig = {
     inlineScriptList: ['/js/index/app.js'],
     externalScriptList: [],
   },
-  confirm: {
-    title: 'confirm | xlogin.jp',
-    description: 'confirm permission',
-    author: 'autoaim_jp',
-
-    inlineCssList: [],
-    externalCssList: ['/css/tailwind.css'],
-    inlineScriptList: [],
-    externalScriptList: [],
-
-  },
   login: {
     title: 'login | xlogin.jp',
     description: 'login page',
@@ -30,8 +19,19 @@ export const ejsConfig = {
 
     inlineCssList: [],
     externalCssList: ['/css/tailwind.css'],
-    inlineScriptList: [],
+    inlineScriptList: ['/js/login/app.js'],
     externalScriptList: [],
+  },
+  confirm: {
+    title: 'confirm | xlogin.jp',
+    description: 'confirm permission',
+    author: 'autoaim_jp',
+
+    inlineCssList: [],
+    externalCssList: ['/css/tailwind.css'],
+    inlineScriptList: ['/js/confirm/app.js'],
+    externalScriptList: [],
+
   },
 }
 
