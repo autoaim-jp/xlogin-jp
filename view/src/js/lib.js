@@ -237,8 +237,6 @@ export const calcPbkdf2 = (str, salt) => {
 export const redirect = (response) => {
   if (response && response.redirect) {
     window.location.href = response.redirect
-  } else {
-    window.location.href = '/error?code=1400'
   }
 }
 
