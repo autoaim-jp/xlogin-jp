@@ -27,5 +27,9 @@ scc.session.REDIS_PORT = 6379
 scc.session.REDIS_HOST = '127.0.0.1'
 scc.session.REDIS_DB = 1
 
+scc.user = {}
+scc.user.SERVICE_USER_ID_L = 64
+scc.user.HMAC_SECRET = 'xlogin20220630'
+
 module.exports = scc
 

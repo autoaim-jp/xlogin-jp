@@ -180,3 +180,65 @@ export const getRandomStr = (len) => {
   return btoa(crypto.getRandomValues(new Uint8Array(len))).slice(0, len)
 }
 
+export const buf2Hex = (buf) => {
+  return Array.prototype.map.call(new Uint8Array(buf), x => ('00' + x.toString(16)).slice(-2)).join('')
+}
+
+export const calcHmac512 = (data, secret) => {
+  return new Promise((resolve, reject) => {
+    const enc = new TextEncoder('utf-8')
+    window.crypto.subtle.importKey(
+      'raw',
+      enc.encode(secret),
+      {
+        name: 'HMAC',
+        hash: {name: 'SHA-512'}
+      },
+      false,
+      ['sign', 'verify']
+    ).then((key) => {
+      window.crypto.subtle.sign(
+        'HMAC',
+        key,
+        enc.encode(data),
+      ).then((hash) => {
+        const buf = new Uint8Array(hash)
+        resolve(buf2Hex(buf))
+      })
+    })
+  })
+}
+
+export const genSalt = () => {
+  return window.crypto.getRandomValues(new Uint8Array(64))
+}
+
+export const calcPbkdf2 = (str, salt) => {
+  return new Promise((resolve, reject) => {
+    const byteList = new Uint8Array(Array.prototype.map.call(str, (c) => {
+      return c.charCodeAt(0)
+    }))
+    window.crypto.subtle.importKey('raw', byteList, { name: 'PBKDF2', }, false, ['deriveBits'])
+      .then((key) => {
+        const opt = {
+          name: 'PBKDF2',
+          salt: salt,
+          iterations: 1000*1000,
+          hash: {name: 'SHA-512'},
+        }
+        return window.crypto.subtle.deriveBits(opt, key, 512).then((buf) => {
+          resolve(buf2Hex(buf))
+        })
+      })
+  })
+}
+
+
+export const redirect = (response) => {
+  if (response && response.redirect) {
+    window.location.href = response.redirect
+  } else {
+    window.location.href = '/error?code=1400'
+  }
+}
+

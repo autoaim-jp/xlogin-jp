@@ -1,8 +1,10 @@
 /* /setting.js */
-export const apiEndpoint = '/api/v1/public'
+export const apiEndpoint = '/f'
+export const userHmacSecret = 'xlogin20220630'
 
 const settingList = {
   apiEndpoint,
+  userHmacSecret,
 }
 
 export const get = (...keyList) => {
