@@ -14,8 +14,8 @@ const addQueryStr = (url, queryStr) => {
   }
 }
 
-const getRandomStr = (len) => {
-  return 'deadbeef'.repeat(len / 8).slice(0, len)
+const getRandomB64UrlSafe = (len) => {
+  return crypto.randomBytes(len).toString('base64url').slice(0, len)
 }
 
 const getRandomInt = (min, max) => {
@@ -44,7 +44,7 @@ const calcPbkdf2 = (data, saltHex) => {
 module.exports = {
   objToQuery,
   addQueryStr,
-  getRandomStr,
+  getRandomB64UrlSafe,
   getRandomInt,
   convertToCodeChallenge,
   calcPbkdf2,

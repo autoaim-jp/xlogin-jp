@@ -8,12 +8,7 @@
         <div id='memoContentWrap' class='w-full'>
         </div>
         <div class='block mx-auto p-6 rounded-lg shadow-lg bg-white max-w-sm'>
-          <form method='post' action='/f/confirm/permission/check'>
-            <div class='form-group form-check'>
-              <input id='rememberMeCheck' type='checkbox' name='rememberMe' class='form-check-input h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer'>
-              <label for='rememberMeCheck' class='form-check-label inline-block text-gray-800'>ユーザーID</label>
-            </div>
-            <br />
+          <form id='confirmForm' method='post' action='/error'>
             <button type='submit' class='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Confirm</button>
           </form>
         </div>
@@ -24,6 +19,7 @@
     <%- await include(`${componentPath}loading.ejs`)  %>
     <%- await include(`${componentPath}modal.ejs`)  %>
     <div id='hiddenForTailwindByJs' class='hidden w-full h-96 p-1'></div>
+    <%- await include(`${componentPath}permissionCheckTemplate.ejs`)  %>
   </body>
   <%- await include(`${componentPath}includeJs.ejs`, { inlineScriptList, externalScriptList, isProduction, })  %>
 
