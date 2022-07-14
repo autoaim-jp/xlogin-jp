@@ -35,12 +35,12 @@ const ACCESS_TOKEN_LIST = {}
 
 const AUTH_SESSION_LIST = {}
 
-const actionRegisterAccessToken = (client_id, access_token, user, permission_list) => {
+const coreRegisterAccessToken = (client_id, access_token, user, permission_list) => {
   ACCESS_TOKEN_LIST[access_token] = { client_id, user, permission_list }
   return true
 }
 
-const actionGetUserByAccessToken = (client_id, access_token, filter_key_list) => {
+const coreGetUserByAccessToken = (client_id, access_token, filter_key_list) => {
   if (ACCESS_TOKEN_LIST[access_token] && ACCESS_TOKEN_LIST[access_token].client_id === client_id) {
     const { user, permission_list } = ACCESS_TOKEN_LIST[access_token]
     const publicData = {}
@@ -58,7 +58,7 @@ const actionGetUserByAccessToken = (client_id, access_token, filter_key_list) =>
   return null
 }
 
-const actionCredentialCheck = async (emailAddress, passHmac2) => {
+const coreCredentialCheck = async (emailAddress, passHmac2) => {
   if (!USER_LIST[emailAddress]) {
     return { credentialCheckResult: false }
   }
@@ -73,7 +73,7 @@ const actionCredentialCheck = async (emailAddress, passHmac2) => {
   return { credentialCheckResult: true }
 }
 
-const actionAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
+const coreAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
   if (USER_LIST[emailAddress]) {
     return { registerResult: false }
   }
@@ -95,7 +95,7 @@ const actionAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* http */
-const actionGetErrorResponse = (status, error, isServerRedirect, response = null) => {
+const coreGetErrorResponse = (status, error, isServerRedirect, response = null) => {
   const redirect = `${scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
     return { status, session: {}, response, redirect, error }
@@ -110,11 +110,11 @@ const actionGetErrorResponse = (status, error, isServerRedirect, response = null
 
 
 /* GET /api/v0.2/auth/connect */
-const handleConnect = (user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
+const actionHandleConnect = (user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
   if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
  
   if (user) {
@@ -135,18 +135,18 @@ const handleConnect = (user, client_id, redirect_uri, state, scope, response_typ
 }
 
 /* POST /f/$condition/credential/check */
-const handleCredentialCheck = async (emailAddress, passHmac2, authSession, actionCredentialCheck) => {
+const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession, coreCredentialCheck) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_credential_session'
-    return actionGetErrorResponse(status, error, false)
+    return coreGetErrorResponse(status, error, false)
   }
 
-  const resultCredentialCheck = await actionCredentialCheck(emailAddress, passHmac2)
+  const resultCredentialCheck = await coreCredentialCheck(emailAddress, passHmac2)
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = statusList.INVALID_CREDENTIAL
     const error = 'handle_credential_credential'
-    return actionGetErrorResponse(status, error, false)
+    return coreGetErrorResponse(status, error, false)
   }
 
   const user = USER_LIST[emailAddress]
@@ -159,11 +159,11 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, actio
 }
 
 /* POST /f/confirm/permission/check */
-const handleConfirm = (permission_list, authSession) => {
+const actionHandleConfirm = (permission_list, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
-    return actionGetErrorResponse(status, error, false)
+    return coreGetErrorResponse(status, error, false)
   }
 
   const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
@@ -181,35 +181,35 @@ const handleConfirm = (permission_list, authSession) => {
 }
 
 /* GET /api/v0.2/auth/code */
-const handleCode = (client_id, state, code, code_verifier, authSession, actionRegisterAccessToken) => {
+const actionHandleCode = (client_id, state, code, code_verifier, authSession, coreRegisterAccessToken) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_code_session'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   if (client_id !== authSession.oidc.client_id) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_code_client'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSession.oidc['code_challenge_method'])
   if (authSession.oidc['code_challenge'] !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
     const error = 'handle_code_challenge'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   const access_token = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSession.user, authSession.oidc.permission_list)
+  const resultRegisterAccessToken = coreRegisterAccessToken(client_id, access_token, authSession.user, authSession.oidc.permission_list)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_code_access_token'
-    return actionGetErrorResponse(status, error, null)
+    return coreGetErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -217,14 +217,14 @@ const handleCode = (client_id, state, code, code_verifier, authSession, actionRe
 }
 
 /* GET /api/v0.2/user/info */
-const handleUserInfo = (client_id, access_token, filter_key_list_str, actionGetUserByAccessToken) => {
+const handleUserInfo = (client_id, access_token, filter_key_list_str, coreGetUserByAccessToken) => {
   const filter_key_list = filter_key_list_str.split(',')
-  const user_info = actionGetUserByAccessToken(client_id, access_token, filter_key_list)
+  const user_info = coreGetUserByAccessToken(client_id, access_token, filter_key_list)
 
   if (!user_info) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_user_info_access_token'
-    return actionGetErrorResponse(status, error, null)
+    return coreGetErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -232,26 +232,26 @@ const handleUserInfo = (client_id, access_token, filter_key_list_str, actionGetU
 }
 
 /* POST /f/login/user/add */
-const handleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, authSession, actionAddUser) => {
+const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, authSession, coreAddUser) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_user_add_session'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   if (tosChecked !== 'tosChecked' || privacyPolicyChecked !== 'privacyPolicyChecked') {
     const status = statusList.INVALID_CHECK
     const error = 'handle_user_add_checkbox'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   const client_id = authSession.oidc.client_id
-  const resultAddUser = actionAddUser(client_id, emailAddress, passPbkdf2, saltHex)
+  const resultAddUser = coreAddUser(client_id, emailAddress, passPbkdf2, saltHex)
  
   if (resultAddUser.registerResult !== true) {
     const status = statusList.REGISTER_FAIL
     const error = 'handle_user_add_register'
-    return actionGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, true)
   }
 
   const user = USER_LIST[emailAddress]
@@ -264,11 +264,11 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPol
 }
 
 /* GET /f/confirm/scope/list */
-const handleScope = (authSession) => {
+const actionHandleScope = (authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_permission_list_session'
-    return actionGetErrorResponse(status, error, false)
+    return coreGetErrorResponse(status, error, false)
   }
 
   const scope = authSession.oidc.scope
@@ -328,23 +328,23 @@ const main = () => {
   expressApp.get('/api/v0.2/auth/connect', (req, res) => {
     const user = req.session.auth?.user
     const { client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method } = req.query
-    const resultHandleConnect = handleConnect(user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method)
+    const resultHandleConnect = actionHandleConnect(user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method)
     output(req, res, resultHandleConnect)
   })
   expressApp.post('/f/login/credential/check', async (req, res) => {
     const { emailAddress, passHmac2 } = req.body
-    const resultHandleCredentialCheck = await handleCredentialCheck(emailAddress, passHmac2, req.session.auth, actionCredentialCheck)
+    const resultHandleCredentialCheck = await actionHandleCredentialCheck(emailAddress, passHmac2, req.session.auth, coreCredentialCheck)
     output(req, res, resultHandleCredentialCheck)
   })
   expressApp.post('/f/confirm/permission/check', (req, res) => {
     const { permission_list } = req.body
-    const resultHandleConfirm = handleConfirm(permission_list, req.session.auth)
+    const resultHandleConfirm = actionHandleConfirm(permission_list, req.session.auth)
     output(req, res, resultHandleConfirm)
   })
   expressApp.get('/api/v0.2/auth/code', (req, res) => {
     const { client_id, state, code, code_verifier } = req.query
     const authSession = AUTH_SESSION_LIST[code]
-    const resultHandleCode = handleCode(client_id, state, code, code_verifier, authSession, actionRegisterAccessToken)
+    const resultHandleCode = actionHandleCode(client_id, state, code, code_verifier, authSession, coreRegisterAccessToken)
     output(req, res, resultHandleCode)
   })
   expressApp.get('/api/v0.2/user/info', (req, res) => {
@@ -352,16 +352,16 @@ const main = () => {
     const client_id = req.headers['x_xlogin_client_id']
     const { filter_key_list_str } = req.query
 
-    const resultHandleUserInfo = handleUserInfo(client_id, access_token, filter_key_list_str, actionGetUserByAccessToken)
+    const resultHandleUserInfo = handleUserInfo(client_id, access_token, filter_key_list_str, coreGetUserByAccessToken)
     output(req, res, resultHandleUserInfo)
   })
   expressApp.post('/f/login/user/add', (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked } = req.body
-    const resultHandleUserAdd = handleUserAdd(emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, req.session.auth, actionUserAdd)
+    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, req.session.auth, actionUserAdd)
     output(req, res, resultHandleUserAdd)
   })
   expressApp.get('/f/confirm/scope/read', (req, res) => {
-    const resultHandleScope = handleScope(req.session.auth)
+    const resultHandleScope = actionHandleScope(req.session.auth)
     output(req, res, resultHandleScope)
   })
 
