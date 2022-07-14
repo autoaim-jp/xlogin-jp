@@ -94,27 +94,43 @@ const actionAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
   return { registerResult: true }
 }
 
+/* http */
+const actionGetErrorResponse = (status, error, isServerRedirect, response = null) => {
+  const redirect = `${scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
+  if (isServerRedirect) {
+    return { status, session: {}, response, redirect, error }
+  } else {
+    if (response) {
+      return { status, session: {}, response, error }
+    } else {
+      return { status, session: {}, response: { status, error, redirect }, error }
+    }
+  }
+}
+
+
 /* GET /api/v0.2/auth/connect */
 const handleConnect = (user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
   if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
     const status = statusList.INVALID_CLIENT
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_connect_client' }
+    const error = 'handle_connect_client'
+    return actionGetErrorResponse(status, error, true)
   }
  
   if (user) {
     const condition = scc.condition.CONFIRM
     const newUserSession = { oidc: { client_id, condition, state, scope, response_type, code_challenge, code_challenge_method, redirect_uri }, user }
-    const redirectTo = scc.url.AFTER_CHECK_CREDENTIAL
+    const redirect = scc.url.AFTER_CHECK_CREDENTIAL
 
     const status = statusList.OK
-    return { status, session: newUserSession, response: null, redirect: redirectTo }
+    return { status, session: newUserSession, response: null, redirect }
   } else {
     const condition = scc.condition.LOGIN
     const newUserSession = { oidc: { client_id, condition, state, scope, response_type, code_challenge, code_challenge_method, redirect_uri } }
 
     const status = statusList.OK
-    const redirectTo = scc.url.AFTER_CONNECT
-    return { status, session: newUserSession, response: null, redirect: redirectTo }
+    const redirect = scc.url.AFTER_CONNECT
+    return { status, session: newUserSession, response: null, redirect }
   }
 }
 
@@ -122,61 +138,67 @@ const handleConnect = (user, client_id, redirect_uri, state, scope, response_typ
 const handleCredentialCheck = async (emailAddress, passHmac2, authSession, actionCredentialCheck) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_credential_session' }
+    const error = 'handle_credential_session'
+    return actionGetErrorResponse(status, error, false)
   }
 
   const resultCredentialCheck = await actionCredentialCheck(emailAddress, passHmac2)
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = statusList.INVALID_CREDENTIAL
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_credential_credential' }
+    const error = 'handle_credential_credential'
+    return actionGetErrorResponse(status, error, false)
   }
 
   const user = USER_LIST[emailAddress]
  
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
-  const redirectTo = scc.url.AFTER_CHECK_CREDENTIAL
+  const redirect = scc.url.AFTER_CHECK_CREDENTIAL
   
   const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect: redirectTo } }
+  return { status, session: newUserSession, response: { redirect } }
 }
 
 /* POST /f/confirm/permission/check */
 const handleConfirm = (permission_list, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_confirm_session' }
+    const error = 'handle_confirm_session'
+    return actionGetErrorResponse(status, error, false)
   }
 
   const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
 
   const iss = scc.oidc.XLOGIN_ISSUER
   const { redirect_uri, state } = authSession.oidc
-  const redirectTo = lib.addQueryStr(decodeURIComponent(redirect_uri), lib.objToQuery({ state, code, iss }))
+  const redirect = lib.addQueryStr(decodeURIComponent(redirect_uri), lib.objToQuery({ state, code, iss }))
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CODE, code, permission_list }) })
 
   AUTH_SESSION_LIST[code] = newUserSession
 
   const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect: redirectTo } }
+  return { status, session: newUserSession, response: { redirect } }
 }
 
 /* GET /api/v0.2/auth/code */
 const handleCode = (client_id, state, code, code_verifier, authSession, actionRegisterAccessToken) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_code_session' }
+    const error = 'handle_code_session'
+    return actionGetErrorResponse(status, error, true)
   }
 
   if (client_id !== authSession.oidc.client_id) {
     const status = statusList.INVALID_CLIENT
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_code_client' }
+    const error = 'handle_code_client'
+    return actionGetErrorResponse(status, error, true)
   }
 
   const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSession.oidc['code_challenge_method'])
   if (authSession.oidc['code_challenge'] !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_code_challenge' }
+    const error = 'handle_code_challenge'
+    return actionGetErrorResponse(status, error, true)
   }
 
   const access_token = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
@@ -186,7 +208,8 @@ const handleCode = (client_id, state, code, code_verifier, authSession, actionRe
   const resultRegisterAccessToken = actionRegisterAccessToken(client_id, access_token, authSession.user, authSession.oidc.permission_list)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
-    return { status, session: {}, response: { error: status }, error: 'handle_code_access_token' }
+    const error = 'handle_code_access_token'
+    return actionGetErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -200,7 +223,8 @@ const handleUserInfo = (client_id, access_token, filter_key_list_str, actionGetU
 
   if (!user_info) {
     const status = statusList.SERVER_ERROR
-    return { status, session: {}, response: { error: status }, error: 'handle_user_info_access_token' }
+    const error = 'handle_user_info_access_token'
+    return actionGetErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -211,12 +235,14 @@ const handleUserInfo = (client_id, access_token, filter_key_list_str, actionGetU
 const handleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, authSession, actionAddUser) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_user_add_session' }
+    const error = 'handle_user_add_session'
+    return actionGetErrorResponse(status, error, true)
   }
 
   if (tosChecked !== 'tosChecked' || privacyPolicyChecked !== 'privacyPolicyChecked') {
     const status = statusList.INVALID_CHECK
-    return { status, session: {}, response: { error: status }, error: 'handle_user_add_checkbox' }
+    const error = 'handle_user_add_checkbox'
+    return actionGetErrorResponse(status, error, true)
   }
 
   const client_id = authSession.oidc.client_id
@@ -224,24 +250,25 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPol
  
   if (resultAddUser.registerResult !== true) {
     const status = statusList.REGISTER_FAIL
-    return { status, session: {}, response: null, redirect: scc.url.ERROR_PAGE, error: 'handle_user_add_register' }
+    const error = 'handle_user_add_register'
+    return actionGetErrorResponse(status, error, true)
   }
 
   const user = USER_LIST[emailAddress]
  
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
-  const redirectTo = scc.url.AFTER_CHECK_CREDENTIAL
+  const redirect = scc.url.AFTER_CHECK_CREDENTIAL
   
   const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect: redirectTo } }
+  return { status, session: newUserSession, response: { redirect } }
 }
 
 /* GET /f/confirm/scope/list */
 const handleScope = (authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
-    const redirectTo = scc.url.ERROR_PAGE
-    return { status, session: {}, response: { redirect: redirectTo }, error: 'handle_permission_list_session' }
+    const error = 'handle_permission_list_session'
+    return actionGetErrorResponse(status, error, false)
   }
 
   const scope = authSession.oidc.scope
@@ -266,7 +293,7 @@ const output = (req, res, handleResult) => {
     }
     */
   } else {
-    return res.redirect(scc.url.ERROR_PAGE)
+    return res.redirect(true)
   }
 }
 

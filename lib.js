@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 
+/* url */
 const objToQuery = (obj) => {
   return Object.entries(obj).map(([key, value]) => { return `${key}=${value}` }).join('&')
 }
@@ -14,12 +15,10 @@ const addQueryStr = (url, queryStr) => {
   }
 }
 
+
+/* id, auth */
 const getRandomB64UrlSafe = (len) => {
   return crypto.randomBytes(len).toString('base64url').slice(0, len)
-}
-
-const getRandomInt = (min, max) => {
-  return crypto.randomInt(min, max)
 }
 
 const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
@@ -44,8 +43,8 @@ const calcPbkdf2 = (data, saltHex) => {
 module.exports = {
   objToQuery,
   addQueryStr,
+
   getRandomB64UrlSafe,
-  getRandomInt,
   convertToCodeChallenge,
   calcPbkdf2,
 }
