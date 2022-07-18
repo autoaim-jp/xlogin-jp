@@ -25,7 +25,7 @@ const loadRegisterForm = () => {
     setting: a.setting.get('userHmacSecret'),
     elm: { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm },
     other: { postRegister },
-    lib: [ a.lib.calcHmac512, a.lib.genSalt, a.lib.calcPbkdf2, a.lib.buf2Hex, a.lib.switchLoading, a.lib.redirect ],
+    lib: [ a.lib.calcHmac512, a.lib.genSalt, a.lib.calcPbkdf2, a.lib.buf2Hex, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
   }))
 
   a.output.setRegisterFormSubmit(argNamed({

@@ -22,8 +22,8 @@ const USER_LIST = {
   'user@example.com': {
     email_address: 'user@example.com',
     user_name: 'sample user',
-    passPbkdf2: '6122da598537a295d4f6ae92562706bd7874a642e5f47c97aeae5a7752b5502f05b818c690993a16aa2d586103bfd7b98f0a74aa4809ec581426f69ee792f4e9',
-    saltHex: 'b244ca79bdf040595ccfa425f8b1c61703b3eb1cae0e0a28abd89683e4c8fb1adf5ef9cd45de530f5537fe36ca3d707e3610f70c4ba967e79dad4db54517467a',
+    passPbkdf2: 'ca134addc89453fd281e2854236e8d65cf3bdc94b57aa451977a316319586c476fc70c12e124c16dde13675d1ad493e24351958076815440b0f0cff16231b38a',
+    saltHex: 'e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5',
     serviceVariable: {
       'foo': {
         service_user_id: 123456,
@@ -95,15 +95,15 @@ const coreAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* http */
-const coreGetErrorResponse = (status, error, isServerRedirect, response = null) => {
+const coreGetErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
   const redirect = `${scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
-    return { status, session: {}, response, redirect, error }
+    return { status, session, response, redirect, error }
   } else {
     if (response) {
-      return { status, session: {}, response, error }
+      return { status, session, response, error }
     } else {
-      return { status, session: {}, response: { status, error, redirect }, error }
+      return { status, session, response: { status, error, redirect }, error }
     }
   }
 }
@@ -146,7 +146,7 @@ const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession,
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = statusList.INVALID_CREDENTIAL
     const error = 'handle_credential_credential'
-    return coreGetErrorResponse(status, error, false)
+    return coreGetErrorResponse(status, error, false, null, authSession)
   }
 
   const user = USER_LIST[emailAddress]
@@ -232,17 +232,17 @@ const handleUserInfo = (client_id, access_token, filter_key_list_str, coreGetUse
 }
 
 /* POST /f/login/user/add */
-const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, authSession, coreAddUser) => {
+const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, coreAddUser) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_user_add_session'
-    return coreGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, false)
   }
 
-  if (tosChecked !== 'tosChecked' || privacyPolicyChecked !== 'privacyPolicyChecked') {
+  if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
     const status = statusList.INVALID_CHECK
     const error = 'handle_user_add_checkbox'
-    return coreGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, false, null, authSession)
   }
 
   const client_id = authSession.oidc.client_id
@@ -251,7 +251,7 @@ const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, tosChecked, priv
   if (resultAddUser.registerResult !== true) {
     const status = statusList.REGISTER_FAIL
     const error = 'handle_user_add_register'
-    return coreGetErrorResponse(status, error, true)
+    return coreGetErrorResponse(status, error, false, null, authSession)
   }
 
   const user = USER_LIST[emailAddress]
@@ -356,8 +356,8 @@ const main = () => {
     output(req, res, resultHandleUserInfo)
   })
   expressApp.post('/f/login/user/add', (req, res) => {
-    const { emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked } = req.body
-    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked, req.session.auth, actionUserAdd)
+    const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
+    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, coreAddUser)
     output(req, res, resultHandleUserAdd)
   })
   expressApp.get('/f/confirm/scope/read', (req, res) => {

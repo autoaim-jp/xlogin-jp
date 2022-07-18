@@ -60,6 +60,24 @@ export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = (
   }, 100)
 }
 
+const modalTemplateElm = document.querySelector('#modalTemplate')
+export const getErrorModalElmAndSetter = () => {
+  const modalElm = modalTemplateElm.cloneNode(true)
+  modalElm.id = ''
+
+  modalElm.querySelector('[data-id="modalTitle"]').innerText = 'エラー'
+
+  const labelP = document.createElement('p')
+  labelP.innerText = 'エラーが発生しました。'
+  modalElm.querySelector('[data-id="modalContent"]').appendChild(labelP)
+
+  const setter = (textStr) => {
+    labelP.innerText = textStr
+  }
+
+  return { modalElm, setter }
+}
+
 export const switchLoading = (isVisible) => {
   const loadingElm = document.querySelector('#loading')
   if(!loadingElm) {

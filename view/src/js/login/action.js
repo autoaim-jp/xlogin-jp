@@ -1,7 +1,9 @@
 /* /login/action.js */
 
-export const getOnSubmitLoginHandler = ({ calcHmac512, userHmacSecret, emailAddressInputElm, passInputElm, postLogin, redirect, switchLoading }) => {
+export const getOnSubmitLoginHandler = ({ calcHmac512, userHmacSecret, emailAddressInputElm, passInputElm, postLogin, redirect, switchLoading, showModal, getErrorModalElmAndSetter }) => {
   const handler = () => {
+    const { modalElm, setter } = getErrorModalElmAndSetter()
+
     return async (event) => {
       event.preventDefault()
       event.stopPropagation()
@@ -13,7 +15,12 @@ export const getOnSubmitLoginHandler = ({ calcHmac512, userHmacSecret, emailAddr
       const passHmac2 = await calcHmac512(passHmac1, userHmacSecret)
       postLogin({ emailAddress, passHmac2 }).then((result) => {
         switchLoading(false)
-        redirect(result)
+        if (result.error) {
+          setter(result.error)
+          showModal(modalElm, false)
+        } else {
+          redirect(result)
+        }
       })
       return false
     }

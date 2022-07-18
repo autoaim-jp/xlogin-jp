@@ -2,8 +2,8 @@
 
 export const getPostRegister = ({ apiEndpoint, postRequest }) => {
   const url = apiEndpoint + '/login/user/add'
-  return ({ emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked }) => {
-    const param = { emailAddress, passPbkdf2, saltHex, tosChecked, privacyPolicyChecked }
+  return ({ emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked }) => {
+    const param = { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked }
     return postRequest(url, param)
   }
 }
