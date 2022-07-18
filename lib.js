@@ -22,8 +22,14 @@ const getRandomB64UrlSafe = (len) => {
 }
 
 const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
+  const calcSha256AsB64Url = (str) => {
+    const sha256 = crypto.createHash('sha256')
+    sha256.update(str)
+    return sha256.digest('base64url')
+  }
+  
   if (codeChallengeMethod === 'S256') {
-    return `Base64(S256(${codeVerifier}))`
+    return calcSha256AsB64Url(codeVerifier)
   } else {
     throw new Error('unimplemented')
   }
