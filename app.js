@@ -349,7 +349,7 @@ const main = () => {
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
     const access_token = req.headers['authorization'].slice('Bearer '.length)
-    const client_id = req.headers['x_xlogin_client_id']
+    const client_id = req.headers['x-xlogin-client-id']
     const { filter_key_list_str } = req.query
 
     const resultHandleUserInfo = handleUserInfo(client_id, access_token, filter_key_list_str, coreGetUserByAccessToken)
