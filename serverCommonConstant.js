@@ -10,6 +10,7 @@ scc.oidc.CODE_L = 64
 scc.oidc.ACCESS_TOKEN_L = 64
 
 scc.url = {}
+scc.url.API_VERSION = 'v0.7'
 scc.url.ERROR_PAGE = '/error'
 scc.url.AFTER_CONNECT = '/login'
 scc.url.AFTER_CHECK_CREDENTIAL = '/confirm'

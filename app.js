@@ -109,7 +109,7 @@ const coreGetErrorResponse = (status, error, isServerRedirect, response = null, 
 }
 
 
-/* GET /api/v0.2/auth/connect */
+/* GET /api/$apiVersion/auth/connect */
 const actionHandleConnect = (user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
   if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
     const status = statusList.INVALID_CLIENT
@@ -180,7 +180,7 @@ const actionHandleConfirm = (permission_list, authSession) => {
   return { status, session: newUserSession, response: { redirect } }
 }
 
-/* GET /api/v0.2/auth/code */
+/* GET /api/$apiVersion/auth/code */
 const actionHandleCode = (client_id, state, code, code_verifier, authSession, coreRegisterAccessToken) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
@@ -216,7 +216,7 @@ const actionHandleCode = (client_id, state, code, code_verifier, authSession, co
   return { status, session: newUserSession, response: { result: { access_token } }, redirect: null }
 }
 
-/* GET /api/v0.2/user/info */
+/* GET /api/$apiVersion/user/info */
 const handleUserInfo = (client_id, access_token, filter_key_list_str, coreGetUserByAccessToken) => {
   const filter_key_list = filter_key_list_str.split(',')
   const user_info = coreGetUserByAccessToken(client_id, access_token, filter_key_list)
@@ -325,7 +325,7 @@ const main = () => {
   expressApp.use(bodyParser.json())
   expressApp.use(cookieParser())
 
-  expressApp.get('/api/v0.2/auth/connect', (req, res) => {
+  expressApp.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method } = req.query
     const resultHandleConnect = actionHandleConnect(user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method)
@@ -341,13 +341,13 @@ const main = () => {
     const resultHandleConfirm = actionHandleConfirm(permission_list, req.session.auth)
     output(req, res, resultHandleConfirm)
   })
-  expressApp.get('/api/v0.2/auth/code', (req, res) => {
+  expressApp.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
     const { client_id, state, code, code_verifier } = req.query
     const authSession = AUTH_SESSION_LIST[code]
     const resultHandleCode = actionHandleCode(client_id, state, code, code_verifier, authSession, coreRegisterAccessToken)
     output(req, res, resultHandleCode)
   })
-  expressApp.get('/api/v0.2/user/info', (req, res) => {
+  expressApp.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
     const access_token = req.headers['authorization'].slice('Bearer '.length)
     const client_id = req.headers['x_xlogin_client_id']
     const { filter_key_list_str } = req.query
@@ -389,7 +389,7 @@ const main = () => {
     })
   }
 
-  console.log('open: http://127.0.0.1:3000/api/v0.2/auth/connect?client_id=foo&redirect_uri=https%3A%2F%2Fsample.reiwa.co%2Ff%2Fxlogin%2Fcallback&state=abcde&code_challenge=Base64(S256(code_verifier))&code_challenge_method=S256&scope=r_user&response_type=code')
+  console.log(`open: http://${process.env.SERVER_ORIGIN}/`)
 }
 
 main()
