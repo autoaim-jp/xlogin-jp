@@ -26,7 +26,10 @@ const USER_LIST = {
     saltHex: 'e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5',
     serviceVariable: {
       'foo': {
-        service_user_id: 123456,
+        service_user_id: '123456',
+      },
+      'sample_xlogin_jp': {
+        service_user_id: 'abcdef',
       },
     },
   }
