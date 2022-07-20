@@ -38,8 +38,8 @@ export const getPermissionCheckList = () => {
 
 export const getPostConfirm = ({ apiEndpoint, postRequest }) => {
   const url = `${apiEndpoint}/confirm/permission/check`
-  return ({ permission_list }) => {
-    const param = { permission_list }
+  return ({ permissionList }) => {
+    const param = { permissionList }
     return postRequest(url, param)
   }
 }

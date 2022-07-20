@@ -15,6 +15,16 @@ const addQueryStr = (url, queryStr) => {
   }
 }
 
+const paramSnakeToCamel = (paramList) => {
+  const newParamList = {}
+  Object.entries(paramList).forEach(([key, value]) => {
+    const newKey = key.replace(/([_][a-z])/g, (group) => {
+      return group.toUpperCase().replace('_', '')
+    })
+    newParamList[newKey] = value
+  })
+  return newParamList
+}
 
 /* id, auth */
 const getRandomB64UrlSafe = (len) => {
@@ -49,6 +59,7 @@ const calcPbkdf2 = (data, saltHex) => {
 module.exports = {
   objToQuery,
   addQueryStr,
+  paramSnakeToCamel,
 
   getRandomB64UrlSafe,
   convertToCodeChallenge,

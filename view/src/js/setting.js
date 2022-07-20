@@ -4,9 +4,9 @@ export const userHmacSecret = 'xlogin20220630'
 export const labelList = {
   scope: {
     read: {
-      'email_address': 'メールアドレスの取得',
-      'user_name': 'ユーザー名の取得',
-      'service_user_id': 'ユーザーIDの取得',
+      'emailAddress': 'メールアドレスの取得',
+      'userName': 'ユーザー名の取得',
+      'serviceUserId': 'ユーザーIDの取得',
     },
     write: {
     },

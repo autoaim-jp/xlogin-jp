@@ -6,8 +6,8 @@ export const getOnSubmitConfirmHandler = ({ getPermissionCheckList, postConfirm,
       event.stopPropagation()
       switchLoading(true)
 
-      const permission_list = getPermissionCheckList()
-      postConfirm({ permission_list }).then((result) => {
+      const permissionList = getPermissionCheckList()
+      postConfirm({ permissionList }).then((result) => {
         switchLoading(false)
         redirect(result)
       })

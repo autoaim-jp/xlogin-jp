@@ -20,16 +20,16 @@ const CLIENT_LIST = {
 
 const USER_LIST = {
   'user@example.com': {
-    email_address: 'user@example.com',
-    user_name: 'sample user',
+    emailAddress: 'user@example.com',
+    userName: 'sample user',
     passPbkdf2: 'ca134addc89453fd281e2854236e8d65cf3bdc94b57aa451977a316319586c476fc70c12e124c16dde13675d1ad493e24351958076815440b0f0cff16231b38a',
     saltHex: 'e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5',
     serviceVariable: {
       'foo': {
-        service_user_id: '123456',
+        serviceUserId: '123456',
       },
       'sample_xlogin_jp': {
-        service_user_id: 'abcdef',
+        serviceUserId: 'abcdef',
       },
     },
   }
@@ -38,23 +38,21 @@ const ACCESS_TOKEN_LIST = {}
 
 const AUTH_SESSION_LIST = {}
 
-const coreRegisterAccessToken = (client_id, access_token, user, permission_list) => {
-  ACCESS_TOKEN_LIST[access_token] = { client_id, user, permission_list }
+const coreRegisterAccessToken = (clientId, accessToken, user, permissionList) => {
+  ACCESS_TOKEN_LIST[accessToken] = { clientId, user, permissionList }
   return true
 }
 
-const coreGetUserByAccessToken = (client_id, access_token, filter_key_list) => {
-  if (ACCESS_TOKEN_LIST[access_token] && ACCESS_TOKEN_LIST[access_token].client_id === client_id) {
-    const { user, permission_list } = ACCESS_TOKEN_LIST[access_token]
+const coreGetUserByAccessToken = (clientId, accessToken, filterKeyList) => {
+  if (ACCESS_TOKEN_LIST[accessToken] && ACCESS_TOKEN_LIST[accessToken].clientId === clientId) {
+    const { user, permissionList } = ACCESS_TOKEN_LIST[accessToken]
     const publicData = {}
-    filter_key_list.forEach((key) => {
+    filterKeyList.forEach((key) => {
       const permission = `r:${key}`
-      console.log(permission, permission_list[permission])
-      if (permission_list[permission]) {
-        publicData[key] = user[key] || user.serviceVariable[client_id][key]
+      if (permissionList[permission]) {
+        publicData[key] = user[key] || user.serviceVariable[clientId][key]
       }
     })
-    console.log({ publicData, user })
     return { public: publicData }
   }
 
@@ -76,7 +74,7 @@ const coreCredentialCheck = async (emailAddress, passHmac2) => {
   return { credentialCheckResult: true }
 }
 
-const coreAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
+const coreAddUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   if (USER_LIST[emailAddress]) {
     return { registerResult: false }
   }
@@ -84,12 +82,13 @@ const coreAddUser = (client_id, emailAddress, passPbkdf2, saltHex) => {
   const user = {
     passPbkdf2,
     saltHex,
+    userName: 'no name',
     serviceVariable: {}
   }
 
-  if (client_id) {
-    const service_user_id = lib.getRandomB64UrlSafe(scc.user.SERVICE_USER_ID_L)
-    user.serviceVariable[client_id] = { service_user_id }
+  if (clientId) {
+    const serviceUserId = lib.getRandomB64UrlSafe(scc.user.SERVICE_USER_ID_L)
+    user.serviceVariable[clientId] = { serviceUserId }
   }
 
   USER_LIST[emailAddress] = user
@@ -113,8 +112,8 @@ const coreGetErrorResponse = (status, error, isServerRedirect, response = null, 
 
 
 /* GET /api/$apiVersion/auth/connect */
-const actionHandleConnect = (user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method) => {
-  if (!CLIENT_LIST[client_id] || CLIENT_LIST[client_id] !== decodeURIComponent(redirect_uri)) {
+const actionHandleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod) => {
+  if (!CLIENT_LIST[clientId] || CLIENT_LIST[clientId] !== decodeURIComponent(redirectUri)) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
     return coreGetErrorResponse(status, error, true)
@@ -122,14 +121,14 @@ const actionHandleConnect = (user, client_id, redirect_uri, state, scope, respon
  
   if (user) {
     const condition = scc.condition.CONFIRM
-    const newUserSession = { oidc: { client_id, condition, state, scope, response_type, code_challenge, code_challenge_method, redirect_uri }, user }
+    const newUserSession = { oidc: { clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri }, user }
     const redirect = scc.url.AFTER_CHECK_CREDENTIAL
 
     const status = statusList.OK
     return { status, session: newUserSession, response: null, redirect }
   } else {
     const condition = scc.condition.LOGIN
-    const newUserSession = { oidc: { client_id, condition, state, scope, response_type, code_challenge, code_challenge_method, redirect_uri } }
+    const newUserSession = { oidc: { clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri } }
 
     const status = statusList.OK
     const redirect = scc.url.AFTER_CONNECT
@@ -162,7 +161,7 @@ const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession,
 }
 
 /* POST /f/confirm/permission/check */
-const actionHandleConfirm = (permission_list, authSession) => {
+const actionHandleConfirm = (permissionList, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
@@ -172,10 +171,10 @@ const actionHandleConfirm = (permission_list, authSession) => {
   const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
 
   const iss = scc.oidc.XLOGIN_ISSUER
-  const { redirect_uri, state } = authSession.oidc
-  const redirect = lib.addQueryStr(decodeURIComponent(redirect_uri), lib.objToQuery({ state, code, iss }))
+  const { redirectUri, state } = authSession.oidc
+  const redirect = lib.addQueryStr(decodeURIComponent(redirectUri), lib.objToQuery({ state, code, iss }))
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CODE, code, permission_list }) })
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CODE, code, permissionList }) })
 
   AUTH_SESSION_LIST[code] = newUserSession
 
@@ -184,31 +183,31 @@ const actionHandleConfirm = (permission_list, authSession) => {
 }
 
 /* GET /api/$apiVersion/auth/code */
-const actionHandleCode = (client_id, state, code, code_verifier, authSession, coreRegisterAccessToken) => {
+const actionHandleCode = (clientId, state, code, codeVerifier, authSession, coreRegisterAccessToken) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_code_session'
     return coreGetErrorResponse(status, error, true)
   }
 
-  if (client_id !== authSession.oidc.client_id) {
+  if (clientId !== authSession.oidc.clientId) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_code_client'
     return coreGetErrorResponse(status, error, true)
   }
 
-  const generatedCodeChallenge = lib.convertToCodeChallenge(code_verifier, authSession.oidc['code_challenge_method'])
-  if (authSession.oidc['code_challenge'] !== generatedCodeChallenge) {
+  const generatedCodeChallenge = lib.convertToCodeChallenge(codeVerifier, authSession.oidc.codeChallengeMethod)
+  if (authSession.oidc.codeChallenge !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
     const error = 'handle_code_challenge'
     return coreGetErrorResponse(status, error, true)
   }
 
-  const access_token = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
+  const accessToken = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = coreRegisterAccessToken(client_id, access_token, authSession.user, authSession.oidc.permission_list)
+  const resultRegisterAccessToken = coreRegisterAccessToken(clientId, accessToken, authSession.user, authSession.oidc.permissionList)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_code_access_token'
@@ -216,22 +215,22 @@ const actionHandleCode = (client_id, state, code, code_verifier, authSession, co
   }
 
   const status = statusList.OK
-  return { status, session: newUserSession, response: { result: { access_token } }, redirect: null }
+  return { status, session: newUserSession, response: { result: { accessToken } }, redirect: null }
 }
 
 /* GET /api/$apiVersion/user/info */
-const handleUserInfo = (client_id, access_token, filter_key_list_str, coreGetUserByAccessToken) => {
-  const filter_key_list = filter_key_list_str.split(',')
-  const user_info = coreGetUserByAccessToken(client_id, access_token, filter_key_list)
+const handleUserInfo = (clientId, accessToken, filterKeyListStr, coreGetUserByAccessToken) => {
+  const filterKeyList = filterKeyListStr.split(',')
+  const userInfo = coreGetUserByAccessToken(clientId, accessToken, filterKeyList)
 
-  if (!user_info) {
+  if (!userInfo) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_user_info_access_token'
     return coreGetErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
-  return { status, session: null, response: { result: { user_info } }, redirect: null }
+  return { status, session: null, response: { result: { userInfo } }, redirect: null }
 }
 
 /* POST /f/login/user/add */
@@ -248,8 +247,8 @@ const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, is
     return coreGetErrorResponse(status, error, false, null, authSession)
   }
 
-  const client_id = authSession.oidc.client_id
-  const resultAddUser = coreAddUser(client_id, emailAddress, passPbkdf2, saltHex)
+  const clientId = authSession.oidc.clientId
+  const resultAddUser = coreAddUser(clientId, emailAddress, passPbkdf2, saltHex)
  
   if (resultAddUser.registerResult !== true) {
     const status = statusList.REGISTER_FAIL
@@ -330,32 +329,32 @@ const main = () => {
 
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
-    const { client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method } = req.query
-    const resultHandleConnect = actionHandleConnect(user, client_id, redirect_uri, state, scope, response_type, code_challenge, code_challenge_method)
+    const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
+    const resultHandleConnect = actionHandleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod)
     output(req, res, resultHandleConnect)
   })
   expressApp.post('/f/login/credential/check', async (req, res) => {
-    const { emailAddress, passHmac2 } = req.body
+    const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
     const resultHandleCredentialCheck = await actionHandleCredentialCheck(emailAddress, passHmac2, req.session.auth, coreCredentialCheck)
     output(req, res, resultHandleCredentialCheck)
   })
   expressApp.post('/f/confirm/permission/check', (req, res) => {
-    const { permission_list } = req.body
-    const resultHandleConfirm = actionHandleConfirm(permission_list, req.session.auth)
+    const { permissionList } = lib.paramSnakeToCamel(req.body)
+    const resultHandleConfirm = actionHandleConfirm(permissionList, req.session.auth)
     output(req, res, resultHandleConfirm)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
-    const { client_id, state, code, code_verifier } = req.query
+    const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
     const authSession = AUTH_SESSION_LIST[code]
-    const resultHandleCode = actionHandleCode(client_id, state, code, code_verifier, authSession, coreRegisterAccessToken)
+    const resultHandleCode = actionHandleCode(clientId, state, code, codeVerifier, authSession, coreRegisterAccessToken)
     output(req, res, resultHandleCode)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
-    const access_token = req.headers['authorization'].slice('Bearer '.length)
-    const client_id = req.headers['x-xlogin-client-id']
-    const { filter_key_list_str } = req.query
+    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = handleUserInfo(client_id, access_token, filter_key_list_str, coreGetUserByAccessToken)
+    const resultHandleUserInfo = handleUserInfo(clientId, accessToken, filterKeyListStr, coreGetUserByAccessToken)
     output(req, res, resultHandleUserInfo)
   })
   expressApp.post('/f/login/user/add', (req, res) => {
