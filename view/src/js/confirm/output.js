@@ -50,7 +50,7 @@ export const getConfirmFormElm = () => {
 }
 
 
-export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirmHandler }) => {
-  confirmFormElm.onsubmit = onSubmitConfirmHandler()
+export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirm }) => {
+  confirmFormElm.onsubmit = onSubmitConfirm
 }
 

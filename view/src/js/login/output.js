@@ -14,8 +14,8 @@ export const getLoginFormElm = () => {
 }
 
 
-export const setLoginFormSubmit = ({ onSubmitLoginHandler }) => {
+export const setLoginFormSubmit = ({ onSubmitLogin }) => {
   const loginFormElm = document.querySelector('#loginForm')
-  loginFormElm.onsubmit = onSubmitLoginHandler()
+  loginFormElm.onsubmit = onSubmitLogin
 }
 

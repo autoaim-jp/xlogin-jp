@@ -39,7 +39,7 @@ const loadConfirmForm = async () => {
     setting: a.setting.get('apiEndpoint'),
   }))
 
-  const onSubmitConfirmHandler = a.action.getOnSubmitConfirmHandler(argNamed({
+  const onSubmitConfirm = a.action.getOnSubmitConfirm(argNamed({
     output: [ a.output.getPermissionCheckList ],
     lib: [ a.lib.switchLoading, a.lib.redirect ],
     other: { postConfirm },
@@ -48,9 +48,8 @@ const loadConfirmForm = async () => {
   const confirmFormElm = a.output.getConfirmFormElm()
   a.output.setConfirmFormSubmit(argNamed({
     elm: { confirmFormElm },
-    handler: { onSubmitConfirmHandler },
+    onSubmit: { onSubmitConfirm },
   }))
-
 }
 
 const main = async () => {

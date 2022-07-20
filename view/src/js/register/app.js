@@ -21,7 +21,7 @@ const loadRegisterForm = () => {
 
   const { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm } = a.output.getRegisterFormElm()
 
-  const onSubmitRegisterHandler = a.action.getOnSubmitRegisterHandler(argNamed({
+  const onSubmitRegister = a.action.getOnSubmitRegister(argNamed({
     setting: a.setting.get('userHmacSecret'),
     elm: { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm },
     other: { postRegister },
@@ -29,7 +29,7 @@ const loadRegisterForm = () => {
   }))
 
   a.output.setRegisterFormSubmit(argNamed({
-    handler: { onSubmitRegisterHandler },
+    onSubmit: { onSubmitRegister },
   }))
 }
 

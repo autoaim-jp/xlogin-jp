@@ -17,8 +17,8 @@ export const getRegisterFormElm = () => {
   return { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm }
 }
 
-export const setRegisterFormSubmit = ({ onSubmitRegisterHandler }) => {
+export const setRegisterFormSubmit = ({ onSubmitRegister }) => {
   const registerFormElm = document.querySelector('#registerForm')
-  registerFormElm.onsubmit = onSubmitRegisterHandler()
+  registerFormElm.onsubmit = onSubmitRegister
 }
 
