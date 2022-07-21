@@ -1,11 +1,10 @@
 const scc = {}
 
 scc.server = {}
-scc.server.PUBLIC_BUILD_DIR = `${process.env.APP_PATH}view/build`
-scc.server.PUBLIC_STATIC_DIR = `${process.env.APP_PATH}view/static`
+scc.server.PUBLIC_BUILD_DIR = 'view/build'
+scc.server.PUBLIC_STATIC_DIR = 'view/static'
 
 scc.oidc = {}
-scc.oidc.XLOGIN_ISSUER = process.env.SERVER_ORIGIN 
 scc.oidc.CODE_L = 64
 scc.oidc.ACCESS_TOKEN_L = 64
 
@@ -32,5 +31,5 @@ scc.user = {}
 scc.user.SERVICE_USER_ID_L = 64
 scc.user.HMAC_SECRET = 'xlogin20220630'
 
-module.exports = scc
+export default scc
 

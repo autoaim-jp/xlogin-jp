@@ -1,4 +1,4 @@
-const crypto = require('crypto')
+import crypto from 'crypto'
 
 /* url */
 const objToQuery = (obj) => {
@@ -56,7 +56,7 @@ const calcPbkdf2 = (data, saltHex) => {
   })
 }
 
-module.exports = {
+export default {
   objToQuery,
   addQueryStr,
   paramSnakeToCamel,

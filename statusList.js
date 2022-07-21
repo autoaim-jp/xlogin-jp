@@ -25,5 +25,5 @@ statusList.INVALID_CODE_VERIFIER = 2002
 
 statusList.SERVER_ERROR = 3000
 
-module.exports = statusList
+export default statusList
 

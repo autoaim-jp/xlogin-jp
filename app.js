@@ -1,17 +1,20 @@
-const fs = require('fs')
-const https = require('https')
-const express = require('express')
-const session = require('express-session')
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
-const Redis = require('ioredis')
-const RedisStore = require('connect-redis')(session)
-require('dotenv').config()
-process.env.APP_PATH = `${__dirname}/`
+import fs from 'fs'
+import https from 'https'
+import express from 'express'
+import session from 'express-session'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import Redis from 'ioredis'
+import RedisStore from 'connect-redis'
+import dotenv from 'dotenv'
+import path from 'path'
+dotenv.config()
 
-const statusList = require('./statusList.js')
-const lib = require('./lib.js')
-const scc = require('./serverCommonConstant.js')
+process.env.APP_PATH = `${path.dirname(new URL(import.meta.url).pathname)}/`
+
+import statusList from './statusList.js'
+import lib from './lib.js'
+import scc from './serverCommonConstant.js'
 
 const CLIENT_LIST = {
   'foo': 'http://localhost:3001/f/xlogin/callback',
@@ -170,7 +173,7 @@ const actionHandleConfirm = (permissionList, authSession) => {
 
   const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
 
-  const iss = scc.oidc.XLOGIN_ISSUER
+  const iss = process.env.SERVER_ORIGIN
   const { redirectUri, state } = authSession.oidc
   const redirect = lib.addQueryStr(decodeURIComponent(redirectUri), lib.objToQuery({ state, code, iss }))
 
@@ -320,7 +323,7 @@ const main = () => {
       httpOnly: true,
       sameSite: 'lax',
     },
-    store: new RedisStore({ client: redis }),
+    store: new (RedisStore(session))({ client: redis }),
   }))
 
   expressApp.use(bodyParser.urlencoded({ extended: true }))
@@ -367,8 +370,8 @@ const main = () => {
     output(req, res, resultHandleScope)
   })
 
-  expressApp.use(express.static(scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
-  expressApp.use(express.static(scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.use(express.static(process.env.APP_PATH + scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.use(express.static(process.env.APP_PATH + scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
 
   expressApp.use((err, req, res, next) => {
     console.error(err.stack)
