@@ -93,6 +93,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   }
 
   const user = {
+    emailAddress,
     passPbkdf2,
     saltHex,
     userName: 'no name',
