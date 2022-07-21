@@ -1,6 +1,8 @@
 /* /core.js */
-const s = {}
+/* local setting */
+const mod = {}
 const ACCESS_TOKEN_LIST = {}
+const AUTH_SESSION_LIST = {}
 
 const USER_LIST = {
   'user@example.com': {
@@ -19,9 +21,19 @@ const USER_LIST = {
   }
 }
 
-const init = (SERVICE_USER_ID_L, ERROR_PAGE) => {
-  s.SERVICE_USER_ID_L = SERVICE_USER_ID_L
-  s.ERROR_PAGE = ERROR_PAGE
+const CLIENT_LIST = {
+  'foo': 'http://localhost:3001/f/xlogin/callback',
+  'sample_xlogin_jp': 'https://sample.xlogin.jp/f/xlogin/callback'
+}
+
+
+const init = (scc, lib) => {
+  mod.scc = scc
+  mod.lib = lib
+}
+
+const isValidClient = (clientId, redirectUri) => {
+  return CLIENT_LIST[clientId] && CLIENT_LIST[clientId] === decodeURIComponent(redirectUri)
 }
 
 const getUserByEmailAddress = (emailAddress) => {
@@ -34,6 +46,14 @@ const _registerUserByEmailAddress = (emailAddress, user) => {
 const registerAccessToken = (clientId, accessToken, user, permissionList) => {
   ACCESS_TOKEN_LIST[accessToken] = { clientId, user, permissionList }
   return true
+}
+
+const getAuthSessionByCode = (code) => {
+  return AUTH_SESSION_LIST[code]
+}
+
+const registerAuthSession = (code, authSession) => {
+  AUTH_SESSION_LIST[code] = authSession
 }
 
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
@@ -52,14 +72,14 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return null
 }
 
-const credentialCheck = async (calcPbkdf2, emailAddress, passHmac2) => {
+const credentialCheck = async (emailAddress, passHmac2) => {
   if (!getUserByEmailAddress(emailAddress)) {
     return { credentialCheckResult: false }
   }
 
   const saltHex = getUserByEmailAddress(emailAddress).saltHex
 
-  const passPbkdf2 = await calcPbkdf2(passHmac2, saltHex)
+  const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
   if(getUserByEmailAddress(emailAddress).passPbkdf2 !== passPbkdf2) {
     return { credentialCheckResult: false }
   }
@@ -67,7 +87,7 @@ const credentialCheck = async (calcPbkdf2, emailAddress, passHmac2) => {
   return { credentialCheckResult: true }
 }
 
-const addUser = (getRandomB64UrlSafe, clientId, emailAddress, passPbkdf2, saltHex) => {
+const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   if (getUserByEmailAddress(emailAddress)) {
     return { registerResult: false }
   }
@@ -80,7 +100,7 @@ const addUser = (getRandomB64UrlSafe, clientId, emailAddress, passPbkdf2, saltHe
   }
 
   if (clientId) {
-    const serviceUserId = getRandomB64UrlSafe(s.SERVICE_USER_ID_L)
+    const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.scc.user.SERVICE_USER_ID_L)
     user.serviceVariable[clientId] = { serviceUserId }
   }
 
@@ -89,9 +109,10 @@ const addUser = (getRandomB64UrlSafe, clientId, emailAddress, passPbkdf2, saltHe
   return { registerResult: true }
 }
 
+
 /* http */
 const getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${s.ERROR_PAGE}?error=${encodeURIComponent(error)}`
+  const redirect = `${mod.scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
     return { status, session, response, redirect, error }
   } else {
@@ -106,8 +127,11 @@ const getErrorResponse = (status, error, isServerRedirect, response = null, sess
 
 export default {
   init,
+  isValidClient,
   getUserByEmailAddress,
   registerAccessToken,
+  getAuthSessionByCode,
+  registerAuthSession,
   getUserByAccessToken,
   credentialCheck,
   addUser,

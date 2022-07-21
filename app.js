@@ -12,182 +12,8 @@ import path from 'path'
 import statusList from './statusList.js'
 import lib from './lib.js'
 import core from './core.js'
+import action from './action.js'
 import scc from './serverCommonConstant.js'
-
-const CLIENT_LIST = {
-  'foo': 'http://localhost:3001/f/xlogin/callback',
-  'sample_xlogin_jp': 'https://sample.xlogin.jp/f/xlogin/callback'
-}
-
-const AUTH_SESSION_LIST = {}
-
-/* GET /api/$apiVersion/auth/connect */
-const actionHandleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, getErrorResponse) => {
-  if (!CLIENT_LIST[clientId] || CLIENT_LIST[clientId] !== decodeURIComponent(redirectUri)) {
-    const status = statusList.INVALID_CLIENT
-    const error = 'handle_connect_client'
-    return getErrorResponse(status, error, true)
-  }
- 
-  if (user) {
-    const condition = scc.condition.CONFIRM
-    const newUserSession = { oidc: { clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri }, user }
-    const redirect = scc.url.AFTER_CHECK_CREDENTIAL
-
-    const status = statusList.OK
-    return { status, session: newUserSession, response: null, redirect }
-  } else {
-    const condition = scc.condition.LOGIN
-    const newUserSession = { oidc: { clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri } }
-
-    const status = statusList.OK
-    const redirect = scc.url.AFTER_CONNECT
-    return { status, session: newUserSession, response: null, redirect }
-  }
-}
-
-/* POST /f/$condition/credential/check */
-const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getErrorResponse, getUserByEmailAddress) => {
-  if (!authSession || !authSession.oidc) {
-    const status = statusList.INVALID_SESSION
-    const error = 'handle_credential_session'
-    return getErrorResponse(status, error, false)
-  }
-
-  const resultCredentialCheck = await credentialCheck(lib.calcPbkdf2, emailAddress, passHmac2)
-  if (resultCredentialCheck.credentialCheckResult !== true) {
-    const status = statusList.INVALID_CREDENTIAL
-    const error = 'handle_credential_credential'
-    return getErrorResponse(status, error, false, null, authSession)
-  }
-
-  const user = getUserByEmailAddress(emailAddress)
- 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
-  const redirect = scc.url.AFTER_CHECK_CREDENTIAL
-  
-  const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect } }
-}
-
-/* POST /f/confirm/permission/check */
-const actionHandleConfirm = (permissionList, authSession, getErrorResponse) => {
-  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
-    const status = statusList.INVALID_SESSION
-    const error = 'handle_confirm_session'
-    return getErrorResponse(status, error, false)
-  }
-
-  const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
-
-  const iss = process.env.SERVER_ORIGIN
-  const { redirectUri, state } = authSession.oidc
-  const redirect = lib.addQueryStr(decodeURIComponent(redirectUri), lib.objToQuery({ state, code, iss }))
-
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CODE, code, permissionList }) })
-
-  AUTH_SESSION_LIST[code] = newUserSession
-
-  const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect } }
-}
-
-/* GET /api/$apiVersion/auth/code */
-const actionHandleCode = (clientId, state, code, codeVerifier, authSession, registerAccessToken, getErrorResponse) => {
-  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
-    const status = statusList.INVALID_SESSION
-    const error = 'handle_code_session'
-    return getErrorResponse(status, error, true)
-  }
-
-  if (clientId !== authSession.oidc.clientId) {
-    const status = statusList.INVALID_CLIENT
-    const error = 'handle_code_client'
-    return getErrorResponse(status, error, true)
-  }
-
-  const generatedCodeChallenge = lib.convertToCodeChallenge(codeVerifier, authSession.oidc.codeChallengeMethod)
-  if (authSession.oidc.codeChallenge !== generatedCodeChallenge) {
-    const status = statusList.INVALID_CODE_VERIFIER
-    const error = 'handle_code_challenge'
-    return getErrorResponse(status, error, true)
-  }
-
-  const accessToken = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
-
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.USER_INFO }) })
-
-  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user, authSession.oidc.permissionList)
-  if (!resultRegisterAccessToken) {
-    const status = statusList.SERVER_ERROR
-    const error = 'handle_code_access_token'
-    return getErrorResponse(status, error, null)
-  }
-
-  const status = statusList.OK
-  return { status, session: newUserSession, response: { result: { accessToken } }, redirect: null }
-}
-
-/* GET /api/$apiVersion/user/info */
-const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken, getErrorResponse) => {
-  const filterKeyList = filterKeyListStr.split(',')
-  const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
-
-  if (!userInfo) {
-    const status = statusList.SERVER_ERROR
-    const error = 'handle_user_info_access_token'
-    return getErrorResponse(status, error, null)
-  }
-
-  const status = statusList.OK
-  return { status, session: null, response: { result: { userInfo } }, redirect: null }
-}
-
-/* POST /f/login/user/add */
-const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getErrorResponse, getUserByEmailAddress) => {
-  if (!authSession || !authSession.oidc) {
-    const status = statusList.INVALID_SESSION
-    const error = 'handle_user_add_session'
-    return getErrorResponse(status, error, false)
-  }
-
-  if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
-    const status = statusList.INVALID_CHECK
-    const error = 'handle_user_add_checkbox'
-    return getErrorResponse(status, error, false, null, authSession)
-  }
-
-  const clientId = authSession.oidc.clientId
-  const resultAddUser = addUser(lib.getRandomB64UrlSafe, clientId, emailAddress, passPbkdf2, saltHex)
- 
-  if (resultAddUser.registerResult !== true) {
-    const status = statusList.REGISTER_FAIL
-    const error = 'handle_user_add_register'
-    return getErrorResponse(status, error, false, null, authSession)
-  }
-
-  const user = getUserByEmailAddress(emailAddress)
- 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
-  const redirect = scc.url.AFTER_CHECK_CREDENTIAL
-  
-  const status = statusList.OK
-  return { status, session: newUserSession, response: { redirect } }
-}
-
-/* GET /f/confirm/scope/list */
-const actionHandleScope = (authSession, getErrorResponse) => {
-  if (!authSession || !authSession.oidc) {
-    const status = statusList.INVALID_SESSION
-    const error = 'handle_permission_list_session'
-    return getErrorResponse(status, error, false)
-  }
-
-  const scope = authSession.oidc.scope
-  const status = statusList.OK
-
-  return { status, session: authSession, response: { result: { scope } } }
-}
 
 
 const output = (req, res, handleResult) => {
@@ -211,7 +37,9 @@ const output = (req, res, handleResult) => {
 
 const main = () => {
   dotenv.config()
-  core.init(scc.user.SERVICE_USER_ID_L, scc.url.ERROR_PAGE)
+  core.init(scc, lib)
+  action.init(statusList, scc, lib)
+
   const expressApp = express()
 
   const redis = new Redis({
@@ -242,23 +70,22 @@ const main = () => {
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = actionHandleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse)
+    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse, core.isValidClient)
     output(req, res, resultHandleConnect)
   })
   expressApp.post('/f/login/credential/check', async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await actionHandleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
     output(req, res, resultHandleCredentialCheck)
   })
   expressApp.post('/f/confirm/permission/check', (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = actionHandleConfirm(permissionList, req.session.auth, core.getErrorResponse)
+    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, core.registerAuthSession)
     output(req, res, resultHandleConfirm)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
-    const authSession = AUTH_SESSION_LIST[code]
-    const resultHandleCode = actionHandleCode(clientId, state, code, codeVerifier, authSession, core.registerAccessToken, core.getErrorResponse)
+    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getErrorResponse, core.getAuthSessionByCode)
     output(req, res, resultHandleCode)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
@@ -266,16 +93,16 @@ const main = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
+    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
     output(req, res, resultHandleUserInfo)
   })
   expressApp.post('/f/login/user/add', (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
     output(req, res, resultHandleUserAdd)
   })
   expressApp.get('/f/confirm/scope/read', (req, res) => {
-    const resultHandleScope = actionHandleScope(req.session.auth, core.getErrorResponse)
+    const resultHandleScope = action.handleScope(req.session.auth, core.getErrorResponse)
     output(req, res, resultHandleScope)
   })
 
