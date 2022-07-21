@@ -71,11 +71,11 @@ export const getErrorModalElmAndSetter = () => {
   labelP.innerText = 'エラーが発生しました。'
   modalElm.querySelector('[data-id="modalContent"]').appendChild(labelP)
 
-  const setter = (textStr) => {
-    labelP.innerText = textStr
+  const setContent = (textStr, errorLabelList) => {
+    labelP.innerText = errorLabelList[textStr] || textStr
   }
 
-  return { modalElm, setter }
+  return { modalElm, setContent }
 }
 
 export const switchLoading = (isVisible) => {

@@ -21,7 +21,7 @@ const loadLoginForm = () => {
 
   const { emailAddressInputElm, passInputElm } = a.output.getLoginFormElm()
   const onSubmitLogin = a.action.getOnSubmitLogin(argNamed({
-    setting: a.setting.get('userHmacSecret'),
+    setting: a.setting.get('userHmacSecret', 'labelList'),
     lib: [ a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
     other: { emailAddressInputElm, passInputElm, postLogin },
   }))

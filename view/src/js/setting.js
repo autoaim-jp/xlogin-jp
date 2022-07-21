@@ -14,6 +14,10 @@ export const labelList = {
       isRequired: '必須',
     },
   },
+  error: {
+    handle_credential_credential: 'メールアドレスまたはパスワードが違います。',
+    handle_user_add_register: 'メールアドレスは既に登録されています。',
+  },
 }
 
 const settingList = {

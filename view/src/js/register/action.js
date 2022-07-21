@@ -1,5 +1,5 @@
-export const getOnSubmitRegister = ({ userHmacSecret, emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm, calcHmac512, genSalt, calcPbkdf2, buf2Hex, switchLoading, redirect, postRegister, getErrorModalElmAndSetter, showModal }) => {
-  const { modalElm, setter } = getErrorModalElmAndSetter()
+export const getOnSubmitRegister = ({ userHmacSecret, labelList, emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm, calcHmac512, genSalt, calcPbkdf2, buf2Hex, switchLoading, redirect, postRegister, getErrorModalElmAndSetter, showModal }) => {
+  const { modalElm, setContent } = getErrorModalElmAndSetter()
 
   return async (event) => {
     event.preventDefault()
@@ -20,7 +20,7 @@ export const getOnSubmitRegister = ({ userHmacSecret, emailAddressInputElm, pass
     postRegister({ emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked }).then((result) => {
       switchLoading(false)
       if (result.error) {
-        setter(result.error)
+        setContent(result.error, labelList.error)
         showModal(modalElm, false)
       } else {
         redirect(result)

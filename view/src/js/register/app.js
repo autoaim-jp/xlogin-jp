@@ -22,7 +22,7 @@ const loadRegisterForm = () => {
   const { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm } = a.output.getRegisterFormElm()
 
   const onSubmitRegister = a.action.getOnSubmitRegister(argNamed({
-    setting: a.setting.get('userHmacSecret'),
+    setting: a.setting.get('userHmacSecret', 'labelList'),
     elm: { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm },
     other: { postRegister },
     lib: [ a.lib.calcHmac512, a.lib.genSalt, a.lib.calcPbkdf2, a.lib.buf2Hex, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
