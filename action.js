@@ -177,6 +177,12 @@ const handleScope = (authSession, getErrorResponse) => {
   return { status, session: authSession, response: { result: { scope } } }
 }
 
+/* GET /logout */
+const handleLogout = (authSession) => {
+  const status = mod.statusList.OK
+  return { status, session: {}, response: null, redirect: '/' }
+}
+
 
 export default {
   init,
@@ -187,5 +193,6 @@ export default {
   handleUserInfo,
   handleUserAdd,
   handleScope,
+  handleLogout,
 }
 

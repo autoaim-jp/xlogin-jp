@@ -105,6 +105,10 @@ const main = () => {
     const resultHandleScope = action.handleScope(req.session.auth, core.getErrorResponse)
     output(req, res, resultHandleScope)
   })
+  expressApp.get('/logout', (req, res) => {
+    const resultHandleLogout = action.handleLogout(req.session.auth)
+    output(req, res, resultHandleLogout)
+  })
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
   expressApp.use(express.static(appPath + scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
