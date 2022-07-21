@@ -194,6 +194,8 @@ export const monkeyPatch = () => {
     }
   }
 }
+
+/* crypto */
 export const getRandomStr = (len) => {
   return btoa(crypto.getRandomValues(new Uint8Array(len))).slice(0, len)
 }
@@ -251,10 +253,19 @@ export const calcPbkdf2 = (str, salt) => {
   })
 }
 
-
+/* url */
 export const redirect = (response) => {
   if (response && response.redirect) {
     window.location.href = response.redirect
   }
+}
+
+export const getSearchQuery = () => {
+  const searchQuery = {}
+  window.location.search.replace(/^\?/, '').split('&').forEach((row) => { 
+    const kv = row.split('=') 
+    searchQuery[kv[0]] = kv[1]
+  })
+  return searchQuery
 }
 
