@@ -8,12 +8,10 @@ import Redis from 'ioredis'
 import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
-dotenv.config()
-
-process.env.APP_PATH = `${path.dirname(new URL(import.meta.url).pathname)}/`
 
 import statusList from './statusList.js'
 import lib from './lib.js'
+import core from './core.js'
 import scc from './serverCommonConstant.js'
 
 const CLIENT_LIST = {
@@ -21,105 +19,14 @@ const CLIENT_LIST = {
   'sample_xlogin_jp': 'https://sample.xlogin.jp/f/xlogin/callback'
 }
 
-const USER_LIST = {
-  'user@example.com': {
-    emailAddress: 'user@example.com',
-    userName: 'sample user',
-    passPbkdf2: 'ca134addc89453fd281e2854236e8d65cf3bdc94b57aa451977a316319586c476fc70c12e124c16dde13675d1ad493e24351958076815440b0f0cff16231b38a',
-    saltHex: 'e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5',
-    serviceVariable: {
-      'foo': {
-        serviceUserId: '123456',
-      },
-      'sample_xlogin_jp': {
-        serviceUserId: 'abcdef',
-      },
-    },
-  }
-}
-const ACCESS_TOKEN_LIST = {}
-
 const AUTH_SESSION_LIST = {}
 
-const coreRegisterAccessToken = (clientId, accessToken, user, permissionList) => {
-  ACCESS_TOKEN_LIST[accessToken] = { clientId, user, permissionList }
-  return true
-}
-
-const coreGetUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  if (ACCESS_TOKEN_LIST[accessToken] && ACCESS_TOKEN_LIST[accessToken].clientId === clientId) {
-    const { user, permissionList } = ACCESS_TOKEN_LIST[accessToken]
-    const publicData = {}
-    filterKeyList.forEach((key) => {
-      const permission = `r:${key}`
-      if (permissionList[permission]) {
-        publicData[key] = user[key] || user.serviceVariable[clientId][key]
-      }
-    })
-    return { public: publicData }
-  }
-
-  return null
-}
-
-const coreCredentialCheck = async (emailAddress, passHmac2) => {
-  if (!USER_LIST[emailAddress]) {
-    return { credentialCheckResult: false }
-  }
-
-  const saltHex = USER_LIST[emailAddress].saltHex
-
-  const passPbkdf2 = await lib.calcPbkdf2(passHmac2, saltHex)
-  if(USER_LIST[emailAddress].passPbkdf2 !== passPbkdf2) {
-    return { credentialCheckResult: false }
-  }
-
-  return { credentialCheckResult: true }
-}
-
-const coreAddUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
-  if (USER_LIST[emailAddress]) {
-    return { registerResult: false }
-  }
-
-  const user = {
-    passPbkdf2,
-    saltHex,
-    userName: 'no name',
-    serviceVariable: {}
-  }
-
-  if (clientId) {
-    const serviceUserId = lib.getRandomB64UrlSafe(scc.user.SERVICE_USER_ID_L)
-    user.serviceVariable[clientId] = { serviceUserId }
-  }
-
-  USER_LIST[emailAddress] = user
-
-  return { registerResult: true }
-}
-
-/* http */
-const coreGetErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return { status, session, response, redirect, error }
-  } else {
-    if (response) {
-      return { status, session, response, error }
-    } else {
-      return { status, session, response: { status, error, redirect }, error }
-    }
-  }
-}
-
-
 /* GET /api/$apiVersion/auth/connect */
-const actionHandleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod) => {
+const actionHandleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, getErrorResponse) => {
   if (!CLIENT_LIST[clientId] || CLIENT_LIST[clientId] !== decodeURIComponent(redirectUri)) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
-    return coreGetErrorResponse(status, error, true)
+    return getErrorResponse(status, error, true)
   }
  
   if (user) {
@@ -140,21 +47,21 @@ const actionHandleConnect = (user, clientId, redirectUri, state, scope, response
 }
 
 /* POST /f/$condition/credential/check */
-const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession, coreCredentialCheck) => {
+const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getErrorResponse, getUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_credential_session'
-    return coreGetErrorResponse(status, error, false)
+    return getErrorResponse(status, error, false)
   }
 
-  const resultCredentialCheck = await coreCredentialCheck(emailAddress, passHmac2)
+  const resultCredentialCheck = await credentialCheck(lib.calcPbkdf2, emailAddress, passHmac2)
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = statusList.INVALID_CREDENTIAL
     const error = 'handle_credential_credential'
-    return coreGetErrorResponse(status, error, false, null, authSession)
+    return getErrorResponse(status, error, false, null, authSession)
   }
 
-  const user = USER_LIST[emailAddress]
+  const user = getUserByEmailAddress(emailAddress)
  
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
   const redirect = scc.url.AFTER_CHECK_CREDENTIAL
@@ -164,11 +71,11 @@ const actionHandleCredentialCheck = async (emailAddress, passHmac2, authSession,
 }
 
 /* POST /f/confirm/permission/check */
-const actionHandleConfirm = (permissionList, authSession) => {
+const actionHandleConfirm = (permissionList, authSession, getErrorResponse) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CONFIRM) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
-    return coreGetErrorResponse(status, error, false)
+    return getErrorResponse(status, error, false)
   }
 
   const code = lib.getRandomB64UrlSafe(scc.oidc.CODE_L)
@@ -186,35 +93,35 @@ const actionHandleConfirm = (permissionList, authSession) => {
 }
 
 /* GET /api/$apiVersion/auth/code */
-const actionHandleCode = (clientId, state, code, codeVerifier, authSession, coreRegisterAccessToken) => {
+const actionHandleCode = (clientId, state, code, codeVerifier, authSession, registerAccessToken, getErrorResponse) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== scc.condition.CODE) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_code_session'
-    return coreGetErrorResponse(status, error, true)
+    return getErrorResponse(status, error, true)
   }
 
   if (clientId !== authSession.oidc.clientId) {
     const status = statusList.INVALID_CLIENT
     const error = 'handle_code_client'
-    return coreGetErrorResponse(status, error, true)
+    return getErrorResponse(status, error, true)
   }
 
   const generatedCodeChallenge = lib.convertToCodeChallenge(codeVerifier, authSession.oidc.codeChallengeMethod)
   if (authSession.oidc.codeChallenge !== generatedCodeChallenge) {
     const status = statusList.INVALID_CODE_VERIFIER
     const error = 'handle_code_challenge'
-    return coreGetErrorResponse(status, error, true)
+    return getErrorResponse(status, error, true)
   }
 
   const accessToken = lib.getRandomB64UrlSafe(scc.oidc.ACCESS_TOKEN_L)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = coreRegisterAccessToken(clientId, accessToken, authSession.user, authSession.oidc.permissionList)
+  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user, authSession.oidc.permissionList)
   if (!resultRegisterAccessToken) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_code_access_token'
-    return coreGetErrorResponse(status, error, null)
+    return getErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -222,14 +129,14 @@ const actionHandleCode = (clientId, state, code, codeVerifier, authSession, core
 }
 
 /* GET /api/$apiVersion/user/info */
-const handleUserInfo = (clientId, accessToken, filterKeyListStr, coreGetUserByAccessToken) => {
+const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken, getErrorResponse) => {
   const filterKeyList = filterKeyListStr.split(',')
-  const userInfo = coreGetUserByAccessToken(clientId, accessToken, filterKeyList)
+  const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
 
   if (!userInfo) {
     const status = statusList.SERVER_ERROR
     const error = 'handle_user_info_access_token'
-    return coreGetErrorResponse(status, error, null)
+    return getErrorResponse(status, error, null)
   }
 
   const status = statusList.OK
@@ -237,29 +144,29 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, coreGetUserByAc
 }
 
 /* POST /f/login/user/add */
-const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, coreAddUser) => {
+const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getErrorResponse, getUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_user_add_session'
-    return coreGetErrorResponse(status, error, false)
+    return getErrorResponse(status, error, false)
   }
 
   if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
     const status = statusList.INVALID_CHECK
     const error = 'handle_user_add_checkbox'
-    return coreGetErrorResponse(status, error, false, null, authSession)
+    return getErrorResponse(status, error, false, null, authSession)
   }
 
   const clientId = authSession.oidc.clientId
-  const resultAddUser = coreAddUser(clientId, emailAddress, passPbkdf2, saltHex)
+  const resultAddUser = addUser(lib.getRandomB64UrlSafe, clientId, emailAddress, passPbkdf2, saltHex)
  
   if (resultAddUser.registerResult !== true) {
     const status = statusList.REGISTER_FAIL
     const error = 'handle_user_add_register'
-    return coreGetErrorResponse(status, error, false, null, authSession)
+    return getErrorResponse(status, error, false, null, authSession)
   }
 
-  const user = USER_LIST[emailAddress]
+  const user = getUserByEmailAddress(emailAddress)
  
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: scc.condition.CONFIRM }) }, { user })
   const redirect = scc.url.AFTER_CHECK_CREDENTIAL
@@ -269,11 +176,11 @@ const actionHandleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, is
 }
 
 /* GET /f/confirm/scope/list */
-const actionHandleScope = (authSession) => {
+const actionHandleScope = (authSession, getErrorResponse) => {
   if (!authSession || !authSession.oidc) {
     const status = statusList.INVALID_SESSION
     const error = 'handle_permission_list_session'
-    return coreGetErrorResponse(status, error, false)
+    return getErrorResponse(status, error, false)
   }
 
   const scope = authSession.oidc.scope
@@ -303,6 +210,8 @@ const output = (req, res, handleResult) => {
 }
 
 const main = () => {
+  dotenv.config()
+  core.init(scc.user.SERVICE_USER_ID_L, scc.url.ERROR_PAGE)
   const expressApp = express()
 
   const redis = new Redis({
@@ -333,23 +242,23 @@ const main = () => {
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = actionHandleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod)
+    const resultHandleConnect = actionHandleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse)
     output(req, res, resultHandleConnect)
   })
   expressApp.post('/f/login/credential/check', async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await actionHandleCredentialCheck(emailAddress, passHmac2, req.session.auth, coreCredentialCheck)
+    const resultHandleCredentialCheck = await actionHandleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
     output(req, res, resultHandleCredentialCheck)
   })
   expressApp.post('/f/confirm/permission/check', (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = actionHandleConfirm(permissionList, req.session.auth)
+    const resultHandleConfirm = actionHandleConfirm(permissionList, req.session.auth, core.getErrorResponse)
     output(req, res, resultHandleConfirm)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
     const authSession = AUTH_SESSION_LIST[code]
-    const resultHandleCode = actionHandleCode(clientId, state, code, codeVerifier, authSession, coreRegisterAccessToken)
+    const resultHandleCode = actionHandleCode(clientId, state, code, codeVerifier, authSession, core.registerAccessToken, core.getErrorResponse)
     output(req, res, resultHandleCode)
   })
   expressApp.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
@@ -357,21 +266,22 @@ const main = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = handleUserInfo(clientId, accessToken, filterKeyListStr, coreGetUserByAccessToken)
+    const resultHandleUserInfo = handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
     output(req, res, resultHandleUserInfo)
   })
   expressApp.post('/f/login/user/add', (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, coreAddUser)
+    const resultHandleUserAdd = actionHandleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
     output(req, res, resultHandleUserAdd)
   })
   expressApp.get('/f/confirm/scope/read', (req, res) => {
-    const resultHandleScope = actionHandleScope(req.session.auth)
+    const resultHandleScope = actionHandleScope(req.session.auth, core.getErrorResponse)
     output(req, res, resultHandleScope)
   })
 
-  expressApp.use(express.static(process.env.APP_PATH + scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
-  expressApp.use(express.static(process.env.APP_PATH + scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
+  expressApp.use(express.static(appPath + scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressApp.use(express.static(appPath + scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
 
   expressApp.use((err, req, res, next) => {
     console.error(err.stack)
