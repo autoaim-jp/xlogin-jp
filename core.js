@@ -27,8 +27,8 @@ const CLIENT_LIST = {
 }
 
 
-const init = (scc, lib) => {
-  mod.scc = scc
+const init = (setting, lib) => {
+  mod.setting = setting
   mod.lib = lib
 }
 
@@ -101,7 +101,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   }
 
   if (clientId) {
-    const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.scc.user.SERVICE_USER_ID_L)
+    const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
     user.serviceVariable[clientId] = { serviceUserId }
   }
 
@@ -113,7 +113,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
 
 /* http */
 const getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.scc.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
+  const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
     return { status, session, response, redirect, error }
   } else {

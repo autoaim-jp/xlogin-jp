@@ -9,19 +9,19 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
 
-import statusList from './statusList.js'
 import lib from './lib.js'
 import core from './core.js'
 import action from './action.js'
 import output from './output.js'
-import scc from './serverCommonConstant.js'
+import setting from './setting.js'
+import browserServerSetting from './xdevkit/browserServerSetting.js'
 
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
   const redis = new Redis({
-    port: scc.session.REDIS_PORT,
-    host: scc.session.REDIS_HOST,
-    db: scc.session.REDIS_DB,
+    port: setting.session.REDIS_PORT,
+    host: setting.session.REDIS_HOST,
+    db: setting.session.REDIS_DB,
   })
 
   expressRouter.use(session({
@@ -29,11 +29,11 @@ const _getSessionRouter = () => {
     resave : true,
     saveUninitialized : true,                
     rolling : true,
-    name : scc.session.SESSION_ID,
+    name : setting.session.SESSION_ID,
     cookie: {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 30,
-      secure: scc.session.SESSION_COOKIE_SECURE,
+      secure: setting.session.SESSION_COOKIE_SECURE,
       httpOnly: true,
       sameSite: 'lax',
     },
@@ -44,18 +44,18 @@ const _getSessionRouter = () => {
 
 const _getOidcRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
     const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core._getErrorResponse, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
-  expressRouter.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
     const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core._getErrorResponse, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
-  expressRouter.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
@@ -98,8 +98,8 @@ const _getOtherRouter = () => {
   })
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + scc.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
-  expressRouter.use(express.static(appPath + scc.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
 
   return expressRouter
 }
@@ -133,9 +133,9 @@ const startServer = (expressApp) => {
 
 const main = () => {
   dotenv.config()
-  core.init(scc, lib)
-  output.init(scc)
-  action.init(statusList, scc, lib)
+  core.init(setting, lib)
+  output.init(setting)
+  action.init(browserServerSetting, setting, lib)
 
   const expressApp = express()
 

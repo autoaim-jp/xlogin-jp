@@ -1,7 +1,7 @@
 /* /output.js */
 const mod = {}
-const init = (scc) => {
-  mod.scc = scc
+const init = (setting) => {
+  mod.setting = setting
 }
 
 const endResponse = (req, res, handleResult) => {
@@ -15,13 +15,13 @@ const endResponse = (req, res, handleResult) => {
       if (handleResult.redirect) {
         return res.redirect(handleResult.redirect)
       } else {
-        return res.redirect(mod.scc.url.ERROR_PAGE)
+        return res.redirect(mod.setting.url.ERROR_PAGE)
       }
     } else {
       if (handleResult.redirect) {
         return res.json({ redirect: handleResult.redirect })
       } else {
-        return res.json({ redirect: mod.scc.url.ERROR_PAGE })
+        return res.json({ redirect: mod.setting.url.ERROR_PAGE })
       }
     }
   }
