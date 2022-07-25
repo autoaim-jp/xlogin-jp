@@ -67,22 +67,22 @@ const _getOidcRouter = () => {
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.post('/f/login/credential/check', async (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
     const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
-  expressRouter.post('/f/confirm/permission/check', (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
     const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, core.registerAuthSession)
     output.endResponse(req, res, resultHandleConfirm)
   })
-  expressRouter.post('/f/login/user/add', (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
     const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
-  expressRouter.get('/f/confirm/scope/read', (req, res) => {
+  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/read`, (req, res) => {
     const resultHandleScope = action.handleScope(req.session.auth, core.getErrorResponse)
     output.endResponse(req, res, resultHandleScope)
   })
