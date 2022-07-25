@@ -16,7 +16,7 @@ import action from './action.js'
 import output from './output.js'
 import scc from './serverCommonConstant.js'
 
-const getSessionRouter = () => {
+const _getSessionRouter = () => {
   const expressRouter = express.Router()
   const redis = new Redis({
     port: scc.session.REDIS_PORT,
@@ -42,17 +42,17 @@ const getSessionRouter = () => {
   return expressRouter
 }
 
-const getOidcRouter = () => {
+const _getOidcRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${scc.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse, core.isValidClient)
+    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core._getErrorResponse, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
   expressRouter.get(`/api/${scc.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getErrorResponse, core.getAuthSessionByCode)
+    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core._getErrorResponse, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
   expressRouter.get(`/api/${scc.url.API_VERSION}/user/info`, (req, res) => {
@@ -60,37 +60,37 @@ const getOidcRouter = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
+    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core._getErrorResponse)
     output.endResponse(req, res, resultHandleUserInfo)
   })
   return expressRouter
 }
 
-const getFunctionRouter = () => {
+const _getFunctionRouter = () => {
   const expressRouter = express.Router()
   expressRouter.post('/f/login/credential/check', async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core._getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post('/f/confirm/permission/check', (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, core.registerAuthSession)
+    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core._getErrorResponse, core.registerAuthSession)
     output.endResponse(req, res, resultHandleConfirm)
   })
   expressRouter.post('/f/login/user/add', (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core._getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
   expressRouter.get('/f/confirm/scope/read', (req, res) => {
-    const resultHandleScope = action.handleScope(req.session.auth, core.getErrorResponse)
+    const resultHandleScope = action.handleScope(req.session.auth, core._getErrorResponse)
     output.endResponse(req, res, resultHandleScope)
   })
   return expressRouter
 }
 
-const getOtherRouter = () => {
+const _getOtherRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get('/logout', (req, res) => {
     const resultHandleLogout = action.handleLogout(req.session.auth)
@@ -104,7 +104,7 @@ const getOtherRouter = () => {
   return expressRouter
 }
 
-const getErrorRouter = () => {
+const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((err, req, res, next) => {
     console.error(err.stack)
@@ -122,11 +122,11 @@ const startServer = (expressApp) => {
     }
     const server = https.createServer(tlsConfig, expressApp)
     server.listen(process.env.SERVER_PORT, () => {
-      console.log(`Example app listening at port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
     })
   } else {
     expressApp.listen(process.env.SERVER_PORT, () => {
-      console.log(`Example app listening at port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
     })
   }
 }
@@ -139,16 +139,16 @@ const main = () => {
 
   const expressApp = express()
 
-  expressApp.use(getSessionRouter())
+  expressApp.use(_getSessionRouter())
   expressApp.use(bodyParser.urlencoded({ extended: true }))
   expressApp.use(bodyParser.json())
   expressApp.use(cookieParser())
 
-  expressApp.use(getOidcRouter())
-  expressApp.use(getFunctionRouter())
-  expressApp.use(getOtherRouter())
+  expressApp.use(_getOidcRouter())
+  expressApp.use(_getFunctionRouter())
+  expressApp.use(_getOtherRouter())
 
-  expressApp.use(getErrorRouter())
+  expressApp.use(_getErrorRouter())
 
   startServer(expressApp)
 
