@@ -1,4 +1,6 @@
-/* /setting.js */
+/* /setting/index.js */
+import browserServerSetting from './browserServerSetting.js'
+
 const setting = {}
 
 setting.server = {}
@@ -31,6 +33,8 @@ setting.session.REDIS_DB = 1
 setting.user = {}
 setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
+
+setting.bsc = browserServerSetting
 
 export default setting
 

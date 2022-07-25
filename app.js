@@ -13,8 +13,7 @@ import lib from './lib.js'
 import core from './core.js'
 import action from './action.js'
 import output from './output.js'
-import setting from './setting.js'
-import browserServerSetting from './xdevkit/browserServerSetting.js'
+import setting from './setting/index.js'
 
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
@@ -135,7 +134,7 @@ const main = () => {
   dotenv.config()
   core.init(setting, lib)
   output.init(setting)
-  action.init(browserServerSetting, setting, lib)
+  action.init(setting, lib)
 
   const expressApp = express()
 

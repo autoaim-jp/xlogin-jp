@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init-xdevkit": "git submodule update -i && cd view/src/js/setting/ && ln ../../../xdevkit/browserServerSetting.js browserServerSetting.js",
+    "init-xdevkit": "git submodule update -i && cd setting/ && ln ../xdevkit/browserServerSetting.js browserServerSetting.js && cd ../view/src/js/setting/ && ln ../../../../xdevkit/browserServerSetting.js browserServerSetting.js",
     "compile": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css",
     "compile-minify": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css --minify",
     "watch": "bash gdeno run xdevkit-cli watch --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css"
