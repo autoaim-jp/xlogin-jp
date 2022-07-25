@@ -1,6 +1,6 @@
 /* login/app.js */
 const asocial = {}
-import * as setting from '../setting.js'
+import * as setting from '../setting/index.js'
 asocial.setting = setting
 import * as lib from '../lib.js'
 asocial.lib = lib
@@ -15,13 +15,14 @@ const a = asocial
 
 const loadLoginForm = () => {
   const postLogin = a.output.getPostLogin(argNamed({
-    setting: a.setting.get('apiEndpoint'),
+    browserServerSetting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
     lib: [ a.lib.postRequest ],
   }))
 
   const { emailAddressInputElm, passInputElm } = a.output.getLoginFormElm()
   const onSubmitLogin = a.action.getOnSubmitLogin(argNamed({
-    setting: a.setting.get('userHmacSecret', 'labelList'),
+    browserServerSetting: a.setting.getBrowserServerSetting().get('labelList'),
+    setting: a.setting.get('userHmacSecret'),
     lib: [ a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
     other: { emailAddressInputElm, passInputElm, postLogin },
   }))

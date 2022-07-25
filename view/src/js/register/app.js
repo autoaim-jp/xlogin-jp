@@ -1,6 +1,6 @@
 /* register/app.js */
 const asocial = {}
-import * as setting from '../setting.js'
+import * as setting from '../setting/index.js'
 asocial.setting = setting
 import * as lib from '../lib.js'
 asocial.lib = lib
@@ -15,14 +15,15 @@ const a = asocial
 
 const loadRegisterForm = () => {
   const postRegister = a.output.getPostRegister(argNamed({
-    setting: a.setting.get('apiEndpoint'),
+    browserServerSetting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
     lib: [ a.lib.postRequest ],
   }))
 
   const { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm } = a.output.getRegisterFormElm()
 
   const onSubmitRegister = a.action.getOnSubmitRegister(argNamed({
-    setting: a.setting.get('userHmacSecret', 'labelList'),
+    browserServerSetting: a.setting.getBrowserServerSetting().get('labelList'),
+    setting: a.setting.get('userHmacSecret'),
     elm: { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm },
     other: { postRegister },
     lib: [ a.lib.calcHmac512, a.lib.genSalt, a.lib.calcPbkdf2, a.lib.buf2Hex, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],

@@ -47,12 +47,12 @@ const _getOidcRouter = () => {
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core._getErrorResponse, core.isValidClient)
+    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core._getErrorResponse, core.getAuthSessionByCode)
+    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getErrorResponse, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
@@ -60,7 +60,7 @@ const _getOidcRouter = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core._getErrorResponse)
+    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
     output.endResponse(req, res, resultHandleUserInfo)
   })
   return expressRouter
@@ -70,21 +70,21 @@ const _getFunctionRouter = () => {
   const expressRouter = express.Router()
   expressRouter.post('/f/login/credential/check', async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core._getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post('/f/confirm/permission/check', (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core._getErrorResponse, core.registerAuthSession)
+    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, core.registerAuthSession)
     output.endResponse(req, res, resultHandleConfirm)
   })
   expressRouter.post('/f/login/user/add', (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core._getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
   expressRouter.get('/f/confirm/scope/read', (req, res) => {
-    const resultHandleScope = action.handleScope(req.session.auth, core._getErrorResponse)
+    const resultHandleScope = action.handleScope(req.session.auth, core.getErrorResponse)
     output.endResponse(req, res, resultHandleScope)
   })
   return expressRouter

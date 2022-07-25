@@ -1,6 +1,6 @@
 /* confirm/app.js */
 const asocial = {}
-import * as setting from '../setting.js'
+import * as setting from '../setting/index.js'
 asocial.setting = setting
 import * as lib from '../lib.js'
 asocial.lib = lib
@@ -18,12 +18,12 @@ const a = asocial
 
 const loadPermissionList = async () => {
   const resultFetchScope = await a.input.fetchScope(argNamed({
-    setting: a.setting.get('apiEndpoint'),
+    setting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
     lib: [ a.lib.getRequest ],
   }))
 
   const permissionLabelList = a.core.convertPermissionList(argNamed({
-    setting: a.setting.get('labelList'),
+    setting: a.setting.getBrowserServerSetting().get('labelList'),
     other: { resultFetchScope },
   }))
 
@@ -36,7 +36,7 @@ const loadPermissionList = async () => {
 const loadConfirmForm = async () => {
   const postConfirm = a.output.getPostConfirm(argNamed({
     lib: [ a.lib.postRequest ],
-    setting: a.setting.get('apiEndpoint'),
+    setting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
   }))
 
   const onSubmitConfirm = a.action.getOnSubmitConfirm(argNamed({
@@ -53,6 +53,7 @@ const loadConfirmForm = async () => {
 }
 
 const main = async () => {
+  console.log(a.setting.getBrowserServerSetting())
   a.lib.switchLoading(true)
   a.lib.setOnClickNavManu()
   a.lib.monkeyPatch()
