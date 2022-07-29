@@ -1,4 +1,4 @@
-/* /setting/index.js */
+/* /_setting/index.js */
 import * as browserServerSetting from './browserServerSetting.js'
 
 export const userHmacSecret = 'xlogin20220630'

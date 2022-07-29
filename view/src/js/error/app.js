@@ -1,6 +1,6 @@
 /* error/app.js */
 const asocial = {}
-import * as setting from '../setting.js'
+import * as setting from '../_setting/index.js'
 asocial.setting = setting
 import * as lib from '../lib.js'
 asocial.lib = lib
