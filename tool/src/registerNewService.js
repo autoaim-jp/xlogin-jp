@@ -44,7 +44,8 @@ const main = async () => {
 
   const clientList = JSON.parse(fs.readFileSync(setting.server.CLIENT_LIST_JSON))
   if (clientList[clientId]) {
-    console.log('client exists:', { clientId, client: clientList[clientId] })
+    console.log('client already exists:', { clientId, client: clientList[clientId] })
+    process.exit(1)
   }
   clientList[clientId] = {
     serviceName,
