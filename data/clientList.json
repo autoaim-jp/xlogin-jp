@@ -1,0 +1,10 @@
+{
+  "foo": {
+    "serviceName": "localhost sample",
+    "redirectUri": "http://localhost:3001/f/xlogin/callback"
+  },
+  "sample_xlogin_jp": {
+    "serviceName": "xlogin sample service",
+    "redirectUri": "https://sample.xlogin.jp/f/xlogin/callback"
+  }
+}
