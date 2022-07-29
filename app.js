@@ -9,11 +9,12 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
 
-import lib from './lib.js'
-import core from './core.js'
-import action from './action.js'
-import output from './output.js'
 import setting from './setting/index.js'
+import output from './output.js'
+import core from './core.js'
+import input from './input.js'
+import action from './action.js'
+import lib from './lib.js'
 
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
@@ -46,7 +47,7 @@ const _getOidcRouter = () => {
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse, core.isValidClient)
+    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.getErrorResponse, input.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
@@ -132,8 +133,9 @@ const startServer = (expressApp) => {
 
 const main = () => {
   dotenv.config()
-  core.init(setting, lib)
   output.init(setting)
+  core.init(setting, lib)
+  input.init(setting)
   action.init(setting, lib)
 
   const expressApp = express()

@@ -21,19 +21,9 @@ const USER_LIST = {
   }
 }
 
-const CLIENT_LIST = {
-  'foo': 'http://localhost:3001/f/xlogin/callback',
-  'sample_xlogin_jp': 'https://sample.xlogin.jp/f/xlogin/callback'
-}
-
-
 const init = (setting, lib) => {
   mod.setting = setting
   mod.lib = lib
-}
-
-const isValidClient = (clientId, redirectUri) => {
-  return CLIENT_LIST[clientId] && CLIENT_LIST[clientId] === decodeURIComponent(redirectUri)
 }
 
 const getUserByEmailAddress = (emailAddress) => {
@@ -128,7 +118,6 @@ const getErrorResponse = (status, error, isServerRedirect, response = null, sess
 
 export default {
   init,
-  isValidClient,
   getUserByEmailAddress,
   registerAccessToken,
   getAuthSessionByCode,

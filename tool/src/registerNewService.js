@@ -2,7 +2,7 @@ import readline from 'readline'
 import { Writable } from 'stream'
 import fs from 'fs'
 
-const CLIENT_LIST_JSON = './data/clientList.json'
+import setting from '../../setting/index.js'
 
 const mutableStdout = new Writable({
   write: function(chunk, encoding, callback) {
@@ -42,7 +42,7 @@ const main = async () => {
   const clientId = await inputLine('clientId(Open ID Connect): ', false)
   const redirectUri = await inputLine('redirectUri(Open ID Connect): ', false)
 
-  const clientList = JSON.parse(fs.readFileSync(CLIENT_LIST_JSON))
+  const clientList = JSON.parse(fs.readFileSync(setting.server.CLIENT_LIST_JSON))
   if (clientList[clientId]) {
     console.log('client exists:', { clientId, client: clientList[clientId] })
   }
@@ -51,8 +51,8 @@ const main = async () => {
     redirectUri,
   }
 
-  fs.writeFileSync(CLIENT_LIST_JSON, JSON.stringify(clientList, null, 2))
-  console.log('saved client in:', CLIENT_LIST_JSON)
+  fs.writeFileSync(setting.server.CLIENT_LIST_JSON, JSON.stringify(clientList, null, 2))
+  console.log('saved client in:', setting.server.CLIENT_LIST_JSON)
   console.log('done.')
 }
 
