@@ -23,5 +23,16 @@
         "serviceUserId": "SCXVbvM9tkLKYN_cJZGfmN7NwCiy3EGfITfWdbQWrFAhyG2Zbe8QJRYQi_Z2on25"
       }
     }
+  },
+  "user3@example.com": {
+    "emailAddress": "user3@example.com",
+    "passPbkdf2": "1cff670d5efbc229d44e31aee7739a3d5ce905d863a6ea10e93aa3e07470af63421c9112a480b9005752637602d4f253b2bcc824314dffc3efffa081a463d0a3",
+    "saltHex": "f98b3b81c8c55c60d1e6aba2a3bf16db62cc1bb78b08211d0bbab92ae5652d45ad7b654406e73cbef6f6393ed8790a1a6a8b933405a02e8fbae12edabdc7a108",
+    "userName": "no name",
+    "serviceVariable": {
+      "foo": {
+        "serviceUserId": "sQjlpAFGUoAxIfjkAO3BPG7VVVfFCUgvraRVUMdN6QM1_yU7kMa4drhFrNnaGDQz"
+      }
+    }
   }
 }

@@ -52,7 +52,7 @@ const _getOidcRouter = () => {
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
     const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getErrorResponse, core.getAuthSessionByCode)
+    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, input.registerAccessToken, core.getErrorResponse, input.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
@@ -60,7 +60,7 @@ const _getOidcRouter = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken, core.getErrorResponse)
+    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, input.getUserByAccessToken, core.getErrorResponse)
     output.endResponse(req, res, resultHandleUserInfo)
   })
   return expressRouter
@@ -75,7 +75,7 @@ const _getFunctionRouter = () => {
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, core.registerAuthSession)
+    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.getErrorResponse, input.registerAuthSession)
     output.endResponse(req, res, resultHandleConfirm)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
