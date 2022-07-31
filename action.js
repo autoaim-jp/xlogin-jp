@@ -8,11 +8,11 @@ const init = (setting, lib) => {
 
 
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, getErrorResponse, isValidClient) => {
+const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, isValidClient) => {
   if (!isValidClient(clientId, redirectUri)) {
     const status = mod.setting.bsc.statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
-    return getErrorResponse(status, error, true)
+    return _getErrorResponse(status, error, true)
   }
  
   if (user) {
@@ -33,18 +33,18 @@ const handleConnect = (user, clientId, redirectUri, state, scope, responseType, 
 }
 
 /* POST /f/$condition/credential/check */
-const handleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getErrorResponse, getUserByEmailAddress) => {
+const handleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_credential_session'
-    return getErrorResponse(status, error, false)
+    return _getErrorResponse(status, error, false)
   }
 
   const resultCredentialCheck = await credentialCheck(getUserByEmailAddress, emailAddress, passHmac2)
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = mod.setting.bsc.statusList.INVALID_CREDENTIAL
     const error = 'handle_credential_credential'
-    return getErrorResponse(status, error, false, null, authSession)
+    return _getErrorResponse(status, error, false, null, authSession)
   }
 
   const user = getUserByEmailAddress(emailAddress)
@@ -57,11 +57,11 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 }
 
 /* POST /f/confirm/permission/check */
-const handleConfirm = (permissionList, authSession, getErrorResponse, registerAuthSession) => {
+const handleConfirm = (permissionList, authSession, registerAuthSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
-    return getErrorResponse(status, error, false)
+    return _getErrorResponse(status, error, false)
   }
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
@@ -79,25 +79,25 @@ const handleConfirm = (permissionList, authSession, getErrorResponse, registerAu
 }
 
 /* GET /api/$apiVersion/auth/code */
-const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, getErrorResponse, getAuthSessionByCode) => {
+const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, getAuthSessionByCode) => {
   const authSession = getAuthSessionByCode(code)
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CODE) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_code_session'
-    return getErrorResponse(status, error, true)
+    return _getErrorResponse(status, error, true)
   }
 
   if (clientId !== authSession.oidc.clientId) {
     const status = mod.setting.bsc.statusList.INVALID_CLIENT
     const error = 'handle_code_client'
-    return getErrorResponse(status, error, true)
+    return _getErrorResponse(status, error, true)
   }
 
   const generatedCodeChallenge = mod.lib.convertToCodeChallenge(codeVerifier, authSession.oidc.codeChallengeMethod)
   if (authSession.oidc.codeChallenge !== generatedCodeChallenge) {
     const status = mod.setting.bsc.statusList.INVALID_CODE_VERIFIER
     const error = 'handle_code_challenge'
-    return getErrorResponse(status, error, true)
+    return _getErrorResponse(status, error, true)
   }
 
   const accessToken = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.ACCESS_TOKEN_L)
@@ -108,7 +108,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
   if (!resultRegisterAccessToken) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_code_access_token'
-    return getErrorResponse(status, error, null)
+    return _getErrorResponse(status, error, null)
   }
 
   const status = mod.setting.bsc.statusList.OK
@@ -116,14 +116,14 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 }
 
 /* GET /api/$apiVersion/user/info */
-const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken, getErrorResponse) => {
+const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken) => {
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
 
   if (!userInfo) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_user_info_access_token'
-    return getErrorResponse(status, error, null)
+    return _getErrorResponse(status, error, null)
   }
 
   const status = mod.setting.bsc.statusList.OK
@@ -131,17 +131,17 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
 }
 
 /* POST /f/login/user/add */
-const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getErrorResponse, getUserByEmailAddress, registerUserByEmailAddress) => {
+const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getUserByEmailAddress, registerUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_user_add_session'
-    return getErrorResponse(status, error, false)
+    return _getErrorResponse(status, error, false)
   }
 
   if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
     const status = mod.setting.bsc.statusList.INVALID_CHECK
     const error = 'handle_user_add_checkbox'
-    return getErrorResponse(status, error, false, null, authSession)
+    return _getErrorResponse(status, error, false, null, authSession)
   }
 
   const clientId = authSession.oidc.clientId
@@ -150,7 +150,7 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
   if (resultAddUser.registerResult !== true) {
     const status = mod.setting.bsc.statusList.REGISTER_FAIL
     const error = 'handle_user_add_register'
-    return getErrorResponse(status, error, false, null, authSession)
+    return _getErrorResponse(status, error, false, null, authSession)
   }
 
   const user = getUserByEmailAddress(emailAddress)
@@ -163,11 +163,11 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
 }
 
 /* GET /f/confirm/scope/list */
-const handleScope = (authSession, getErrorResponse) => {
+const handleScope = (authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_permission_list_session'
-    return getErrorResponse(status, error, false)
+    return _getErrorResponse(status, error, false)
   }
 
   const scope = authSession.oidc.scope
@@ -180,6 +180,21 @@ const handleScope = (authSession, getErrorResponse) => {
 const handleLogout = (authSession) => {
   const status = mod.setting.bsc.statusList.OK
   return { status, session: {}, response: null, redirect: '/' }
+}
+
+
+/* http */
+const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
+  const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
+  if (isServerRedirect) {
+    return { status, session, response, redirect, error }
+  } else {
+    if (response) {
+      return { status, session, response, error }
+    } else {
+      return { status, session, response: { status, error, redirect }, error }
+    }
+  }
 }
 
 

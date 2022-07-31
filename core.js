@@ -46,25 +46,8 @@ const addUser = (getUserByEmailAddress, registerUserByEmailAddress, clientId, em
   return { registerResult: true }
 }
 
-
-/* http */
-const getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return { status, session, response, redirect, error }
-  } else {
-    if (response) {
-      return { status, session, response, error }
-    } else {
-      return { status, session, response: { status, error, redirect }, error }
-    }
-  }
-}
-
-
 export default {
   init,
   credentialCheck,
   addUser,
-  getErrorResponse,
 }
