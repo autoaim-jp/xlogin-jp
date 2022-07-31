@@ -40,7 +40,7 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
     return _getErrorResponse(status, error, false)
   }
 
-  const resultCredentialCheck = await credentialCheck(getUserByEmailAddress, emailAddress, passHmac2)
+  const resultCredentialCheck = await credentialCheck(emailAddress, passHmac2)
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = mod.setting.bsc.statusList.INVALID_CREDENTIAL
     const error = 'handle_credential_credential'
@@ -145,7 +145,7 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
   }
 
   const clientId = authSession.oidc.clientId
-  const resultAddUser = addUser(getUserByEmailAddress, registerUserByEmailAddress, clientId, emailAddress, passPbkdf2, saltHex)
+  const resultAddUser = addUser(clientId, emailAddress, passPbkdf2, saltHex)
  
   if (resultAddUser.registerResult !== true) {
     const status = mod.setting.bsc.statusList.REGISTER_FAIL
