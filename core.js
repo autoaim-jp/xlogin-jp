@@ -4,33 +4,9 @@ const mod = {}
 const ACCESS_TOKEN_LIST = {}
 const AUTH_SESSION_LIST = {}
 
-const USER_LIST = {
-  'user@example.com': {
-    emailAddress: 'user@example.com',
-    userName: 'sample user',
-    passPbkdf2: 'ca134addc89453fd281e2854236e8d65cf3bdc94b57aa451977a316319586c476fc70c12e124c16dde13675d1ad493e24351958076815440b0f0cff16231b38a',
-    saltHex: 'e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5',
-    serviceVariable: {
-      'foo': {
-        serviceUserId: '123456',
-      },
-      'sample_xlogin_jp': {
-        serviceUserId: 'abcdef',
-      },
-    },
-  }
-}
-
 const init = (setting, lib) => {
   mod.setting = setting
   mod.lib = lib
-}
-
-const getUserByEmailAddress = (emailAddress) => {
-  return USER_LIST[emailAddress]
-}
-const _registerUserByEmailAddress = (emailAddress, user) => {
-  USER_LIST[emailAddress] = user
 }
 
 const registerAccessToken = (clientId, accessToken, user, permissionList) => {
@@ -62,22 +38,23 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return null
 }
 
-const credentialCheck = async (emailAddress, passHmac2) => {
-  if (!getUserByEmailAddress(emailAddress)) {
+const credentialCheck = async (getUserByEmailAddress, emailAddress, passHmac2) => {
+  const user = getUserByEmailAddress(emailAddress)
+  if (!user) {
     return { credentialCheckResult: false }
   }
 
-  const saltHex = getUserByEmailAddress(emailAddress).saltHex
+  const saltHex = user.saltHex
 
   const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if(getUserByEmailAddress(emailAddress).passPbkdf2 !== passPbkdf2) {
+  if(user.passPbkdf2 !== passPbkdf2) {
     return { credentialCheckResult: false }
   }
 
   return { credentialCheckResult: true }
 }
 
-const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
+const addUser = (getUserByEmailAddress, registerUserByEmailAddress, clientId, emailAddress, passPbkdf2, saltHex) => {
   if (getUserByEmailAddress(emailAddress)) {
     return { registerResult: false }
   }
@@ -95,7 +72,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
     user.serviceVariable[clientId] = { serviceUserId }
   }
 
-  _registerUserByEmailAddress(emailAddress, user)
+  registerUserByEmailAddress(emailAddress, user)
 
   return { registerResult: true }
 }
@@ -118,7 +95,6 @@ const getErrorResponse = (status, error, isServerRedirect, response = null, sess
 
 export default {
   init,
-  getUserByEmailAddress,
   registerAccessToken,
   getAuthSessionByCode,
   registerAuthSession,

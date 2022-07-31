@@ -7,6 +7,7 @@ setting.server = {}
 setting.server.PUBLIC_BUILD_DIR = 'view/build'
 setting.server.PUBLIC_STATIC_DIR = 'view/static'
 setting.server.CLIENT_LIST_JSON = 'data/clientList.json'
+setting.server.USER_LIST_JSON = 'data/userList.json'
 
 setting.oidc = {}
 setting.oidc.CODE_L = 64

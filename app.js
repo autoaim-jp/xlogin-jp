@@ -70,7 +70,7 @@ const _getFunctionRouter = () => {
   const expressRouter = express.Router()
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getErrorResponse, input.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
@@ -80,7 +80,7 @@ const _getFunctionRouter = () => {
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, core.getUserByEmailAddress)
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getErrorResponse, input.getUserByEmailAddress, input.registerUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
   expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/read`, (req, res) => {
