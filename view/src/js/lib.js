@@ -91,6 +91,7 @@ export const switchLoading = (isVisible) => {
   }
 }
 
+/* nav */
 export const setOnClickNavManu = () => {
   const toggleElm = document.querySelector('#commonNavToggle')
   const navContentElm = document.querySelector('#commonNavContent')
@@ -101,6 +102,14 @@ export const setOnClickNavManu = () => {
       navContentElm.classList.add('hidden')
     }
   }
+}
+
+export const getGlobalNotification = async (apiEndpoint) => {
+  const resultFetchGlobalNotification = await getRequest(apiEndpoint + '/notification/global/list')
+  console.log(resultFetchGlobalNotification?.result?.globalNotificationList)
+  resultFetchGlobalNotification?.result?.globalNotificationList.forEach((row) => {
+    console.log('notification:', row)
+  })
 }
 
 /* request */
@@ -268,4 +277,5 @@ export const getSearchQuery = () => {
   })
   return searchQuery
 }
+
 

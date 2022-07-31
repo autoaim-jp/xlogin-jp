@@ -14,7 +14,7 @@ const a = asocial
 const loadErrorMessage = () => {
   a.output.showErrorModal(argNamed({
     lib: [ a.lib.getSearchQuery, a.lib.getErrorModalElmAndSetter, a.lib.showModal ],
-    setting: a.setting.getBrowserServerSetting().get('labelList'),
+    setting: a.setting.bsc.get('labelList'),
   }))
 }
 

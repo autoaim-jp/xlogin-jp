@@ -3,6 +3,8 @@ import * as browserServerSetting from './browserServerSetting.js'
 
 export const userHmacSecret = 'xlogin20220630'
 
+export const bsc = browserServerSetting
+
 const settingList = {
   userHmacSecret,
 }

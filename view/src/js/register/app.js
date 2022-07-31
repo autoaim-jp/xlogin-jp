@@ -15,14 +15,14 @@ const a = asocial
 
 const loadRegisterForm = () => {
   const postRegister = a.output.getPostRegister(argNamed({
-    browserServerSetting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
+    browserServerSetting: a.setting.bsc.get('apiEndpoint'),
     lib: [ a.lib.postRequest ],
   }))
 
   const { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm } = a.output.getRegisterFormElm()
 
   const onSubmitRegister = a.action.getOnSubmitRegister(argNamed({
-    browserServerSetting: a.setting.getBrowserServerSetting().get('labelList'),
+    browserServerSetting: a.setting.bsc.get('labelList'),
     setting: a.setting.get('userHmacSecret'),
     elm: { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm },
     other: { postRegister },

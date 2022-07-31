@@ -18,12 +18,12 @@ const a = asocial
 
 const loadPermissionList = async () => {
   const resultFetchScope = await a.input.fetchScope(argNamed({
-    setting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
+    setting: a.setting.bsc.get('apiEndpoint'),
     lib: [ a.lib.getRequest ],
   }))
 
   const permissionLabelList = a.core.convertPermissionList(argNamed({
-    setting: a.setting.getBrowserServerSetting().get('labelList'),
+    setting: a.setting.bsc.get('labelList'),
     other: { resultFetchScope },
   }))
 
@@ -36,7 +36,7 @@ const loadPermissionList = async () => {
 const loadConfirmForm = async () => {
   const postConfirm = a.output.getPostConfirm(argNamed({
     lib: [ a.lib.postRequest ],
-    setting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
+    setting: a.setting.bsc.get('apiEndpoint'),
   }))
 
   const onSubmitConfirm = a.action.getOnSubmitConfirm(argNamed({
@@ -53,13 +53,14 @@ const loadConfirmForm = async () => {
 }
 
 const main = async () => {
-  console.log(a.setting.getBrowserServerSetting())
   a.lib.switchLoading(true)
   a.lib.setOnClickNavManu()
   a.lib.monkeyPatch()
 
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
+
+  a.lib.getGlobalNotification(a.setting.bsc.apiEndpoint)
 
   setTimeout(() => {
     a.lib.switchLoading(false)

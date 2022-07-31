@@ -15,13 +15,13 @@ const a = asocial
 
 const loadLoginForm = () => {
   const postLogin = a.output.getPostLogin(argNamed({
-    browserServerSetting: a.setting.getBrowserServerSetting().get('apiEndpoint'),
+    browserServerSetting: a.setting.bsc.get('apiEndpoint'),
     lib: [ a.lib.postRequest ],
   }))
 
   const { emailAddressInputElm, passInputElm } = a.output.getLoginFormElm()
   const onSubmitLogin = a.action.getOnSubmitLogin(argNamed({
-    browserServerSetting: a.setting.getBrowserServerSetting().get('labelList'),
+    browserServerSetting: a.setting.bsc.get('labelList'),
     setting: a.setting.get('userHmacSecret'),
     lib: [ a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
     other: { emailAddressInputElm, passInputElm, postLogin },
