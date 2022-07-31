@@ -83,6 +83,19 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   return { registerResult: true }
 }
 
+/* notification */
+const registerLoginNotification = (ipAddress, useragent, emailAddress) => {
+  let message = 'Login'
+  message += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
+  message += ` with ${useragent.browser}(${useragent.platform})`
+  message += ` from ${ipAddress}`
+  mod.output.appendNotification(mod.setting.notification.AUTH_SERVER_CLIENT_ID, emailAddress, message)
+}
+
+const getNotification = (emailAddress, notificationRange) => {
+  return mod.input.getNotification(emailAddress, notificationRange)
+}
+
 export default {
   init,
   
@@ -98,4 +111,7 @@ export default {
   getUserByEmailAddress,
   credentialCheck,
   addUser,
+
+  registerLoginNotification,
+  getNotification,
 }

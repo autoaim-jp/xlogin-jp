@@ -8,6 +8,7 @@ import Redis from 'ioredis'
 import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
+import useragent from 'express-useragent'
 
 import setting from './setting/index.js'
 import output from './output.js'
@@ -42,6 +43,15 @@ const _getSessionRouter = () => {
   return expressRouter
 }
 
+const _getExpressMiddlewareRouter = () => {
+  const expressRouter = express.Router()
+  expressRouter.use(bodyParser.urlencoded({ extended: true }))
+  expressRouter.use(bodyParser.json())
+  expressRouter.use(cookieParser())
+  expressRouter.use(useragent.express())
+  return expressRouter
+}
+
 const _getOidcRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
@@ -69,8 +79,9 @@ const _getOidcRouter = () => {
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
+    const { ip: ipAddress, useragent } = req
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(ipAddress, useragent, emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress, core.registerLoginNotification)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
@@ -83,15 +94,20 @@ const _getFunctionRouter = () => {
     const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress, core.registerUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
-  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/read`, (req, res) => {
+  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, (req, res) => {
     const resultHandleScope = action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
+  })
+  expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
+    const resultHandleNotification = action.handleNotification(req.session.auth, core.getNotification)
+    output.endResponse(req, res, resultHandleNotification)
   })
   return expressRouter
 }
 
 const _getOtherRouter = () => {
   const expressRouter = express.Router()
+
   expressRouter.get('/logout', (req, res) => {
     const resultHandleLogout = action.handleLogout(req.session.auth)
     output.endResponse(req, res, resultHandleLogout)
@@ -141,9 +157,7 @@ const main = () => {
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
-  expressApp.use(bodyParser.urlencoded({ extended: true }))
-  expressApp.use(bodyParser.json())
-  expressApp.use(cookieParser())
+  expressApp.use(_getExpressMiddlewareRouter())
 
   expressApp.use(_getOidcRouter())
   expressApp.use(_getFunctionRouter())

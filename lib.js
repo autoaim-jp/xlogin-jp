@@ -56,6 +56,17 @@ const calcPbkdf2 = (data, saltHex) => {
   })
 }
 
+/* date */
+const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
+  return format.replace(/YYYY/g, date.getFullYear())
+    .replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2))
+    .replace(/DD/g, ('0' + date.getDate()).slice(-2))
+    .replace(/hh/g, ('0' + date.getHours()).slice(-2))
+    .replace(/mm/g, ('0' + date.getMinutes()).slice(-2))
+    .replace(/ss/g, ('0' + date.getSeconds()).slice(-2))
+}
+
+
 export default {
   objToQuery,
   addQueryStr,
@@ -64,5 +75,7 @@ export default {
   getRandomB64UrlSafe,
   convertToCodeChallenge,
   calcPbkdf2,
+
+  formatDate,
 }
 

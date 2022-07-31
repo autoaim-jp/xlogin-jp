@@ -10,6 +10,7 @@ setting.server.CLIENT_LIST_JSON = 'data/clientList.json'
 setting.server.USER_LIST_JSON = 'data/userList.json'
 setting.server.ACCESS_TOKEN_LIST_JSON = 'data/accessTokenList.json'
 setting.server.AUTH_SESSION_LIST_JSON = 'data/authSessionList.json'
+setting.server.NOTIFICATION_LIST_JSON = 'data/notificationList.json'
 
 setting.oidc = {}
 setting.oidc.CODE_L = 64
@@ -37,6 +38,10 @@ setting.session.REDIS_DB = 1
 setting.user = {}
 setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
+
+setting.notification = {}
+setting.notification.AUTH_SERVER_CLIENT_ID = 'auth'
+setting.notification.ALL_NOTIFICATION = 'global'
 
 setting.bsc = browserServerSetting
 

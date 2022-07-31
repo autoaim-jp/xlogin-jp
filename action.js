@@ -33,7 +33,7 @@ const handleConnect = (user, clientId, redirectUri, state, scope, responseType, 
 }
 
 /* POST /f/$condition/credential/check */
-const handleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getUserByEmailAddress) => {
+const handleCredentialCheck = async (ipAddress, useragent, emailAddress, passHmac2, authSession, credentialCheck, getUserByEmailAddress, registerLoginNotification) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_credential_session'
@@ -48,7 +48,9 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
   }
 
   const user = getUserByEmailAddress(emailAddress)
- 
+
+  registerLoginNotification(ipAddress, useragent, emailAddress)
+
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
   const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
   
@@ -176,6 +178,20 @@ const handleScope = (authSession) => {
   return { status, session: authSession, response: { result: { scope } } }
 }
 
+/* GET /f/notification/global/list */
+const handleNotification = (authSession, getNotification) => {
+  if (!authSession) {
+    const status = mod.setting.bsc.statusList.INVALID_SESSION
+    const error = 'handle_notification_list_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const globalNotificationList = getNotification(authSession?.user?.emailAddress, mod.setting.notification.ALL_NOTIFICATION)
+  const status = mod.setting.bsc.statusList.OK
+
+  return { status, session: authSession, response: { result: { globalNotificationList } } }
+}
+
 /* GET /logout */
 const handleLogout = (authSession) => {
   const status = mod.setting.bsc.statusList.OK
@@ -207,6 +223,7 @@ export default {
   handleUserInfo,
   handleUserAdd,
   handleScope,
+  handleNotification,
   handleLogout,
 }
 

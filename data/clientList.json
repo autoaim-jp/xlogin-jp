@@ -1,4 +1,7 @@
 {
+  "global": {
+    "__note__": "this clientId 'global' is reserved for notification scope"
+  },
   "foo": {
     "serviceName": "localhost sample",
     "redirectUri": "http://localhost:3001/f/xlogin/callback"

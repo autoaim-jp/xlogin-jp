@@ -5,7 +5,6 @@ const mod = {}
 
 const init = (setting) => {
   mod.setting = setting
-
 }
 
 /* from clientList */
@@ -47,6 +46,16 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return null
 }
 
+/* from notificationList */
+const getNotification = (emailAddress, notificationRange) => {
+  const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
+  if (notificationRange === mod.setting.notification.ALL_NOTIFICATION) {
+    return notificationList[emailAddress]
+  } else {
+    return notificationList[emailAddress].filter((row) => { return row.clientId === notificationRange })
+  }
+}
+
 
 export default {
   init,
@@ -57,5 +66,7 @@ export default {
   getAuthSessionByCode,
 
   getUserByAccessToken,
+
+  getNotification,
 }
 

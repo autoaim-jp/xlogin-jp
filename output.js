@@ -8,6 +8,7 @@ const init = (setting) => {
 
   fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, '{}')
   fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, '{}')
+  fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, '{}')
 }
 
 /* to userList */
@@ -43,6 +44,20 @@ const registerAccessToken = (clientId, accessToken, user, permissionList) => {
   return true
 }
 
+/* to notificationList */
+const appendNotification = (clientId, emailAddress, message) => {
+  const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
+  if (!notificationList[emailAddress]) {
+    notificationList[emailAddress] = []
+  }
+
+  const dateRegistered = Date.now()
+
+  notificationList[emailAddress].push({ clientId, message, dateRegistered })
+
+  fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
+  return true
+}
 
 /* to http client */
 const endResponse = (req, res, handleResult) => {
@@ -74,6 +89,7 @@ export default {
   registerUserByEmailAddress,
   registerAuthSession,
   registerAccessToken,
+  appendNotification,
 
   endResponse,
 }

@@ -5,4 +5,5 @@ view/build/
 
 data/accessTokenList.json
 data/authSessionList.json
+data/notificationList.json
 
