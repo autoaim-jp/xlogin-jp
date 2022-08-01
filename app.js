@@ -84,7 +84,8 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
-    const { ip: ipAddress, useragent } = req
+    const { useragent } = req
+    const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
     const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.registerLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
