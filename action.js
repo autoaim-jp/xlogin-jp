@@ -134,6 +134,20 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
   return { status, session: null, response: { result: { userInfo } }, redirect: null }
 }
 
+/* GET /api/$apiVersion/notification/list */
+const handleNotification = (clientId, accessToken, notificationRange, getNotificationByAccessToken) => {
+  const notificationList = getNotificationByAccessToken(clientId, accessToken, notificationRange)
+
+  if (!notificationList) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_notification_list_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return { status, session: null, response: { result: { notificationList } }, redirect: null }
+}
+
 /* POST /f/login/user/add */
 const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getUserByEmailAddress, registerUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
@@ -181,7 +195,7 @@ const handleScope = (authSession) => {
 }
 
 /* GET /f/notification/global/list */
-const handleNotification = (authSession, getNotification) => {
+const handleGlobalNotification = (authSession, getNotification) => {
   if (!authSession) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_notification_list_session'
@@ -223,9 +237,10 @@ export default {
   handleConfirm,
   handleCode,
   handleUserInfo,
+  handleNotification,
   handleUserAdd,
   handleScope,
-  handleNotification,
+  handleGlobalNotification,
   handleLogout,
 }
 

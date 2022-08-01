@@ -108,6 +108,10 @@ const getNotification = (emailAddress, notificationRange) => {
   return mod.input.getNotification(emailAddress, notificationRange)
 }
 
+const getNotificationByAccessToken = (clientId, accessToken, notificationRange) => {
+  return mod.input.getNotificationByAccessToken(clientId, accessToken, notificationRange)
+}
+
 export default {
   init,
   
@@ -127,4 +131,5 @@ export default {
 
   registerLoginNotification,
   getNotification,
+  getNotificationByAccessToken,
 }

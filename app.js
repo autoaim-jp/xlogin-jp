@@ -65,6 +65,11 @@ const _getOidcRouter = () => {
     const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
+  return expressRouter
+}
+
+const _getUserApiRouter = () => {
+  const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
@@ -75,6 +80,20 @@ const _getOidcRouter = () => {
   })
   return expressRouter
 }
+
+const _getNotificationApiRouter = () => {
+  const expressRouter = express.Router()
+  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
+    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { notificationRange } = lib.paramSnakeToCamel(req.query)
+
+    const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotification)
+  })
+  return expressRouter
+}
+
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
@@ -100,7 +119,7 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleScope)
   })
   expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
-    const resultHandleNotification = action.handleNotification(req.session.auth, core.getNotification)
+    const resultHandleNotification = action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })
   return expressRouter
@@ -161,6 +180,8 @@ const main = () => {
   expressApp.use(_getExpressMiddlewareRouter())
 
   expressApp.use(_getOidcRouter())
+  expressApp.use(_getUserApiRouter())
+  expressApp.use(_getNotificationApiRouter())
   expressApp.use(_getFunctionRouter())
   expressApp.use(_getOtherRouter())
 
