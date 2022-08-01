@@ -18,7 +18,7 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
     }
 
     let isRequired = null
-    let mode = ''
+    const modeList = []
     if (paramList[0][0] === '*') {
       isRequired = true
       paramList[0] = paramList[0].slice(1)
@@ -27,18 +27,28 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
     }
 
     if (paramList[0].indexOf('r') >= 0) {
-      mode = 'read'
-    } else if (paramList[0].indexOf('w') >= 0) {
-      mode = 'write'
-    } else {
+      modeList.push('read')
+    }
+    if (paramList[0].indexOf('w') >= 0) {
+      modeList.push('write')
+    }
+    if (paramList[0].indexOf('a') >= 0) {
+      modeList.push('append')
+    }
+    if (modeList.length === 0) {
       throw new Error(`unknown mode: ${paramList[0]}`)
+    }
+
+    if (paramList[1] !== 'auth') {
+      paramList[1] = 'service'
     }
     
     let label = ''
+    const operation = modeList.map((mode) => { return labelList.scope.operation[mode] }).join('と')
     if (isRequired) {
-      label = `${labelList.scope[mode][paramList[2]]} (${labelList.scope.other.isRequired})`
+      label = `${labelList.scope[paramList[1]][paramList[2]]}の${operation} (${labelList.scope.other.isRequired})`
     } else {
-      label = labelList.scope[mode][paramList[2]]
+      label = `${labelList.scope[paramList[1]][paramList[2]]}の${operation}`
     }
 
     permissionLabelList[row] = {
