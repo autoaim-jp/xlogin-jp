@@ -36,9 +36,19 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
     const user = userList[accessTokenList[accessToken].emailAddress]
     const publicData = {}
     filterKeyList.forEach((key) => {
+      const keySplit = key.split(':')
+      if (keySplit.length !== 2) {
+        console.log('[warn] invalid key:', key)
+        return
+      }
       const permission = `r:${key}`
       if (accessTokenList[accessToken].permissionList[permission]) {
-        publicData[key] = user[key] || user.serviceVariable[clientId][key]
+        console.log({ keySplit })
+        if (keySplit[0] === mod.setting.notification.AUTH_SERVER_CLIENT_ID) {
+          publicData[key] = user[keySplit[1]]
+        } else if (user.serviceVariable[keySplit[0]]) {
+          publicData[key] = user.serviceVariable[keySplit[0]][keySplit[1]]
+        }
       }
     })
     return { public: publicData }

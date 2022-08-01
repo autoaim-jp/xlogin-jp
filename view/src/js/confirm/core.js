@@ -12,35 +12,33 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
   }
 
   scopeList.forEach((row) => {
-    if (row.length === 0) {
+    const paramList = row.split(':')
+    if (paramList.length < 2) {
       throw new Error(`invalid scope value: ${row}`)
     }
 
-    let key = row
     let isRequired = null
     let mode = ''
-    if (key[0] === '*') {
+    if (paramList[0][0] === '*') {
       isRequired = true
-      key = key.slice('*'.length)
+      paramList[0] = paramList[0].slice(1)
     } else {
       isRequired = false
     }
 
-    if (key.indexOf('r:') >= 0) {
+    if (paramList[0].indexOf('r') >= 0) {
       mode = 'read'
-      key = key.slice('r:'.length)
-    } else if (key.indexOf('w:') >= 0) {
+    } else if (paramList[0].indexOf('w') >= 0) {
       mode = 'write'
-      key = key.slice('w:'.length)
     } else {
-      throw new Error(`unknown mode: ${key[0]} (${row})`)
+      throw new Error(`unknown mode: ${paramList[0]}`)
     }
-
+    
     let label = ''
     if (isRequired) {
-      label = `${labelList.scope[mode][key]} (${labelList.scope.other.isRequired})`
+      label = `${labelList.scope[mode][paramList[2]]} (${labelList.scope.other.isRequired})`
     } else {
-      label = labelList.scope[mode][key]
+      label = labelList.scope[mode][paramList[2]]
     }
 
     permissionLabelList[row] = {

@@ -160,6 +160,7 @@ export const showGlobalNotification = async (apiEndpoint) => {
   })
 
   setTimeout(() => {
+    notificationContainerElm.clearChildren()
     notificationIsVisible = false
   }, (durationShow + durationHide) * notificationList.length * 1000 + 3 * 1000)
 }
