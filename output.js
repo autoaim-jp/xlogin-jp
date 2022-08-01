@@ -22,6 +22,16 @@ const registerUserByEmailAddress = (emailAddress, user) => {
   return true
 }
 
+const registerServiceUserId = (emailAddress, clientId, serviceUserId) => {
+  const userList = JSON.parse(fs.readFileSync(mod.setting.server.USER_LIST_JSON))
+  if (userList[emailAddress] && userList[emailAddress].serviceVariable[clientId]) {
+    return false
+  }
+  userList[emailAddress].serviceVariable[clientId] = { serviceUserId }
+  fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
+  return true
+}
+
 /* to authSessionList */
 const registerAuthSession = (code, authSession) => {
   const authSessionList = JSON.parse(fs.readFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON))
@@ -34,18 +44,18 @@ const registerAuthSession = (code, authSession) => {
 }
 
 /* to accessTokenList */
-const registerAccessToken = (clientId, accessToken, user, permissionList) => {
+const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
   const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
   if (accessTokenList[accessToken]) {
     return false
   }
-  accessTokenList[accessToken] = { clientId, user, permissionList }
+  accessTokenList[accessToken] = { clientId, emailAddress, permissionList }
   fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify(accessTokenList, null, 2))
   return true
 }
 
 /* to notificationList */
-const appendNotification = (clientId, emailAddress, message) => {
+const appendNotification = (clientId, emailAddress, subject, detail) => {
   const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
   if (!notificationList[emailAddress]) {
     notificationList[emailAddress] = []
@@ -53,7 +63,7 @@ const appendNotification = (clientId, emailAddress, message) => {
 
   const dateRegistered = Date.now()
 
-  notificationList[emailAddress].push({ clientId, message, dateRegistered })
+  notificationList[emailAddress].push({ clientId, subject, detail, dateRegistered })
 
   fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
   return true
@@ -87,6 +97,7 @@ export default {
   init,
 
   registerUserByEmailAddress,
+  registerServiceUserId,
   registerAuthSession,
   registerAccessToken,
   appendNotification,

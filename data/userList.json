@@ -10,6 +10,9 @@
       },
       "sample_xlogin_jp": {
         "serviceUserId": "abcdef"
+      },
+      "sample_localhost": {
+        "serviceUserId": "hVvqDlBRPRrnll3r68IDts0UDJxoi2BdMbSsGLZigUV9MpRJmLyMDf5CEh4GxC-D"
       }
     }
   },
@@ -21,6 +24,9 @@
     "serviceVariable": {
       "foo": {
         "serviceUserId": "SCXVbvM9tkLKYN_cJZGfmN7NwCiy3EGfITfWdbQWrFAhyG2Zbe8QJRYQi_Z2on25"
+      },
+      "sample_localhost": {
+        "serviceUserId": "C02ftD5pai8fwm_7BlQycGW_SuW5_Hu1vTpmaJ7PUH70NqH2MAQmUpydGek2Z_Wr"
       }
     }
   },

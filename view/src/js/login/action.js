@@ -1,4 +1,4 @@
-/* /login/action.js */
+/* login/action.js */
 
 export const getOnSubmitLogin = ({ calcHmac512, userHmacSecret, labelList, emailAddressInputElm, passInputElm, postLogin, redirect, switchLoading, showModal, getErrorModalElmAndSetter }) => {
   const { modalElm, setContent } = getErrorModalElmAndSetter()

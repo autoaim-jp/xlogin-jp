@@ -79,14 +79,14 @@ const _getOidcRouter = () => {
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
-    const { ip: ipAddress, useragent } = req
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(ipAddress, useragent, emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress, core.registerLoginNotification)
+    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
+    const { ip: ipAddress, useragent } = req
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(permissionList, req.session.auth, core.registerAuthSession)
+    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.registerLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {

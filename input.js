@@ -28,15 +28,16 @@ const getAuthSessionByCode = (code) => {
 }
 
 
-/* from accessTokenList */
+/* from accessTokenList, userList */
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  const userList = JSON.parse(fs.readFileSync(mod.setting.server.USER_LIST_JSON))
   if (accessTokenList[accessToken] && accessTokenList[accessToken].clientId === clientId) {
-    const { user, permissionList } = accessTokenList[accessToken]
+    const user = userList[accessTokenList[accessToken].emailAddress]
     const publicData = {}
     filterKeyList.forEach((key) => {
       const permission = `r:${key}`
-      if (permissionList[permission]) {
+      if (accessTokenList[accessToken].permissionList[permission]) {
         publicData[key] = user[key] || user.serviceVariable[clientId][key]
       }
     })
@@ -50,9 +51,9 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
 const getNotification = (emailAddress, notificationRange) => {
   const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
   if (notificationRange === mod.setting.notification.ALL_NOTIFICATION) {
-    return notificationList[emailAddress]
+    return (notificationList[emailAddress] || []).reverse()
   } else {
-    return notificationList[emailAddress].filter((row) => { return row.clientId === notificationRange })
+    return (notificationList[emailAddress].filter((row) => { return row.clientId === notificationRange }) || []).reverse()
   }
 }
 

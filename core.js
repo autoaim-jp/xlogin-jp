@@ -10,6 +10,10 @@ const init = (setting, output, input, lib) => {
 }
 
 
+const _generageServiceUserId = () => {
+  return mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
+}
+
 /* client */
 const isValidClient = (clientId, redirectUri) => {
   return mod.input.isValidClient(clientId, redirectUri)
@@ -25,24 +29,30 @@ const getAuthSessionByCode = (code) => {
   return mod.input.getAuthSessionByCode(code)
 }
 
+
 /* accessToken */
+const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
+  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, permissionList)
+}
+
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
 }
 
-const registerAccessToken = (clientId, accessToken, user, permissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, user, permissionList)
-}
-
 
 /* user */
+const registerUserByEmailAddress = (emailAddress, user) => {
+  return mod.output.registerUserByEmailAddress(emailAddress, user)
+}
+
+const registerServiceUserId = (emailAddress, clientId) => {
+  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
+}
+
 const getUserByEmailAddress = (emailAddress) => {
   return mod.input.getUserByEmailAddress(emailAddress)
 }
 
-const registerUserByEmailAddress = (emailAddress, user) => {
-  return mod.output.registerUserByEmailAddress(emailAddress, user)
-}
 
 const credentialCheck = async (emailAddress, passHmac2) => {
   const user = mod.input.getUserByEmailAddress(emailAddress)
@@ -74,7 +84,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   }
 
   if (clientId) {
-    const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
+    const serviceUserId = _generageServiceUserId()
     user.serviceVariable[clientId] = { serviceUserId }
   }
 
@@ -84,12 +94,14 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* notification */
-const registerLoginNotification = (ipAddress, useragent, emailAddress) => {
-  let message = 'Login'
-  message += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
-  message += ` with ${useragent.browser}(${useragent.platform})`
-  message += ` from ${ipAddress}`
-  mod.output.appendNotification(mod.setting.notification.AUTH_SERVER_CLIENT_ID, emailAddress, message)
+const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
+  let detail = 'Login'
+  detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
+  const subject = detail
+  detail += ` with ${useragent.browser}(${useragent.platform})`
+  detail += ` by ${clientId}`
+  detail += ` from ${ipAddress}`
+  mod.output.appendNotification(mod.setting.notification.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
 }
 
 const getNotification = (emailAddress, notificationRange) => {
@@ -108,6 +120,7 @@ export default {
   getUserByAccessToken,
 
   registerUserByEmailAddress,
+  registerServiceUserId,
   getUserByEmailAddress,
   credentialCheck,
   addUser,

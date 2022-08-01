@@ -33,7 +33,7 @@ const handleConnect = (user, clientId, redirectUri, state, scope, responseType, 
 }
 
 /* POST /f/$condition/credential/check */
-const handleCredentialCheck = async (ipAddress, useragent, emailAddress, passHmac2, authSession, credentialCheck, getUserByEmailAddress, registerLoginNotification) => {
+const handleCredentialCheck = async (emailAddress, passHmac2, authSession, credentialCheck, getUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_credential_session'
@@ -49,7 +49,6 @@ const handleCredentialCheck = async (ipAddress, useragent, emailAddress, passHma
 
   const user = getUserByEmailAddress(emailAddress)
 
-  registerLoginNotification(ipAddress, useragent, emailAddress)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
   const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
@@ -59,12 +58,15 @@ const handleCredentialCheck = async (ipAddress, useragent, emailAddress, passHma
 }
 
 /* POST /f/confirm/permission/check */
-const handleConfirm = (permissionList, authSession, registerAuthSession) => {
+const handleConfirm = (ipAddress, useragent, permissionList, authSession, registerAuthSession, registerLoginNotification, registerServiceUserId) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
   }
+
+  registerLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user.emailAddress)
+  registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId)
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
 
@@ -106,7 +108,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user, authSession.oidc.permissionList)
+  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user.emailAddress, authSession.oidc.permissionList)
   if (!resultRegisterAccessToken) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_code_access_token'

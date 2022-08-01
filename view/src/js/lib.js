@@ -1,4 +1,4 @@
-/* /lib.js */
+/* lib.js */
 /* debug */
 export const getCaller = (stackIndex) => {
   const callerInfo = new Error().stack.replace(/^Error\n.*\n.*\n/, '')
@@ -28,6 +28,9 @@ const applyElmList = (query, f, parent = document) => {
   })
 }
 export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = () => {}) => {
+  if (modalElm.id === 'modalTemplate') {
+    modalElm.id = ''
+  }
   document.body.appendChild(modalElm)
   closeModal()
 
@@ -60,10 +63,9 @@ export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = (
   }, 100)
 }
 
-const modalTemplateElm = document.querySelector('#modalTemplate')
 export const getErrorModalElmAndSetter = () => {
+  const modalTemplateElm = document.querySelector('#modalTemplate')
   const modalElm = modalTemplateElm.cloneNode(true)
-  modalElm.id = ''
 
   modalElm.querySelector('[data-id="modalTitle"]').innerText = 'エラー'
 
@@ -104,12 +106,62 @@ export const setOnClickNavManu = () => {
   }
 }
 
-export const getGlobalNotification = async (apiEndpoint) => {
-  const resultFetchGlobalNotification = await getRequest(apiEndpoint + '/notification/global/list')
-  console.log(resultFetchGlobalNotification?.result?.globalNotificationList)
-  resultFetchGlobalNotification?.result?.globalNotificationList.forEach((row) => {
-    console.log('notification:', row)
+/* notification */
+let notificationIsVisible = false
+export const setOnClickNotification = (apiEndpoint) => {
+  applyElmList('[data-id="notificationBtn"]', (notificationBtn) => {
+    notificationBtn.onclick = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (notificationIsVisible) {
+        return
+      }
+      notificationIsVisible = true
+      showGlobalNotification(apiEndpoint)
+    }
   })
+}
+
+export const showGlobalNotification = async (apiEndpoint) => {
+  const durationShow = 0.5
+  const durationHide = 0.2
+  const resultFetchGlobalNotification = await getRequest(apiEndpoint + '/notification/global/list')
+
+  const notificationContainerElm = document.querySelector('#notificationContainer')
+  notificationContainerElm.clearChildren()
+  const notificationTemplateElm = document.querySelector('#notificationTemplate')
+  const notificationList = resultFetchGlobalNotification?.result?.globalNotificationList || []
+  notificationList.forEach((row, i) => {
+    const notificationElm = notificationTemplateElm.cloneNode(true)
+    notificationElm.classList.remove('hidden')
+    notificationElm.querySelector('[data-id="subject"]').innerText = row.subject
+    notificationElm.onclick = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const modalTemplateElm = document.querySelector('#modalTemplate')
+      const modalElm = modalTemplateElm.cloneNode(true)
+      modalElm.classList.remove('hidden')
+      modalElm.querySelector('[data-id="modalTitle"]').innerText = row.subject
+      modalElm.querySelector('[data-id="modalContent"]').appendChild(document.createTextNode(row.detail))
+      showModal(modalElm)
+    }
+    setTimeout(() => {
+      notificationElm.style.transitionDuration = `${durationShow}s` 
+      notificationElm.style.opacity = 0
+      notificationContainerElm.appendChild(notificationElm)
+      setTimeout(() => {
+        notificationElm.style.opacity = 1
+      }, 100)
+    }, durationShow * i * 1000)
+    setTimeout(() => {
+      notificationElm.style.transitionDuration = `${durationHide}s` 
+      notificationElm.style.opacity = 0
+    }, durationShow * notificationList.length * 1000 + 3 * 1000 + durationHide * i * 1000)
+  })
+
+  setTimeout(() => {
+    notificationIsVisible = false
+  }, (durationShow + durationHide) * notificationList.length * 1000 + 3 * 1000)
 }
 
 /* request */
