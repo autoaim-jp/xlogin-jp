@@ -109,11 +109,23 @@ const getNotification = (emailAddress, notificationRange) => {
 }
 
 const getNotificationByAccessToken = (clientId, accessToken, notificationRange) => {
-  return mod.input.getNotificationByAccessToken(clientId, accessToken, notificationRange)
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.input.getNotification(emailAddress, notificationRange)
 }
 
 const addNotificationByAccessToken = (clientId, accessToken, notificaitonRange, subject, detail) => {
-  return mod.output.addNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return false
+  }
+
+  return mod.output.appendNotification(notificationRange, emailAddress, subject, detail)
 }
 
 export default {

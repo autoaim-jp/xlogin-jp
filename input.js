@@ -56,8 +56,8 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
 }
 
 
-/* from accessTokenList, notificationList */
-const getNotificationByAccessToken = (clientId, accessToken, notificationRange) => {
+/* from accessTokenList */
+const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
   const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
   if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
     return null
@@ -72,7 +72,7 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
       console.log('[warn] invalid key:', key)
       return false
     }
-    
+
     if (keySplit[0].indexOf('r') < 0) {
       return false
     }
@@ -80,7 +80,7 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
     if (keySplit[1] !== notificationRange) {
       return false
     }
-    
+
     if (keySplit[2] !== 'notification') {
       return false
     }
@@ -92,7 +92,7 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
     return null
   }
 
-  return getNotification(accessTokenList[accessToken].emailAddress, notificationRange)
+  return accessTokenList[accessToken].emailAddress
 }
 
 
@@ -116,7 +116,7 @@ export default {
 
   getUserByAccessToken,
 
-  getNotificationByAccessToken,
+  checkPermissionAndGetEmailAddress,
 
   getNotification,
 }
