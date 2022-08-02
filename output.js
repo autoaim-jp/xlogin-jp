@@ -54,6 +54,12 @@ const registerAccessToken = (clientId, accessToken, emailAddress, permissionList
   return true
 }
 
+/* from accessTokenList to notificationList */
+const addNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
+  // :TODO
+  return true
+}
+
 /* to notificationList */
 const appendNotification = (clientId, emailAddress, subject, detail) => {
   const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
@@ -100,6 +106,7 @@ export default {
   registerServiceUserId,
   registerAuthSession,
   registerAccessToken,
+  addNotificationByAccessToken,
   appendNotification,
 
   endResponse,

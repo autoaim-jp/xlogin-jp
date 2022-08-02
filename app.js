@@ -91,6 +91,14 @@ const _getNotificationApiRouter = () => {
     const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotification)
   })
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
+    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationAdd)
+  })
   return expressRouter
 }
 

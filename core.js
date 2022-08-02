@@ -112,6 +112,10 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
   return mod.input.getNotificationByAccessToken(clientId, accessToken, notificationRange)
 }
 
+const addNotificationByAccessToken = (clientId, accessToken, notificaitonRange, subject, detail) => {
+  return mod.output.addNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
+}
+
 export default {
   init,
   

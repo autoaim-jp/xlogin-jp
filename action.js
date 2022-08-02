@@ -148,6 +148,19 @@ const handleNotification = (clientId, accessToken, notificationRange, getNotific
   return { status, session: null, response: { result: { notificationList } }, redirect: null }
 }
 
+const handleNotificationAdd = (clientId, accessToken, notificationRange, subject, detail, addNotificationByAccessToken) => {
+  const notificationAddResult = addNotificationByAccessToken(clientId, accessToken, notificaitonRange, subject, detail)
+
+  if (!notificationAddResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_notification_add_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return { status, session: null, response: { result: { notificationAddResult } }, redirect: null }
+}
+
 /* POST /f/login/user/add */
 const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getUserByEmailAddress, registerUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
@@ -238,6 +251,7 @@ export default {
   handleCode,
   handleUserInfo,
   handleNotification,
+  handleNotificationAdd,
   handleUserAdd,
   handleScope,
   handleGlobalNotification,
