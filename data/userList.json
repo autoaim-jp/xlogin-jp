@@ -1,83 +1,13 @@
 {
   "user@example.com": {
-    "emailAddress": "user@example.com",
-    "userName": "sample user",
-    "passPbkdf2": "ca134addc89453fd281e2854236e8d65cf3bdc94b57aa451977a316319586c476fc70c12e124c16dde13675d1ad493e24351958076815440b0f0cff16231b38a",
-    "saltHex": "e04a00bb39f9d733ca02cafce730b887d66262a749ea7f237f30d0e4194927868c687339c56b0ed9ccf141ae1079086fa64a4d836e620c6d5490cfaecd0192c5",
-    "serviceVariable": {
-      "foo": {
-        "serviceUserId": "123456"
-      },
-      "sample_xlogin_jp": {
-        "serviceUserId": "abcdef"
-      },
-      "sample_localhost": {
-        "serviceUserId": "hVvqDlBRPRrnll3r68IDts0UDJxoi2BdMbSsGLZigUV9MpRJmLyMDf5CEh4GxC-D"
-      },
-      "sample_localhost7001": {
-        "serviceUserId": "8Zg-sPjn1MhHFqovwERIXHbfa2wMshIsZMTx5Hcokm5gcJWAvfg_p6_RqbmwTHda"
-      }
-    }
-  },
-  "user2@example.com": {
-    "emailAddress": "user2@example.com",
-    "passPbkdf2": "b1fda0bed9dfc0e51cd0baeb6b94b2649c052db8575856d6d7cbd4a758b5dc422b59c52884f47a58970b30a660e060d4422f2c5c3a829a5d2c8abc6b165f62b5",
-    "saltHex": "3e4ee6b978846471f1b50576b5b4217bab56e93e0c134d96ca44bdf316e1bf096cd6b859f89ac4fe03bb733b2d20f054dcd399e03ee73b15502631e634df11bc",
-    "userName": "no name",
-    "serviceVariable": {
-      "foo": {
-        "serviceUserId": "SCXVbvM9tkLKYN_cJZGfmN7NwCiy3EGfITfWdbQWrFAhyG2Zbe8QJRYQi_Z2on25"
-      },
-      "sample_localhost": {
-        "serviceUserId": "C02ftD5pai8fwm_7BlQycGW_SuW5_Hu1vTpmaJ7PUH70NqH2MAQmUpydGek2Z_Wr"
-      }
-    }
-  },
-  "user3@example.com": {
-    "emailAddress": "user3@example.com",
-    "passPbkdf2": "1cff670d5efbc229d44e31aee7739a3d5ce905d863a6ea10e93aa3e07470af63421c9112a480b9005752637602d4f253b2bcc824314dffc3efffa081a463d0a3",
-    "saltHex": "f98b3b81c8c55c60d1e6aba2a3bf16db62cc1bb78b08211d0bbab92ae5652d45ad7b654406e73cbef6f6393ed8790a1a6a8b933405a02e8fbae12edabdc7a108",
-    "userName": "no name",
-    "serviceVariable": {
-      "foo": {
-        "serviceUserId": "sQjlpAFGUoAxIfjkAO3BPG7VVVfFCUgvraRVUMdN6QM1_yU7kMa4drhFrNnaGDQz"
-      }
-    }
-  },
-  "user4@example.com": {
-    "emailAddress": "user4@example.com",
-    "passPbkdf2": "2bb2979a54cfb4e3b96ebc97343d3ecbeb05a9c92c51866bb25231d87ca8c3097af1aaa1747fdbed968fbc569a6c918d1f10970aeee506c6c994f7f06f957cd5",
-    "saltHex": "bf6c055fa339e7c215817ebbe206d1d5b77cc8584484573eeecfd7e10dae3269931a835044b79e9711e8511f195e5f589a46c2256295cce9ae6ba988f95de651",
-    "userName": "no name",
-    "serviceVariable": {
-      "foo": {
-        "serviceUserId": "erbhrX5siqi4lhziSTfaopTZ8PEmyzdlHeXn6zrKamOYeohP1XluGBjyVc_Pa3zH"
-      }
-    }
-  },
-  "user7@example.com": {
     "auth": {
-      "emailAddress": "user7@example.com",
-      "passPbkdf2": "d8782a77ab54cb551673b56aa1d1f048437c62710e71f0db201c3e7c5e495226ac6fa269a1ba82a2d26dd6ff9eec3a9fd8a96a0a074ddccc0391368946f72d53",
-      "saltHex": "50beb3bf94da8158313b4ae21342afd5d91ddec51a7d35235cbfdae23af8bf8ec7e85cd30743fadd9efe788e85f249950e41124f39d17ce8c1e26cb50dbb59b3",
-      "userName": "no name",
-      "sample_localhost7001": {
-        "serviceUserId": "gk1fOvJQiYRZ8b2vFiqYwtHMUdPMuaFCF3qiwhYk1ekt-MZ7UHf_EWgv58_WeS2R"
-      }
-    },
-    "sample_localhost7001": {
-      "serviceUserId": "n55qz7h_8N467Rh0KJap0DEuhrTlQ__qKuo1dJd7mQ0p5LP5nccmwXxktpGbA8BM"
-    }
-  },
-  "user8@example.com": {
-    "auth": {
-      "emailAddress": "user8@example.com",
-      "passPbkdf2": "90cbde9c3e27682d7670e311271514b76b1c5fa746a66ce375efdbc5aa031ad2d704bda07620af8799da2a173e3902cc87b412a1305cfb2b11769eda61b96ecc",
-      "saltHex": "808da12e34081b61d3291d2589aa21ccf6c01b70460bf6c26f04f101ac0982c171dbf9aeaf7d079b803137736416b4fa034c8a5e98910559cc3e64746d4063ce",
+      "emailAddress": "user@example.com",
+      "passPbkdf2": "432a821a8b18d96d4ca7d7d1dc0cec8752ae6fdeac10d206f219269981c83c712f171571f2342f906a1622c400cbe3b3786354c50f335f652ce51234a2306f3e",
+      "saltHex": "129ef42d14eeba678b6218c8023c6ca9e32a2bd778431f37e5950b0e938c63d67ff602bd2c003f0168886180b05a8449a21002cdf9cab1fc41c79389f663aec2",
       "userName": "no name"
     },
     "sample_localhost7001": {
-      "serviceUserId": "_W6rcP9APnwcM_yaHrJGGfAv7rbUQj1nTmkbV9GIxjsTvISTajAKUcDtppzIwIsQ"
+      "serviceUserId": "3ubb1tcCGBNwHQrgRR04jy9z4LjXyJIIMIkSaRkWrJk62z9bY474xNccfZvyJJe1"
     }
   }
 }

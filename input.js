@@ -43,8 +43,7 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
       console.log('[warn] invalid key:', key)
       return
     }
-    const permission = `r:${key}`
-    if (accessTokenList[accessToken].permissionList[permission]) {
+    if (_checkPermission(accessTokenList[accessToken].permissionList, 'r', keySplit[0], keySplit[1])) {
       if (user[keySplit[0]]) {
         publicData[key] = user[keySplit[0]][keySplit[1]]
       }
@@ -55,13 +54,8 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
 
 
 /* from accessTokenList */
-const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
-  const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
-    return null
-  }
-
-  const isAuthorized = Object.entries(accessTokenList[accessToken].permissionList).some(([key, isChecked]) => {
+const _checkPermission = (permissionList, operationKey, range, dataType) => {
+  const isAuthorized = Object.entries(permissionList).some(([key, isChecked]) => {
     if (!isChecked) {
       return false
     }
@@ -75,20 +69,30 @@ const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, 
       return false
     }
 
-    if (keySplit[1] !== notificationRange) {
+    if (keySplit[1] !== range) {
       return false
     }
 
-    if (keySplit[2] !== 'notification') {
+    if (keySplit[2] !== dataType) {
       return false
     }
 
     return true
   })
 
-  if (!isAuthorized) {
+  return isAuthorized
+}
+
+const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
+  const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
     return null
   }
+
+  const isAuthorized = _checkPermission(accessTokenList[accessToken].permissionList, operationKey, range, dataType)
+    if (!isAuthorized) {
+      return null
+    }
 
   return accessTokenList[accessToken].emailAddress
 }

@@ -123,6 +123,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken) => {
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
+  console.log(userInfo)
 
   if (!userInfo) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
