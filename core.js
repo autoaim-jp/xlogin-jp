@@ -60,10 +60,10 @@ const credentialCheck = async (emailAddress, passHmac2) => {
     return { credentialCheckResult: false }
   }
 
-  const saltHex = user.saltHex
+  const saltHex = user[mod.setting.server.AUTH_SERVER_CLIENT_ID].saltHex
 
   const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if(user.passPbkdf2 !== passPbkdf2) {
+  if(user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
     return { credentialCheckResult: false }
   }
 
@@ -76,16 +76,12 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
   }
 
   const user = {
-    emailAddress,
-    passPbkdf2,
-    saltHex,
-    userName: 'no name',
-    serviceVariable: {}
-  }
-
-  if (clientId) {
-    const serviceUserId = _generageServiceUserId()
-    user.serviceVariable[clientId] = { serviceUserId }
+    auth: {
+      emailAddress,
+      passPbkdf2,
+      saltHex,
+      userName: 'no name',
+    }
   }
 
   mod.output.registerUserByEmailAddress(emailAddress, user)
@@ -101,7 +97,7 @@ const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress)
   detail += ` with ${useragent.browser}(${useragent.platform})`
   detail += ` by ${clientId}`
   detail += ` from ${ipAddress}`
-  mod.output.appendNotification(mod.setting.notification.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+  mod.output.appendNotification(mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
 }
 
 const getNotification = (emailAddress, notificationRange) => {

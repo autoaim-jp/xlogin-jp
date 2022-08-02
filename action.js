@@ -65,8 +65,8 @@ const handleConfirm = (ipAddress, useragent, permissionList, authSession, regist
     return _getErrorResponse(status, error, false)
   }
 
-  registerLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user.emailAddress)
-  registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId)
+  registerLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
 
@@ -108,7 +108,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user.emailAddress, authSession.oidc.permissionList)
+  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.permissionList)
   if (!resultRegisterAccessToken) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_code_access_token'

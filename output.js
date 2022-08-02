@@ -24,10 +24,10 @@ const registerUserByEmailAddress = (emailAddress, user) => {
 
 const registerServiceUserId = (emailAddress, clientId, serviceUserId) => {
   const userList = JSON.parse(fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  if (userList[emailAddress] && userList[emailAddress].serviceVariable[clientId]) {
+  if (userList[emailAddress] && userList[emailAddress][clientId]) {
     return false
   }
-  userList[emailAddress].serviceVariable[clientId] = { serviceUserId }
+  userList[emailAddress][clientId] = { serviceUserId }
   fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
   return true
 }

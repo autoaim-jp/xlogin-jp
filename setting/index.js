@@ -4,6 +4,7 @@ import browserServerSetting from './browserServerSetting.js'
 const setting = {}
 
 setting.server = {}
+setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.server.PUBLIC_BUILD_DIR = 'view/build'
 setting.server.PUBLIC_STATIC_DIR = 'view/static'
 setting.server.CLIENT_LIST_JSON = 'data/clientList.json'
@@ -40,7 +41,6 @@ setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
 
 setting.notification = {}
-setting.notification.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.notification.ALL_NOTIFICATION = 'global'
 
 setting.bsc = browserServerSetting

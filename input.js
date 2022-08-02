@@ -45,10 +45,8 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
     }
     const permission = `r:${key}`
     if (accessTokenList[accessToken].permissionList[permission]) {
-      if (keySplit[0] === mod.setting.notification.AUTH_SERVER_CLIENT_ID) {
-        publicData[key] = user[keySplit[1]]
-      } else if (user.serviceVariable[keySplit[0]]) {
-        publicData[key] = user.serviceVariable[keySplit[0]][keySplit[1]]
+      if (user[keySplit[0]]) {
+        publicData[key] = user[keySplit[0]][keySplit[1]]
       }
     }
   })

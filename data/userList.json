@@ -54,5 +54,30 @@
         "serviceUserId": "erbhrX5siqi4lhziSTfaopTZ8PEmyzdlHeXn6zrKamOYeohP1XluGBjyVc_Pa3zH"
       }
     }
+  },
+  "user7@example.com": {
+    "auth": {
+      "emailAddress": "user7@example.com",
+      "passPbkdf2": "d8782a77ab54cb551673b56aa1d1f048437c62710e71f0db201c3e7c5e495226ac6fa269a1ba82a2d26dd6ff9eec3a9fd8a96a0a074ddccc0391368946f72d53",
+      "saltHex": "50beb3bf94da8158313b4ae21342afd5d91ddec51a7d35235cbfdae23af8bf8ec7e85cd30743fadd9efe788e85f249950e41124f39d17ce8c1e26cb50dbb59b3",
+      "userName": "no name",
+      "sample_localhost7001": {
+        "serviceUserId": "gk1fOvJQiYRZ8b2vFiqYwtHMUdPMuaFCF3qiwhYk1ekt-MZ7UHf_EWgv58_WeS2R"
+      }
+    },
+    "sample_localhost7001": {
+      "serviceUserId": "n55qz7h_8N467Rh0KJap0DEuhrTlQ__qKuo1dJd7mQ0p5LP5nccmwXxktpGbA8BM"
+    }
+  },
+  "user8@example.com": {
+    "auth": {
+      "emailAddress": "user8@example.com",
+      "passPbkdf2": "90cbde9c3e27682d7670e311271514b76b1c5fa746a66ce375efdbc5aa031ad2d704bda07620af8799da2a173e3902cc87b412a1305cfb2b11769eda61b96ecc",
+      "saltHex": "808da12e34081b61d3291d2589aa21ccf6c01b70460bf6c26f04f101ac0982c171dbf9aeaf7d079b803137736416b4fa034c8a5e98910559cc3e64746d4063ce",
+      "userName": "no name"
+    },
+    "sample_localhost7001": {
+      "serviceUserId": "_W6rcP9APnwcM_yaHrJGGfAv7rbUQj1nTmkbV9GIxjsTvISTajAKUcDtppzIwIsQ"
+    }
   }
 }
