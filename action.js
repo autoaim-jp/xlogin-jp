@@ -123,7 +123,6 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken) => {
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
-  console.log(userInfo)
 
   if (!userInfo) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -150,7 +149,7 @@ const handleNotification = (clientId, accessToken, notificationRange, getNotific
 }
 
 const handleNotificationAdd = (clientId, accessToken, notificationRange, subject, detail, addNotificationByAccessToken) => {
-  const notificationAddResult = addNotificationByAccessToken(clientId, accessToken, notificaitonRange, subject, detail)
+  const notificationAddResult = addNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
 
   if (!notificationAddResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR

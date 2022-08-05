@@ -114,7 +114,7 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
   return mod.input.getNotification(emailAddress, notificationRange)
 }
 
-const addNotificationByAccessToken = (clientId, accessToken, notificaitonRange, subject, detail) => {
+const addNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
   const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
 
   if (!emailAddress) {
@@ -144,4 +144,5 @@ export default {
   registerLoginNotification,
   getNotification,
   getNotificationByAccessToken,
+  addNotificationByAccessToken,
 }
