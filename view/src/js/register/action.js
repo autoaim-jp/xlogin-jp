@@ -1,9 +1,7 @@
 export const getOnSubmitRegister = ({ userHmacSecret, labelList, emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm, calcHmac512, genSalt, calcPbkdf2, buf2Hex, switchLoading, redirect, postRegister, getErrorModalElmAndSetter, showModal }) => {
   const { modalElm, setContent } = getErrorModalElmAndSetter()
 
-  return async (event) => {
-    event.preventDefault()
-    event.stopPropagation()
+  return async () => {
     switchLoading(true)
 
     const emailAddress = emailAddressInputElm.value

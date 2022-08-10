@@ -3,9 +3,7 @@
 export const getOnSubmitLogin = ({ calcHmac512, userHmacSecret, labelList, emailAddressInputElm, passInputElm, postLogin, redirect, switchLoading, showModal, getErrorModalElmAndSetter }) => {
   const { modalElm, setContent } = getErrorModalElmAndSetter()
 
-  return async (event) => {
-    event.preventDefault()
-    event.stopPropagation()
+  return async () => {
     switchLoading(true)
 
     const emailAddress = emailAddressInputElm.value

@@ -19,6 +19,10 @@ export const getRegisterFormElm = () => {
 
 export const setRegisterFormSubmit = ({ onSubmitRegister }) => {
   const registerFormElm = document.querySelector('#registerForm')
-  registerFormElm.onsubmit = onSubmitRegister
+  registerFormElm.onsubmit = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onSubmitRegister()
+  }
 }
 

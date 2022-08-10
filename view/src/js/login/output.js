@@ -16,6 +16,10 @@ export const getLoginFormElm = () => {
 
 export const setLoginFormSubmit = ({ onSubmitLogin }) => {
   const loginFormElm = document.querySelector('#loginForm')
-  loginFormElm.onsubmit = onSubmitLogin
+  loginFormElm.onsubmit = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onSubmitLogin()
+  }
 }
 

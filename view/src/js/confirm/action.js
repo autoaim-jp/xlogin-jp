@@ -1,8 +1,6 @@
 /* confirm/action.js */
 export const getOnSubmitConfirm = ({ getPermissionCheckList, postConfirm, switchLoading, redirect }) => {
-  return (event) => {
-    event.preventDefault()
-    event.stopPropagation()
+  return () => {
     switchLoading(true)
 
     const permissionList = getPermissionCheckList()

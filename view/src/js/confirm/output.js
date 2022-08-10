@@ -51,6 +51,10 @@ export const getConfirmFormElm = () => {
 
 
 export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirm }) => {
-  confirmFormElm.onsubmit = onSubmitConfirm
+  confirmFormElm.onsubmit = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onSubmitConfirm()
+  }
 }
 
