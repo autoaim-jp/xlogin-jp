@@ -267,6 +267,7 @@ export default {
   handleUserInfo,
   handleNotification,
   handleNotificationAppend,
+  handleNotificationOpen,
   handleUserAdd,
   handleScope,
   handleGlobalNotification,

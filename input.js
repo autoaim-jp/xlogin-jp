@@ -101,13 +101,16 @@ const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, 
 /* from notificationList */
 const getNotification = (emailAddress, notificationRange) => {
   const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
-
   if (notificationRange === mod.setting.notification.ALL_NOTIFICATION) {
     return notificationList[emailAddress]?.contentList || {}
   } else {
+    if (!notificationList[emailAddress]) {
+      return {}
+    }
     const filteredNotificationList = {}
+    const lastOpenNotificationId = notificationList[emailAddress].clientOpenNotificationIdList[notificationRange] || '0'
     Object.entries(notificationList[emailAddress]?.contentList || {}).forEach(([notificationId, row]) => { 
-      if (row.clientId === notificationRange) {
+      if (row.clientId === notificationRange && notificationId > lastOpenNotificationId) {
         filteredNotificationList[notificationId] = row
       }
     })
