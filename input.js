@@ -1,40 +1,40 @@
 /* /input.js */
-import fs from 'fs'
-
 const mod = {}
 
-const init = (setting) => {
+const init = (setting, fs) => {
   mod.setting = setting
+
+  mod.fs = fs
 }
 
 /* from clientList */
 const isValidClient = (clientId, redirectUri) => {
-  const clientList = JSON.parse(fs.readFileSync(mod.setting.server.CLIENT_LIST_JSON))
+  const clientList = JSON.parse(mod.fs.readFileSync(mod.setting.server.CLIENT_LIST_JSON))
   return clientList[clientId] && clientList[clientId].redirectUri === decodeURIComponent(redirectUri)
 }
 
 
 /* from userList */
 const getUserByEmailAddress = (emailAddress) => {
-  const userList = JSON.parse(fs.readFileSync(mod.setting.server.USER_LIST_JSON))
+  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
   return userList[emailAddress]
 }
 
 
 /* from authSessionList */
 const getAuthSessionByCode = (code) => {
-  const authSessionList = JSON.parse(fs.readFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON))
+  const authSessionList = JSON.parse(mod.fs.readFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON))
   return authSessionList[code]
 }
 
 
 /* from accessTokenList, userList */
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  const accessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
   if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
     return null
   }
-  const userList = JSON.parse(fs.readFileSync(mod.setting.server.USER_LIST_JSON))
+  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
   const user = userList[accessTokenList[accessToken].emailAddress]
   const publicData = {}
   filterKeyList.forEach((key) => {
@@ -84,7 +84,7 @@ const _checkPermission = (permissionList, operationKey, range, dataType) => {
 }
 
 const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
-  const accessTokenList = JSON.parse(fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  const accessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
   if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
     return null
   }
@@ -100,7 +100,7 @@ const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, 
 
 /* from notificationList */
 const getNotification = (emailAddress, notificationRange) => {
-  const notificationList = JSON.parse(fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
+  const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
   if (notificationRange === mod.setting.notification.ALL_NOTIFICATION) {
     return (notificationList[emailAddress] || []).reverse()
   } else {

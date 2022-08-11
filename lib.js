@@ -1,4 +1,9 @@
-import crypto from 'crypto'
+const mod = {}
+
+const init = (crypto, ulid) => {
+  mod.crypto = crypto
+  mod.ulid = ulid
+}
 
 /* url */
 const objToQuery = (obj) => {
@@ -27,13 +32,17 @@ const paramSnakeToCamel = (paramList) => {
 }
 
 /* id, auth */
+const getUlid = () => {
+  return mod.ulid.ulid()
+}
+
 const getRandomB64UrlSafe = (len) => {
-  return crypto.randomBytes(len).toString('base64url').slice(0, len)
+  return mod.crypto.randomBytes(len).toString('base64url').slice(0, len)
 }
 
 const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
   const calcSha256AsB64Url = (str) => {
-    const sha256 = crypto.createHash('sha256')
+    const sha256 = mod.crypto.createHash('sha256')
     sha256.update(str)
     return sha256.digest('base64url')
   }
@@ -47,7 +56,7 @@ const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
 
 const calcPbkdf2 = (data, saltHex) => {
   return new Promise((resolve, reject) => {
-    crypto.pbkdf2(data, Buffer.from(saltHex, 'hex'), 1000*1000, 64, 'sha512', (err, derivedKey) => {
+    mod.crypto.pbkdf2(data, Buffer.from(saltHex, 'hex'), 1000*1000, 64, 'sha512', (err, derivedKey) => {
       if(err) {
         return resolve(null)
       }
@@ -68,10 +77,13 @@ const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
 
 
 export default {
+  init,
+
   objToQuery,
   addQueryStr,
   paramSnakeToCamel,
 
+  getUlid,
   getRandomB64UrlSafe,
   convertToCodeChallenge,
   calcPbkdf2,

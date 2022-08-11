@@ -97,7 +97,9 @@ const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress)
   detail += ` with ${useragent.browser}(${useragent.platform})`
   detail += ` by ${clientId}`
   detail += ` from ${ipAddress}`
-  mod.output.appendNotification(mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+
+  const notificationId = mod.lib.getUlid()
+  mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
 }
 
 const getNotification = (emailAddress, notificationRange) => {
@@ -121,7 +123,9 @@ const addNotificationByAccessToken = (clientId, accessToken, notificationRange, 
     return false
   }
 
-  return mod.output.appendNotification(notificationRange, emailAddress, subject, detail)
+  const notificationId = mod.lib.getUlid()
+
+  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
 }
 
 export default {

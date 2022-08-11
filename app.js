@@ -1,5 +1,7 @@
 import fs from 'fs'
 import https from 'https'
+import crypto from 'crypto'
+import ulid from 'ulid'
 import express from 'express'
 import session from 'express-session'
 import bodyParser from 'body-parser'
@@ -83,6 +85,7 @@ const _getUserApiRouter = () => {
 
 const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
+
   expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
@@ -91,6 +94,7 @@ const _getNotificationApiRouter = () => {
     const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotification)
   })
+
   expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
@@ -99,6 +103,16 @@ const _getNotificationApiRouter = () => {
     const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationAdd)
   })
+
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/opened`, (req, res) => {
+    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationAdd)
+  })
+
   return expressRouter
 }
 
@@ -177,9 +191,10 @@ const startServer = (expressApp) => {
 
 const main = () => {
   dotenv.config()
-  output.init(setting)
+  lib.init(crypto, ulid)
+  output.init(setting, fs)
   core.init(setting, output, input, lib)
-  input.init(setting)
+  input.init(setting, fs)
   action.init(setting, lib)
 
   const expressApp = express()
