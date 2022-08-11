@@ -148,17 +148,32 @@ const handleNotification = (clientId, accessToken, notificationRange, getNotific
   return { status, session: null, response: { result: { notificationList } }, redirect: null }
 }
 
+/* POST /api/$apiVersion/notification/append */
 const handleNotificationAppend = (clientId, accessToken, notificationRange, subject, detail, appendNotificationByAccessToken) => {
-  const notificationAddResult = appendNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
+  const notificationAppendResult = appendNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
 
-  if (!notificationAddResult) {
+  if (!notificationAppendResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
-    const error = 'handle_notification_add_access_token'
+    const error = 'handle_notification_append_access_token'
     return _getErrorResponse(status, error, null)
   }
 
   const status = mod.setting.bsc.statusList.OK
-  return { status, session: null, response: { result: { notificationAddResult } }, redirect: null }
+  return { status, session: null, response: { result: { notificationAppendResult } }, redirect: null }
+}
+
+/* POST /api/$apiVersion/notification/open */
+const handleNotificationOpen = (clientId, accessToken, notificationRange, notificationIdList, openNotificationByAccessToken) => {
+  const notificationOpenResult = openNotificationByAccessToken(clientId, accessToken, notificationRange, notificationIdList)
+
+  if (!notificationOpenResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_notification_open_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return { status, session: null, response: { result: { notificationOpenResult } }, redirect: null }
 }
 
 /* POST /f/login/user/add */
@@ -215,7 +230,7 @@ const handleGlobalNotification = (authSession, getNotification) => {
     return _getErrorResponse(status, error, false)
   }
 
-  const globalNotificationList = getNotification(authSession?.user?.emailAddress, mod.setting.notification.ALL_NOTIFICATION)
+  const globalNotificationList = getNotification(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, mod.setting.notification.ALL_NOTIFICATION)
   const status = mod.setting.bsc.statusList.OK
 
   return { status, session: authSession, response: { result: { globalNotificationList } } }

@@ -107,9 +107,9 @@ const _getNotificationApiRouter = () => {
   expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, notificationId } = lib.paramSnakeToCamel(req.body)
+    const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationId, core.openNotificationByAccessToken)
+    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationOpen)
   })
 

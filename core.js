@@ -103,7 +103,7 @@ const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) =
 }
 
 const appendNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
 
   if (!emailAddress) {
     return false
@@ -113,6 +113,17 @@ const appendNotificationByAccessToken = (clientId, accessToken, notificationRang
 
   return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
 }
+
+const openNotificationByAccessToken = (clientId, accessToken, notificationRange, notificationIdList) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return false
+  }
+
+  return mod.output.openNotification(notificationIdList, notificationRange, emailAddress)
+}
+
 
 const getNotification = (emailAddress, notificationRange) => {
   return mod.input.getNotification(emailAddress, notificationRange)
@@ -148,6 +159,7 @@ export default {
 
   appendLoginNotification,
   appendNotificationByAccessToken,
+  openNotificationByAccessToken,
   getNotification,
   getNotificationByAccessToken,
 }

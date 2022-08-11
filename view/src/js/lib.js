@@ -130,7 +130,7 @@ export const showGlobalNotification = async (apiEndpoint) => {
   const notificationContainerElm = document.querySelector('#notificationContainer')
   notificationContainerElm.clearChildren()
   const notificationTemplateElm = document.querySelector('#notificationTemplate')
-  const notificationList = resultFetchGlobalNotification?.result?.globalNotificationList || []
+  const notificationList = Object.values(resultFetchGlobalNotification?.result?.globalNotificationList || {})
   notificationList.forEach((row, i) => {
     const notificationElm = notificationTemplateElm.cloneNode(true)
     notificationElm.classList.remove('hidden')

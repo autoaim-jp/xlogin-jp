@@ -58,12 +58,32 @@ const registerAccessToken = (clientId, accessToken, emailAddress, permissionList
 const appendNotification = (notificationId, clientId, emailAddress, subject, detail) => {
   const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
   if (!notificationList[emailAddress]) {
-    notificationList[emailAddress] = []
+    notificationList[emailAddress] = { clientOpenNotificationIdList: {}, contentList: {} }
   }
 
   const dateRegistered = Date.now()
 
-  notificationList[emailAddress].push({ notificationId, clientId, subject, detail, dateRegistered })
+  notificationList[emailAddress].contentList[notificationId] = { clientId, subject, detail, dateRegistered, isOpen: false }
+
+  mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
+  return true
+}
+
+const openNotification = (notificationIdList, clientId, emailAddress) => {
+  const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
+  if (!notificationList[emailAddress]) {
+    return false
+  }
+
+  notificationIdList.some((notificationId) => {
+    if (notificationList[emailAddress].contentList[notificationId]) {
+      notificationList[emailAddress].contentList[notificationId].isOpen = true
+      const notificationClientId = notificationList[emailAddress].contentList[notificationId].clientId
+      if(!notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] || notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] < notificationId) {
+        notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] = notificationId
+      }
+    }
+  })
 
   mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
   return true
@@ -101,6 +121,7 @@ export default {
   registerAuthSession,
   registerAccessToken,
   appendNotification,
+  openNotification,
 
   endResponse,
 }
