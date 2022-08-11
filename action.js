@@ -58,14 +58,14 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 }
 
 /* POST /f/confirm/permission/check */
-const handleConfirm = (ipAddress, useragent, permissionList, authSession, registerAuthSession, registerLoginNotification, registerServiceUserId) => {
+const handleConfirm = (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
   }
 
-  registerLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
   registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
@@ -148,8 +148,8 @@ const handleNotification = (clientId, accessToken, notificationRange, getNotific
   return { status, session: null, response: { result: { notificationList } }, redirect: null }
 }
 
-const handleNotificationAdd = (clientId, accessToken, notificationRange, subject, detail, addNotificationByAccessToken) => {
-  const notificationAddResult = addNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
+const handleNotificationAppend = (clientId, accessToken, notificationRange, subject, detail, appendNotificationByAccessToken) => {
+  const notificationAddResult = appendNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
 
   if (!notificationAddResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -251,7 +251,7 @@ export default {
   handleCode,
   handleUserInfo,
   handleNotification,
-  handleNotificationAdd,
+  handleNotificationAppend,
   handleUserAdd,
   handleScope,
   handleGlobalNotification,

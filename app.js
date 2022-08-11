@@ -100,17 +100,17 @@ const _getNotificationApiRouter = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotificationAdd)
+    const resultHandleNotificationAppend = action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationAppend)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/opened`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
     const accessToken = req.headers['authorization'].slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
+    const { notificationRange, notificationId } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotificationAdd)
+    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationId, core.openNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationOpen)
   })
 
   return expressRouter
@@ -128,7 +128,7 @@ const _getFunctionRouter = () => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.registerLoginNotification, core.registerServiceUserId)
+    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {

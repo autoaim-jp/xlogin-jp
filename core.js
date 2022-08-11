@@ -90,7 +90,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* notification */
-const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
+const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
   let detail = 'Login'
   detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
   const subject = detail
@@ -100,6 +100,18 @@ const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress)
 
   const notificationId = mod.lib.getUlid()
   mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+}
+
+const appendNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return false
+  }
+
+  const notificationId = mod.lib.getUlid()
+
+  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
 }
 
 const getNotification = (emailAddress, notificationRange) => {
@@ -116,17 +128,6 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
   return mod.input.getNotification(emailAddress, notificationRange)
 }
 
-const addNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
-
-  if (!emailAddress) {
-    return false
-  }
-
-  const notificationId = mod.lib.getUlid()
-
-  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
-}
 
 export default {
   init,
@@ -145,8 +146,8 @@ export default {
   credentialCheck,
   addUser,
 
-  registerLoginNotification,
+  appendLoginNotification,
+  appendNotificationByAccessToken,
   getNotification,
   getNotificationByAccessToken,
-  addNotificationByAccessToken,
 }
