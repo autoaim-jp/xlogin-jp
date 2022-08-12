@@ -52,6 +52,17 @@ const loadConfirmForm = async () => {
   }))
 }
 
+const startThroughCheck = () => {
+  const postThrough = a.output.getPostThrough(argNamed({
+    lib: [ a.lib.postRequest ],
+    setting: a.setting.bsc.get('apiEndpoint'),
+  }))
+  a.core.checkThrough(argNamed({
+    lib: [ a.lib.switchLoading, a.lib.redirect ],
+    param: { postThrough },
+  }))
+}
+
 const main = async () => {
   a.lib.switchLoading(true)
   a.lib.setOnClickNavManu()
@@ -61,16 +72,14 @@ const main = async () => {
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
 
-
-  setTimeout(() => {
-    a.lib.switchLoading(false)
-  }, 300)
+  a.app.startThroughCheck()
 }
 
 a.app = {
   main,
   loadPermissionList,
   loadConfirmForm,
+  startThroughCheck,
 }
 
 a.app.main()

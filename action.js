@@ -57,14 +57,8 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
   return { status, session: newUserSession, response: { redirect } }
 }
 
-/* POST /f/confirm/permission/check */
-const handleConfirm = (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
-  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
-    const status = mod.setting.bsc.statusList.INVALID_SESSION
-    const error = 'handle_confirm_session'
-    return _getErrorResponse(status, error, false)
-  }
-
+/* after /f/confirm/ */
+const _afterPermissionCheck = (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
   appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
   registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
 
@@ -81,6 +75,38 @@ const handleConfirm = (ipAddress, useragent, permissionList, authSession, regist
   const status = mod.setting.bsc.statusList.OK
   return { status, session: newUserSession, response: { redirect } }
 }
+
+/* POST /f/confirm/permission/check */
+const handleConfirm = (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
+  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
+    const status = mod.setting.bsc.statusList.INVALID_SESSION
+    const error = 'handle_confirm_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  return _afterPermissionCheck(ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId)
+}
+
+/* POST /f/confirm/through/check */
+const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, getAlreadyCheckedPermissionList) => {
+  if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
+    const status = mod.setting.bsc.statusList.INVALID_SESSION
+    const error = 'handle_confirm_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const permissionList = getAlreadyCheckedPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+
+  if (!permissionList) {
+    const status = mod.setting.bsc.statusList.NOT_FOUND
+    const result = { oldPermissionList: null }
+    return { status, session: authSession, response: { result } }
+  }
+
+  return _afterPermissionCheck(ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId)
+}
+
+
 
 /* GET /api/$apiVersion/auth/code */
 const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, getAuthSessionByCode) => {
@@ -263,6 +289,7 @@ export default {
   handleConnect,
   handleCredentialCheck,
   handleConfirm,
+  handleThrough,
   handleCode,
   handleUserInfo,
   handleNotification,

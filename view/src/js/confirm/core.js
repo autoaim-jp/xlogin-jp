@@ -60,3 +60,10 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
   return permissionLabelList
 }
 
+export const checkThrough = ({ postThrough, switchLoading, redirect }) => {
+  switchLoading(true)
+  postThrough().then((result) => {
+    switchLoading(false)
+    redirect(result)
+  })
+}

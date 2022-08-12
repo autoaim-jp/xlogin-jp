@@ -30,12 +30,13 @@ const getAuthSessionByCode = (code) => {
 
 /* from accessTokenList, userList */
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  const accessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
+  /* clientId, accessToken => emailAddress */
+  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  if (!allAccessTokenList.accessTokenList[accessToken] || allAccessTokenList.accessTokenList[accessToken].clientId !== clientId) {
     return null
   }
   const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  const user = userList[accessTokenList[accessToken].emailAddress]
+  const user = userList[allAccessTokenList.accessTokenList[accessToken].emailAddress]
   const publicData = {}
   filterKeyList.forEach((key) => {
     const keySplit = key.split(':')
@@ -43,7 +44,7 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
       console.log('[warn] invalid key:', key)
       return
     }
-    if (_checkPermission(accessTokenList[accessToken].permissionList, 'r', keySplit[0], keySplit[1])) {
+    if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].permissionList, 'r', keySplit[0], keySplit[1])) {
       if (user[keySplit[0]]) {
         publicData[key] = user[keySplit[0]][keySplit[1]]
       }
@@ -52,6 +53,23 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return { public: publicData }
 }
 
+const getAlreadyCheckedPermissionList = (clientId, emailAddress) => {
+  /* clientId, emailAddress => accessToken(permissionList) */
+  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+
+  let permissionList = null
+  Object.entries(allAccessTokenList.clientList[clientId] || {}).some(([_emailAddress, row]) => {
+    if (_emailAddress === emailAddress) {
+      permissionList = row.permissionList
+      return true
+    }
+    return false
+  })
+
+  console.log({ permissionList })
+
+  return permissionList
+}
 
 /* from accessTokenList */
 const _checkPermission = (permissionList, operationKey, range, dataType) => {
@@ -84,17 +102,18 @@ const _checkPermission = (permissionList, operationKey, range, dataType) => {
 }
 
 const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
-  const accessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (!accessTokenList[accessToken] || accessTokenList[accessToken].clientId !== clientId) {
+  /* accessToken, clientId => emailAddress */
+  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+  if (!allAccessTokenList.accessTokenList[accessToken] || allAccessTokenList.accessTokenList[accessToken].clientId !== clientId) {
     return null
   }
 
-  const isAuthorized = _checkPermission(accessTokenList[accessToken].permissionList, operationKey, range, dataType)
-    if (!isAuthorized) {
-      return null
-    }
+  const isAuthorized = _checkPermission(allAccessTokenList.accessTokenList[accessToken].permissionList, operationKey, range, dataType)
+  if (!isAuthorized) {
+    return null
+  }
 
-  return accessTokenList[accessToken].emailAddress
+  return allAccessTokenList.accessTokenList[accessToken].emailAddress
 }
 
 
@@ -128,6 +147,7 @@ export default {
   getAuthSessionByCode,
 
   getUserByAccessToken,
+  getAlreadyCheckedPermissionList,
 
   checkPermissionAndGetEmailAddress,
 

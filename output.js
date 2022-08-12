@@ -6,7 +6,7 @@ const init = (setting, fs) => {
 
   mod.fs = fs
 
-  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, '{}')
+  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify({ accessTokenList: {}, clientList: {} }, null, 2))
   mod.fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, '{}')
   mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, '{}')
 }
@@ -45,12 +45,19 @@ const registerAuthSession = (code, authSession) => {
 
 /* to accessTokenList */
 const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
-  const accessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (accessTokenList[accessToken]) {
+  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+
+  if (allAccessTokenList.accessTokenList[accessToken]) {
     return false
   }
-  accessTokenList[accessToken] = { clientId, emailAddress, permissionList }
-  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify(accessTokenList, null, 2))
+  if (!allAccessTokenList.clientList[clientId]) {
+    allAccessTokenList.clientList[clientId] = {}
+  }
+
+  allAccessTokenList.clientList[clientId][emailAddress] = { accessToken, permissionList }
+
+  allAccessTokenList.accessTokenList[accessToken] = { clientId, emailAddress, permissionList }
+  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify(allAccessTokenList, null, 2))
   return true
 }
 

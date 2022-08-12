@@ -39,6 +39,10 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
 }
 
+const getAlreadyCheckedPermissionList = (clientId, emailAddress) => {
+  return mod.input.getAlreadyCheckedPermissionList(clientId, emailAddress)
+}
+
 
 /* user */
 const registerUserByEmailAddress = (emailAddress, user) => {
@@ -150,6 +154,7 @@ export default {
 
   registerAccessToken,
   getUserByAccessToken,
+  getAlreadyCheckedPermissionList,
 
   registerUserByEmailAddress,
   registerServiceUserId,

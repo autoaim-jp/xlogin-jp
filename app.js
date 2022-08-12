@@ -124,6 +124,14 @@ const _getFunctionRouter = () => {
     const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
+
+  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, (req, res) => {
+    const { useragent } = req
+    const ipAddress = req.headers['x-forwarded-for'] || req.ip
+    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getAlreadyCheckedPermissionList)
+    output.endResponse(req, res, resultHandleThrough)
+  })
+
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
@@ -131,19 +139,23 @@ const _getFunctionRouter = () => {
     const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
+
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
     const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
     const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress, core.registerUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
+
   expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, (req, res) => {
     const resultHandleScope = action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
   })
+
   expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
     const resultHandleNotification = action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })
+
   return expressRouter
 }
 

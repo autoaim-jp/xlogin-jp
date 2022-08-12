@@ -49,7 +49,6 @@ export const getConfirmFormElm = () => {
   return confirmFormElm
 }
 
-
 export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirm }) => {
   confirmFormElm.onsubmit = (e) => {
     e.preventDefault()
@@ -57,4 +56,13 @@ export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirm }) => {
     onSubmitConfirm()
   }
 }
+
+export const getPostThrough = ({ apiEndpoint, postRequest }) => {
+  const url = `${apiEndpoint}/confirm/through/check`
+  return () => {
+    const param = {}
+    return postRequest(url, param)
+  }
+}
+
 
