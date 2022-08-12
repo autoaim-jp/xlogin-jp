@@ -44,7 +44,7 @@ const registerAuthSession = (code, authSession) => {
 }
 
 /* to accessTokenList */
-const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
+const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
   const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
 
   if (allAccessTokenList.accessTokenList[accessToken]) {
@@ -54,9 +54,9 @@ const registerAccessToken = (clientId, accessToken, emailAddress, permissionList
     allAccessTokenList.clientList[clientId] = {}
   }
 
-  allAccessTokenList.clientList[clientId][emailAddress] = { accessToken, permissionList }
+  allAccessTokenList.clientList[clientId][emailAddress] = { accessToken, splitPermissionList }
 
-  allAccessTokenList.accessTokenList[accessToken] = { clientId, emailAddress, permissionList }
+  allAccessTokenList.accessTokenList[accessToken] = { clientId, emailAddress, splitPermissionList }
   mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify(allAccessTokenList, null, 2))
   return true
 }

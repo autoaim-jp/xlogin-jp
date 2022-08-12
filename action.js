@@ -58,7 +58,7 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 }
 
 /* after /f/confirm/ */
-const _afterPermissionCheck = (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
+const _afterCheckPermission = (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, splitPermissionList) => {
   appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
   registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
 
@@ -68,7 +68,7 @@ const _afterPermissionCheck = (ipAddress, useragent, permissionList, authSession
   const { redirectUri, state } = authSession.oidc
   const redirect = mod.lib.addQueryStr(decodeURIComponent(redirectUri), mod.lib.objToQuery({ state, code, iss }))
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CODE, code, permissionList }) })
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CODE, code, splitPermissionList }) })
 
   registerAuthSession(code, newUserSession)
 
@@ -84,18 +84,39 @@ const handleConfirm = (ipAddress, useragent, permissionList, authSession, regist
     return _getErrorResponse(status, error, false)
   }
 
-  return _afterPermissionCheck(ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId)
+  const { scope } = authSession.oidc
+  let uncheckedRequiredPermissionExists = false
+  const splitPermissionList = { required: {}, optional: {} }
+  scope.split(',').forEach((key) => {
+    if (key[0] === '*') {
+      key = key.slice(1)
+      splitPermissionList.required[key] = permissionList[key]
+      if (!permissionList[key]) {
+        uncheckedRequiredPermissionExists = true
+      }
+    } else {
+      splitPermissionList.optional[key] = permissionList[key]
+    }
+  })
+
+  if (uncheckedRequiredPermissionExists) {
+    const status = mod.setting.bsc.statusList.NOT_ENOUGH_PARAM
+    const result = { isRequiredScopeChecked: false }
+    return { status, session: authSession, response: { result } }
+  }
+
+  return _afterCheckPermission(ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, splitPermissionList)
 }
 
 /* POST /f/confirm/through/check */
-const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, getAlreadyCheckedPermissionList) => {
+const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, getCheckedRequiredPermissionList) => {
   if (!authSession || !authSession.oidc || authSession.oidc['condition'] !== mod.setting.condition.CONFIRM) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
   }
 
-  const permissionList = getAlreadyCheckedPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  const permissionList = getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
 
   if (!permissionList) {
     const status = mod.setting.bsc.statusList.NOT_FOUND
@@ -103,9 +124,30 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
     return { status, session: authSession, response: { result } }
   }
 
-  return _afterPermissionCheck(ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId)
-}
+  const { scope } = authSession.oidc
+  let uncheckedPermissionExists = false
+  const splitPermissionList = { required: {}, optional: {} }
+  scope.split(',').forEach((key) => {
+    if (key[0] === '*') {
+      key = key.slice(1)
+      splitPermissionList.required[key] = permissionList[key]
+    } else {
+      splitPermissionList.optional[key] = permissionList[key]
 
+    }
+    if (!permissionList[key]) {
+      uncheckedPermissionExists = true
+    }
+  })
+
+  if (uncheckedPermissionExists) {
+    const status = mod.setting.bsc.statusList.NOT_ENOUGH_PARAM
+    const result = { oldPermissionList: permissionList }
+    return { status, session: authSession, response: { result } }
+  }
+
+  return _afterCheckPermission(ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, splitPermissionList)
+}
 
 
 /* GET /api/$apiVersion/auth/code */
@@ -134,7 +176,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.USER_INFO }) })
 
-  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.permissionList)
+  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.splitPermissionList)
   if (!resultRegisterAccessToken) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_code_access_token'

@@ -128,7 +128,7 @@ const _getFunctionRouter = () => {
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getAlreadyCheckedPermissionList)
+    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
     output.endResponse(req, res, resultHandleThrough)
   })
 

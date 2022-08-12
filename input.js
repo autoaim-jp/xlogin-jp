@@ -44,7 +44,7 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
       console.log('[warn] invalid key:', key)
       return
     }
-    if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].permissionList, 'r', keySplit[0], keySplit[1])) {
+    if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, 'r', keySplit[0], keySplit[1])) {
       if (user[keySplit[0]]) {
         publicData[key] = user[keySplit[0]][keySplit[1]]
       }
@@ -53,26 +53,27 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return { public: publicData }
 }
 
-const getAlreadyCheckedPermissionList = (clientId, emailAddress) => {
+const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
   /* clientId, emailAddress => accessToken(permissionList) */
   const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
 
   let permissionList = null
   Object.entries(allAccessTokenList.clientList[clientId] || {}).some(([_emailAddress, row]) => {
     if (_emailAddress === emailAddress) {
-      permissionList = row.permissionList
+      const { required, optional } = row.splitPermissionList
+      permissionList = Object.assign({}, required, optional)
       return true
     }
     return false
   })
 
-  console.log({ permissionList })
-
   return permissionList
 }
 
 /* from accessTokenList */
-const _checkPermission = (permissionList, operationKey, range, dataType) => {
+const _checkPermission = (splitPermissionList, operationKey, range, dataType) => {
+  const { required, optional } = splitPermissionList
+  const permissionList = Object.assign({}, required, optional)
   const isAuthorized = Object.entries(permissionList).some(([key, isChecked]) => {
     if (!isChecked) {
       return false
@@ -108,7 +109,7 @@ const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, 
     return null
   }
 
-  const isAuthorized = _checkPermission(allAccessTokenList.accessTokenList[accessToken].permissionList, operationKey, range, dataType)
+  const isAuthorized = _checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, operationKey, range, dataType)
   if (!isAuthorized) {
     return null
   }
@@ -147,7 +148,7 @@ export default {
   getAuthSessionByCode,
 
   getUserByAccessToken,
-  getAlreadyCheckedPermissionList,
+  getCheckedRequiredPermissionList,
 
   checkPermissionAndGetEmailAddress,
 

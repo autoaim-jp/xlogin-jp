@@ -31,16 +31,16 @@ const getAuthSessionByCode = (code) => {
 
 
 /* accessToken */
-const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, permissionList)
+const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
+  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList)
 }
 
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
 }
 
-const getAlreadyCheckedPermissionList = (clientId, emailAddress) => {
-  return mod.input.getAlreadyCheckedPermissionList(clientId, emailAddress)
+const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
+  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
 }
 
 
@@ -154,7 +154,7 @@ export default {
 
   registerAccessToken,
   getUserByAccessToken,
-  getAlreadyCheckedPermissionList,
+  getCheckedRequiredPermissionList,
 
   registerUserByEmailAddress,
   registerServiceUserId,
