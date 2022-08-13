@@ -70,7 +70,10 @@ const appendNotification = (notificationId, clientId, emailAddress, subject, det
 
   const dateRegistered = Date.now()
 
-  notificationList[emailAddress].contentList[notificationId] = { clientId, subject, detail, dateRegistered, isOpen: false }
+  const notification = {
+    clientId, subject, detail, dateRegistered, isOpen: false,
+  }
+  notificationList[emailAddress].contentList[notificationId] = notification
 
   mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
   return true
@@ -82,11 +85,11 @@ const openNotification = (notificationIdList, clientId, emailAddress) => {
     return false
   }
 
-  notificationIdList.some((notificationId) => {
+  notificationIdList.forEach((notificationId) => {
     if (notificationList[emailAddress].contentList[notificationId]) {
       notificationList[emailAddress].contentList[notificationId].isOpen = true
       const notificationClientId = notificationList[emailAddress].contentList[notificationId].clientId
-      if(!notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] || notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] < notificationId) {
+      if (!notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] || notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] < notificationId) {
         notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] = notificationId
       }
     }
@@ -103,21 +106,17 @@ const endResponse = (req, res, handleResult) => {
 
   if (handleResult.response) {
     return res.json(handleResult.response)
-  } else {
-    if (req.method === 'GET') {
-      if (handleResult.redirect) {
-        return res.redirect(handleResult.redirect)
-      } else {
-        return res.redirect(mod.setting.url.ERROR_PAGE)
-      }
-    } else {
-      if (handleResult.redirect) {
-        return res.json({ redirect: handleResult.redirect })
-      } else {
-        return res.json({ redirect: mod.setting.url.ERROR_PAGE })
-      }
-    }
   }
+  if (req.method === 'GET') {
+    if (handleResult.redirect) {
+      return res.redirect(handleResult.redirect)
+    }
+    return res.redirect(mod.setting.url.ERROR_PAGE)
+  }
+  if (handleResult.redirect) {
+    return res.json({ redirect: handleResult.redirect })
+  }
+  return res.json({ redirect: mod.setting.url.ERROR_PAGE })
 }
 
 export default {

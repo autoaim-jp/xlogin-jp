@@ -45,10 +45,6 @@ const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
 
 
 /* user */
-const registerUserByEmailAddress = (emailAddress, user) => {
-  return mod.output.registerUserByEmailAddress(emailAddress, user)
-}
-
 const registerServiceUserId = (emailAddress, clientId) => {
   return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
 }
@@ -64,10 +60,10 @@ const credentialCheck = async (emailAddress, passHmac2) => {
     return { credentialCheckResult: false }
   }
 
-  const saltHex = user[mod.setting.server.AUTH_SERVER_CLIENT_ID].saltHex
+  const { saltHex } = user[mod.setting.server.AUTH_SERVER_CLIENT_ID]
 
   const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if(user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
+  if (user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
     return { credentialCheckResult: false }
   }
 
@@ -85,7 +81,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
       passPbkdf2,
       saltHex,
       userName: 'no name',
-    }
+    },
   }
 
   mod.output.registerUserByEmailAddress(emailAddress, user)
@@ -146,7 +142,7 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
 
 export default {
   init,
-  
+
   isValidClient,
 
   registerAuthSession,
@@ -156,7 +152,6 @@ export default {
   getUserByAccessToken,
   getCheckedRequiredPermissionList,
 
-  registerUserByEmailAddress,
   registerServiceUserId,
   getUserByEmailAddress,
   credentialCheck,

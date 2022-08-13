@@ -12,12 +12,12 @@ import dotenv from 'dotenv'
 import path from 'path'
 import expressUseragent from 'express-useragent'
 
-import setting from './setting/index'
-import output from './output'
-import core from './core'
-import input from './input'
-import action from './action'
-import lib from './lib'
+import setting from './setting/index.js'
+import output from './output.js'
+import core from './core.js'
+import input from './input.js'
+import action from './action.js'
+import lib from './lib.js'
 
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
@@ -148,7 +148,7 @@ const _getFunctionRouter = () => {
     const {
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
     } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress, core.registerUserByEmailAddress)
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
 
@@ -169,7 +169,7 @@ const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
   expressRouter.get('/logout', (req, res) => {
-    const resultHandleLogout = action.handleLogout(req.session.auth)
+    const resultHandleLogout = action.handleLogout()
     output.endResponse(req, res, resultHandleLogout)
   })
 
