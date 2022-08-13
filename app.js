@@ -10,14 +10,14 @@ import Redis from 'ioredis'
 import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
-import useragent from 'express-useragent'
+import expressUseragent from 'express-useragent'
 
-import setting from './setting/index.js'
-import output from './output.js'
-import core from './core.js'
-import input from './input.js'
-import action from './action.js'
-import lib from './lib.js'
+import setting from './setting/index'
+import output from './output'
+import core from './core'
+import input from './input'
+import action from './action'
+import lib from './lib'
 
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
@@ -28,11 +28,11 @@ const _getSessionRouter = () => {
   })
 
   expressRouter.use(session({
-    secret : process.env.SESSION_SECRET, 
-    resave : true,
-    saveUninitialized : true,                
-    rolling : true,
-    name : setting.session.SESSION_ID,
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    rolling: true,
+    name: setting.session.SESSION_ID,
     cookie: {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -50,7 +50,7 @@ const _getExpressMiddlewareRouter = () => {
   expressRouter.use(bodyParser.urlencoded({ extended: true }))
   expressRouter.use(bodyParser.json())
   expressRouter.use(cookieParser())
-  expressRouter.use(useragent.express())
+  expressRouter.use(expressUseragent.express())
   return expressRouter
 }
 
@@ -58,12 +58,16 @@ const _getOidcRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
-    const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
+    const {
+      clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod,
+    } = lib.paramSnakeToCamel(req.query)
     const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
-    const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
+    const {
+      clientId, state, code, codeVerifier,
+    } = lib.paramSnakeToCamel(req.query)
     const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
@@ -73,7 +77,7 @@ const _getOidcRouter = () => {
 const _getUserApiRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
@@ -87,7 +91,7 @@ const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
 
   expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
 
@@ -96,7 +100,7 @@ const _getNotificationApiRouter = () => {
   })
 
   expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
 
@@ -105,7 +109,7 @@ const _getNotificationApiRouter = () => {
   })
 
   expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
 
@@ -141,7 +145,9 @@ const _getFunctionRouter = () => {
   })
 
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
-    const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
+    const {
+      emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
+    } = req.body
     const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress, core.registerUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
@@ -176,7 +182,7 @@ const _getOtherRouter = () => {
 
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.use((err, req, res, next) => {
+  expressRouter.use((err, req, res) => {
     console.error(err.stack)
     res.status(500)
     res.end('Internal Server Error')
