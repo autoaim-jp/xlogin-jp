@@ -12,6 +12,8 @@
     "ulid": "^2.3.0"
   },
   "scripts": {
+    "lint-server": "eslint *.js setting/",
+    "lint-browser": "eslint view/src/js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev-add-service": "node tool/src/registerNewService.js",
     "init-xdevkit": "git submodule update -i && cd xdevkit/ && git checkout master && git pull && git checkout $version && git pull origin $version && cd ../setting/ && ln -f ../xdevkit/browserServerSetting.js browserServerSetting.js && cd ../view/src/js/_setting/ && ln -f ../../../../xdevkit/browserServerSetting.js browserServerSetting.js",

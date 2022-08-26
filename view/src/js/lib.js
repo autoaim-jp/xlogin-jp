@@ -1,32 +1,66 @@
 /* lib.js */
 /* debug */
-export const getCaller = (stackIndex) => {
+export const getCaller = () => {
   const callerInfo = new Error().stack.replace(/^Error\n.*\n.*\n/, '')
   return callerInfo
 }
 
-export const log = (...message) => {
-  console.log('[info]', ...message)
+/* request */
+export const getRequest = (_url, param = {}) => {
+  const query = param && Object.keys(param).map((key) => { return `${key}=${param[key]}` }).join('&')
+  const url = query ? `${_url}?${query}` : _url
+  const opt = {
+    method: 'GET',
+    credentials: 'same-origin',
+    timeout: 30 * 1000,
+  }
+  return fetch(url, opt).then((res) => {
+    if (res.error || !res.body || !res.json) {
+      return null
+    }
+    return res.json()
+  }).catch((e) => {
+    console.error('[fatal] error @getRequest:', e)
+    return null
+  })
 }
-export const debug = (...message) => {
-  console.log('==============================')
-  console.log('[debug]', ...message)
-  console.log('Called:')
-  console.log(getCaller())
-  console.log('==============================')
+
+export const postRequest = (url, param = {}) => {
+  const opt = {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    timeout: 30 * 1000,
+  }
+  if (param) {
+    opt.body = JSON.stringify(param)
+  }
+  return fetch(url, opt).then((res) => {
+    if (res.error || !res.body || !res.json) {
+      return null
+    }
+    return res.json()
+  }).catch((e) => {
+    console.error('[fatal] error @postRequest:', e)
+    return null
+  })
 }
 
 /* element */
-const closeModal = () => {
-  applyElmList('[data-id="modal"], #modalBackground', (elm) => {
-    elm.classList.add('hidden')
-  })
-}
 const applyElmList = (query, f, parent = document) => {
   Object.values(parent.querySelectorAll(query)).forEach((elm) => {
     f(elm)
   })
 }
+
+const closeModal = () => {
+  applyElmList('[data-id="modal"], #modalBackground', (elm) => {
+    elm.classList.add('hidden')
+  })
+}
+
 export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = () => {}) => {
   if (modalElm.id === 'modalTemplate') {
     modalElm.id = ''
@@ -39,13 +73,13 @@ export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = (
       elm.onclick = closeModal
     }, document)
 
-    if(cancelButtonIsVisible) {
+    if (cancelButtonIsVisible) {
       modalElm.querySelector('[data-id="modalCancelButton"]').classList.remove('hidden')
     } else {
       modalElm.querySelector('[data-id="modalCancelButton"]').classList.add('hidden')
     }
     modalElm.querySelector('[data-id="modalConfirmButton"]').onclick = () => {
-      if(typeof onConfirm === 'function') {
+      if (typeof onConfirm === 'function') {
         onConfirm()
       }
       closeModal()
@@ -82,11 +116,11 @@ export const getErrorModalElmAndSetter = () => {
 
 export const switchLoading = (isVisible) => {
   const loadingElm = document.querySelector('#loading')
-  if(!loadingElm) {
+  if (!loadingElm) {
     return
   }
 
-  if(isVisible) {
+  if (isVisible) {
     loadingElm.classList.remove('hidden')
   } else {
     loadingElm.classList.add('hidden')
@@ -98,7 +132,7 @@ export const setOnClickNavManu = () => {
   const toggleElm = document.querySelector('#commonNavToggle')
   const navContentElm = document.querySelector('#commonNavContent')
   toggleElm.onclick = () => {
-    if([...navContentElm.classList.values()].indexOf('hidden') >= 0) {
+    if ([...navContentElm.classList.values()].indexOf('hidden') >= 0) {
       navContentElm.classList.remove('hidden')
     } else {
       navContentElm.classList.add('hidden')
@@ -108,24 +142,10 @@ export const setOnClickNavManu = () => {
 
 /* notification */
 let notificationIsVisible = false
-export const setOnClickNotification = (apiEndpoint) => {
-  applyElmList('[data-id="notificationBtn"]', (notificationBtn) => {
-    notificationBtn.onclick = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      if (notificationIsVisible) {
-        return
-      }
-      notificationIsVisible = true
-      showGlobalNotification(apiEndpoint)
-    }
-  })
-}
-
 export const showGlobalNotification = async (apiEndpoint) => {
   const durationShow = 0.5
   const durationHide = 0.2
-  const resultFetchGlobalNotification = await getRequest(apiEndpoint + '/notification/global/list')
+  const resultFetchGlobalNotification = await getRequest(`${apiEndpoint}/notification/global/list`)
 
   const notificationContainerElm = document.querySelector('#notificationContainer')
   notificationContainerElm.clearChildren()
@@ -146,7 +166,7 @@ export const showGlobalNotification = async (apiEndpoint) => {
       showModal(modalElm)
     }
     setTimeout(() => {
-      notificationElm.style.transitionDuration = `${durationShow}s` 
+      notificationElm.style.transitionDuration = `${durationShow}s`
       notificationElm.style.opacity = 0
       notificationContainerElm.appendChild(notificationElm)
       setTimeout(() => {
@@ -154,7 +174,7 @@ export const showGlobalNotification = async (apiEndpoint) => {
       }, 100)
     }, durationShow * i * 1000)
     setTimeout(() => {
-      notificationElm.style.transitionDuration = `${durationHide}s` 
+      notificationElm.style.transitionDuration = `${durationHide}s`
       notificationElm.style.opacity = 0
     }, durationShow * notificationList.length * 1000 + 3 * 1000 + durationHide * i * 1000)
   })
@@ -165,64 +185,35 @@ export const showGlobalNotification = async (apiEndpoint) => {
   }, (durationShow + durationHide) * notificationList.length * 1000 + 3 * 1000)
 }
 
-/* request */
-export const getRequest = (_url, param = {}) => {
-  const query = param && Object.keys(param).map((key) => { return key + '=' + param[key] }).join('&')
-  const url = query? _url + '?' + query: _url
-  const opt = { 
-    method: 'GET',
-    credentials: 'same-origin',
-    timeout: 30 * 1000,
-  }
-  return fetch(url, opt).then((res) => {
-    if(res.error || !res.body || !res.json) {
-      return null
+export const setOnClickNotification = (apiEndpoint) => {
+  applyElmList('[data-id="notificationBtn"]', (notificationBtn) => {
+    notificationBtn.onclick = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (notificationIsVisible) {
+        return
+      }
+      notificationIsVisible = true
+      showGlobalNotification(apiEndpoint)
     }
-    return res.json()
-  }).catch((e) => {
-    console.error('[fatal] error @getRequest:', e)
-    return null
-  })
-}
-
-export const postRequest = (url, param = {}) => {
-  const opt = { 
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 30 * 1000,
-  }
-  if(param) {
-    opt.body = JSON.stringify(param)
-  }
-  return fetch(url, opt).then((res) => {
-    if(res.error || !res.body || !res.json) {
-      return null
-    }
-    return res.json()
-  }).catch((e) => {
-    console.error('[fatal] error @postRequest:', e)
-    return null
   })
 }
 
 /* misc */
 export const monkeyPatch = () => {
-  if(typeof Element.prototype.clearChildren === 'undefined') {
+  if (typeof Element.prototype.clearChildren === 'undefined') {
     Object.defineProperty(Element.prototype, 'clearChildren', {
       configurable: true,
       enumerable: false,
-      value: function() {
-        while(this.firstChild) {
+      value() {
+        while (this.firstChild) {
           this.removeChild(this.lastChild)
         }
-      }
+      },
     })
   }
 
-  if(typeof window.argNamed === 'undefined') {
+  if (typeof window.argNamed === 'undefined') {
     /*
      * asocialの考え方ではどうしても引数が多くなる。
      * そのため、action, core, modなどのパーツのオブジェクトに分けて引数を渡す。
@@ -234,14 +225,14 @@ export const monkeyPatch = () => {
       const flattened = {}
 
       Object.keys(obj).forEach((key) => {
-        if(Array.isArray(obj[key])) {
+        if (Array.isArray(obj[key])) {
           Object.assign(flattened, obj[key].reduce((prev, curr) => {
-            if(typeof curr === 'undefined') {
-              throw new Error('[error] flat argument by list can only contain function but: ' + (typeof curr) + ' @' + key + '\n===== maybe you need make func exported like  module.exports = { func, } =====')
-            } else if(typeof curr === 'function') {
+            if (typeof curr === 'undefined') {
+              throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}\n===== maybe you need make func exported like  module.exports = { func, } =====`)
+            } else if (typeof curr === 'function') {
               prev[curr.name] = curr
             } else {
-              throw new Error('[error] flat argument by list can only contain function but: ' + (typeof curr) + ' @' + key)
+              throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}`)
             }
             return prev
           }, {}))
@@ -263,21 +254,21 @@ export const getRandomStr = (len) => {
 }
 
 export const buf2Hex = (buf) => {
-  return Array.prototype.map.call(new Uint8Array(buf), x => ('00' + x.toString(16)).slice(-2)).join('')
+  return Array.prototype.map.call(new Uint8Array(buf), (x) => { return (`00${x.toString(16)}`).slice(-2) }).join('')
 }
 
 export const calcHmac512 = (data, secret) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const enc = new TextEncoder('utf-8')
     window.crypto.subtle.importKey(
       'raw',
       enc.encode(secret),
       {
         name: 'HMAC',
-        hash: {name: 'SHA-512'}
+        hash: { name: 'SHA-512' },
       },
       false,
-      ['sign', 'verify']
+      ['sign', 'verify'],
     ).then((key) => {
       window.crypto.subtle.sign(
         'HMAC',
@@ -296,17 +287,17 @@ export const genSalt = () => {
 }
 
 export const calcPbkdf2 = (str, salt) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const byteList = new Uint8Array(Array.prototype.map.call(str, (c) => {
       return c.charCodeAt(0)
     }))
-    window.crypto.subtle.importKey('raw', byteList, { name: 'PBKDF2', }, false, ['deriveBits'])
+    window.crypto.subtle.importKey('raw', byteList, { name: 'PBKDF2' }, false, ['deriveBits'])
       .then((key) => {
         const opt = {
           name: 'PBKDF2',
-          salt: salt,
-          iterations: 1000*1000,
-          hash: {name: 'SHA-512'},
+          salt,
+          iterations: 1000 * 1000,
+          hash: { name: 'SHA-512' },
         }
         return window.crypto.subtle.deriveBits(opt, key, 512).then((buf) => {
           resolve(buf2Hex(buf))
@@ -324,11 +315,11 @@ export const redirect = (response) => {
 
 export const getSearchQuery = () => {
   const searchQuery = {}
-  window.location.search.replace(/^\?/, '').split('&').forEach((row) => { 
-    const kv = row.split('=') 
-    searchQuery[kv[0]] = kv[1]
+  window.location.search.replace(/^\?/, '').split('&').forEach((row) => {
+    const kv = row.split('=')
+    const [key, value] = kv
+    searchQuery[key] = value
   })
   return searchQuery
 }
-
 

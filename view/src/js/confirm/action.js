@@ -1,5 +1,7 @@
 /* confirm/action.js */
-export const getOnSubmitConfirm = ({ getPermissionCheckList, postConfirm, switchLoading, redirect }) => {
+export const getOnSubmitConfirm = ({
+  getPermissionCheckList, postConfirm, switchLoading, redirect,
+}) => {
   return () => {
     switchLoading(true)
 
@@ -10,4 +12,6 @@ export const getOnSubmitConfirm = ({ getPermissionCheckList, postConfirm, switch
     })
   }
 }
+
+export default {}
 
