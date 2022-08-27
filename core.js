@@ -31,20 +31,20 @@ const getAuthSessionByCode = (code) => {
 
 
 /* accessToken */
-const registerAccessToken = (clientId, accessToken, emailAddress, permissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, permissionList)
+const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
+  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList)
 }
 
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
   return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
 }
 
-
-/* user */
-const registerUserByEmailAddress = (emailAddress, user) => {
-  return mod.output.registerUserByEmailAddress(emailAddress, user)
+const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
+  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
 }
 
+
+/* user */
 const registerServiceUserId = (emailAddress, clientId) => {
   return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
 }
@@ -60,10 +60,10 @@ const credentialCheck = async (emailAddress, passHmac2) => {
     return { credentialCheckResult: false }
   }
 
-  const saltHex = user[mod.setting.server.AUTH_SERVER_CLIENT_ID].saltHex
+  const { saltHex } = user[mod.setting.server.AUTH_SERVER_CLIENT_ID]
 
   const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if(user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
+  if (user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
     return { credentialCheckResult: false }
   }
 
@@ -81,7 +81,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
       passPbkdf2,
       saltHex,
       userName: 'no name',
-    }
+    },
   }
 
   mod.output.registerUserByEmailAddress(emailAddress, user)
@@ -90,15 +90,40 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* notification */
-const registerLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
+const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
   let detail = 'Login'
   detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
   const subject = detail
   detail += ` with ${useragent.browser}(${useragent.platform})`
   detail += ` by ${clientId}`
   detail += ` from ${ipAddress}`
-  mod.output.appendNotification(mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+
+  const notificationId = mod.lib.getUlid()
+  mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
 }
+
+const appendNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return false
+  }
+
+  const notificationId = mod.lib.getUlid()
+
+  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
+}
+
+const openNotificationByAccessToken = (clientId, accessToken, notificationRange, notificationIdList) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+
+  if (!emailAddress) {
+    return false
+  }
+
+  return mod.output.openNotification(notificationIdList, notificationRange, emailAddress)
+}
+
 
 const getNotification = (emailAddress, notificationRange) => {
   return mod.input.getNotification(emailAddress, notificationRange)
@@ -114,19 +139,10 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
   return mod.input.getNotification(emailAddress, notificationRange)
 }
 
-const addNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'a', notificationRange, 'notification')
-
-  if (!emailAddress) {
-    return false
-  }
-
-  return mod.output.appendNotification(notificationRange, emailAddress, subject, detail)
-}
 
 export default {
   init,
-  
+
   isValidClient,
 
   registerAuthSession,
@@ -134,15 +150,16 @@ export default {
 
   registerAccessToken,
   getUserByAccessToken,
+  getCheckedRequiredPermissionList,
 
-  registerUserByEmailAddress,
   registerServiceUserId,
   getUserByEmailAddress,
   credentialCheck,
   addUser,
 
-  registerLoginNotification,
+  appendLoginNotification,
+  appendNotificationByAccessToken,
+  openNotificationByAccessToken,
   getNotification,
   getNotificationByAccessToken,
-  addNotificationByAccessToken,
 }

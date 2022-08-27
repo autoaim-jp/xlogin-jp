@@ -4,3 +4,5 @@ export const fetchScope = ({ getRequest, apiEndpoint }) => {
   return getRequest(url)
 }
 
+export default {}
+

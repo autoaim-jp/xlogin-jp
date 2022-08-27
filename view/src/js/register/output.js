@@ -1,9 +1,13 @@
 /* register/output.js */
 
 export const getPostRegister = ({ apiEndpoint, postRequest }) => {
-  const url = apiEndpoint + '/login/user/add'
-  return ({ emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked }) => {
-    const param = { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked }
+  const url = `${apiEndpoint}/login/user/add`
+  return ({
+    emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
+  }) => {
+    const param = {
+      emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
+    }
     return postRequest(url, param)
   }
 }
@@ -14,7 +18,9 @@ export const getRegisterFormElm = () => {
   const tosCheckElm = document.querySelector('#tosCheck')
   const privacyPolicyCheckElm = document.querySelector('#privacyPolicyCheck')
 
-  return { emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm }
+  return {
+    emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm,
+  }
 }
 
 export const setRegisterFormSubmit = ({ onSubmitRegister }) => {

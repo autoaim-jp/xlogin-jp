@@ -9,5 +9,16 @@
     "sample_localhost7001": {
       "serviceUserId": "3ubb1tcCGBNwHQrgRR04jy9z4LjXyJIIMIkSaRkWrJk62z9bY474xNccfZvyJJe1"
     }
+  },
+  "user2@example.com": {
+    "auth": {
+      "emailAddress": "user2@example.com",
+      "passPbkdf2": "c3893c8f1fa1ac95ccc18573a207a78ad6e19c0ba76bdafa82f9da38792936d1e44863b991ec12b0fb8b458af76aec2e79fca26834af6ce29147d587af963fbd",
+      "saltHex": "2dea1def7fd9206867f2d1b47e5142bf5b7a1f199a0d4191be0e9a1a8490ea1002ee3b8839b2a9ccd4a73b1831f2501cfa62e50150ca37cb612c0c961fd0aab9",
+      "userName": "no name"
+    },
+    "sample_localhost7001": {
+      "serviceUserId": "ZHOuTEI-_L6mEiIZFyDmBhft4BNYIwTqSUPBLlHjhhJd-yCniX09ReYnMEpWfTHO"
+    }
   }
 }

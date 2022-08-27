@@ -1,5 +1,7 @@
 import fs from 'fs'
 import https from 'https'
+import crypto from 'crypto'
+import ulid from 'ulid'
 import express from 'express'
 import session from 'express-session'
 import bodyParser from 'body-parser'
@@ -8,7 +10,7 @@ import Redis from 'ioredis'
 import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
-import useragent from 'express-useragent'
+import expressUseragent from 'express-useragent'
 
 import setting from './setting/index.js'
 import output from './output.js'
@@ -26,11 +28,11 @@ const _getSessionRouter = () => {
   })
 
   expressRouter.use(session({
-    secret : process.env.SESSION_SECRET, 
-    resave : true,
-    saveUninitialized : true,                
-    rolling : true,
-    name : setting.session.SESSION_ID,
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    rolling: true,
+    name: setting.session.SESSION_ID,
     cookie: {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -48,7 +50,7 @@ const _getExpressMiddlewareRouter = () => {
   expressRouter.use(bodyParser.urlencoded({ extended: true }))
   expressRouter.use(bodyParser.json())
   expressRouter.use(cookieParser())
-  expressRouter.use(useragent.express())
+  expressRouter.use(expressUseragent.express())
   return expressRouter
 }
 
@@ -56,12 +58,16 @@ const _getOidcRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
-    const { clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod } = lib.paramSnakeToCamel(req.query)
+    const {
+      clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod,
+    } = lib.paramSnakeToCamel(req.query)
     const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
-    const { clientId, state, code, codeVerifier } = lib.paramSnakeToCamel(req.query)
+    const {
+      clientId, state, code, codeVerifier,
+    } = lib.paramSnakeToCamel(req.query)
     const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
@@ -71,7 +77,7 @@ const _getOidcRouter = () => {
 const _getUserApiRouter = () => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
@@ -83,22 +89,34 @@ const _getUserApiRouter = () => {
 
 const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
+
   expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
 
     const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotification)
   })
+
   expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
-    const accessToken = req.headers['authorization'].slice('Bearer '.length)
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationAdd = action.handleNotificationAdd(clientId, accessToken, notificationRange, subject, detail, core.addNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotificationAdd)
+    const resultHandleNotificationAppend = action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationAppend)
   })
+
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
+    output.endResponse(req, res, resultHandleNotificationOpen)
+  })
+
   return expressRouter
 }
 
@@ -110,26 +128,40 @@ const _getFunctionRouter = () => {
     const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
+
+  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, (req, res) => {
+    const { useragent } = req
+    const ipAddress = req.headers['x-forwarded-for'] || req.ip
+    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
+    output.endResponse(req, res, resultHandleThrough)
+  })
+
   expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.registerLoginNotification, core.registerServiceUserId)
+    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
+
   expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
-    const { emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress, core.registerUserByEmailAddress)
+    const {
+      emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
+    } = req.body
+    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
+
   expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, (req, res) => {
     const resultHandleScope = action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
   })
+
   expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
     const resultHandleNotification = action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })
+
   return expressRouter
 }
 
@@ -137,7 +169,7 @@ const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
   expressRouter.get('/logout', (req, res) => {
-    const resultHandleLogout = action.handleLogout(req.session.auth)
+    const resultHandleLogout = action.handleLogout()
     output.endResponse(req, res, resultHandleLogout)
   })
 
@@ -150,7 +182,7 @@ const _getOtherRouter = () => {
 
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.use((err, req, res, next) => {
+  expressRouter.use((err, req, res) => {
     console.error(err.stack)
     res.status(500)
     res.end('Internal Server Error')
@@ -177,9 +209,10 @@ const startServer = (expressApp) => {
 
 const main = () => {
   dotenv.config()
-  output.init(setting)
+  lib.init(crypto, ulid)
+  output.init(setting, fs)
   core.init(setting, output, input, lib)
-  input.init(setting)
+  input.init(setting, fs)
   action.init(setting, lib)
 
   const expressApp = express()

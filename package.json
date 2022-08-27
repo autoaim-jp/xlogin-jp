@@ -1,14 +1,19 @@
 {
   "dependencies": {
+    "body-parser": "^1.20.0",
     "connect-redis": "^6.1.3",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
+    "eslint-plugin-jest": "^26.8.2",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
     "express-useragent": "^1.0.15",
-    "ioredis": "^5.0.5"
+    "ioredis": "^5.0.5",
+    "ulid": "^2.3.0"
   },
   "scripts": {
+    "lint-server": "eslint *.js setting/",
+    "lint-browser": "eslint view/src/js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev-add-service": "node tool/src/registerNewService.js",
     "init-xdevkit": "git submodule update -i && cd xdevkit/ && git checkout master && git pull && git checkout $version && git pull origin $version && cd ../setting/ && ln -f ../xdevkit/browserServerSetting.js browserServerSetting.js && cd ../view/src/js/_setting/ && ln -f ../../../../xdevkit/browserServerSetting.js browserServerSetting.js",
@@ -16,5 +21,14 @@
     "compile-minify": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css --minify",
     "watch": "bash gdeno run xdevkit-cli watch --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/eslint-parser": "^7.18.9",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2"
+  }
 }

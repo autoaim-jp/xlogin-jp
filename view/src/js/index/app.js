@@ -1,9 +1,9 @@
 /* index/app.js */
-const asocial = {}
-
 import * as setting from '../_setting/index.js'
-asocial.setting = setting
 import * as lib from '../lib.js'
+
+const asocial = {}
+asocial.setting = setting
 asocial.lib = lib
 /* a is an alias of asocial */
 const a = asocial

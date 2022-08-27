@@ -1,8 +1,8 @@
 /* login/output.js */
-export const getPostLogin = ({ apiEndpoint, postRequest, }) => {
-  const url = apiEndpoint + '/login/credential/check'
+export const getPostLogin = ({ apiEndpoint, postRequest }) => {
+  const url = `${apiEndpoint}/login/credential/check`
   return ({ emailAddress, passHmac2 }) => {
-    const param = { emailAddress, passHmac2, }
+    const param = { emailAddress, passHmac2 }
     return postRequest(url, param)
   }
 }

@@ -1,11 +1,12 @@
 /* error/app.js */
-const asocial = {}
 import * as setting from '../_setting/index.js'
-asocial.setting = setting
 import * as lib from '../lib.js'
-asocial.lib = lib
 
 import * as output from './output.js'
+
+const asocial = {}
+asocial.setting = setting
+asocial.lib = lib
 asocial.output = output
 
 /* a is an alias of asocial */
@@ -13,7 +14,7 @@ const a = asocial
 
 const loadErrorMessage = () => {
   a.output.showErrorModal(argNamed({
-    lib: [ a.lib.getSearchQuery, a.lib.getErrorModalElmAndSetter, a.lib.showModal ],
+    lib: [a.lib.getSearchQuery, a.lib.getErrorModalElmAndSetter, a.lib.showModal],
     setting: a.setting.bsc.get('labelList'),
   }))
 }

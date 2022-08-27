@@ -1,13 +1,14 @@
 /* login/app.js */
-const asocial = {}
 import * as setting from '../_setting/index.js'
-asocial.setting = setting
 import * as lib from '../lib.js'
-asocial.lib = lib
 
 import * as action from './action.js'
-asocial.action = action
 import * as output from './output.js'
+
+const asocial = {}
+asocial.setting = setting
+asocial.lib = lib
+asocial.action = action
 asocial.output = output
 
 /* a is an alias of asocial */
@@ -16,14 +17,14 @@ const a = asocial
 const loadLoginForm = () => {
   const postLogin = a.output.getPostLogin(argNamed({
     browserServerSetting: a.setting.bsc.get('apiEndpoint'),
-    lib: [ a.lib.postRequest ],
+    lib: [a.lib.postRequest],
   }))
 
   const { emailAddressInputElm, passInputElm } = a.output.getLoginFormElm()
   const onSubmitLogin = a.action.getOnSubmitLogin(argNamed({
     browserServerSetting: a.setting.bsc.get('labelList'),
     setting: a.setting.get('userHmacSecret'),
-    lib: [ a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter ],
+    lib: [a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter],
     other: { emailAddressInputElm, passInputElm, postLogin },
   }))
 

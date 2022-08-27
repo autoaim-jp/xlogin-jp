@@ -1,5 +1,5 @@
 /* confirm/output.js */
-export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, }) => {
+export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) => {
   const confirmForm = document.querySelector('#confirmForm')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
     const inputElmId = `permissionCheck_${getRandomStr(16)}`
@@ -27,7 +27,7 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, }) 
 export const getPermissionCheckList = () => {
   const permissionCheckList = {}
   Object.values(document.querySelectorAll('[data-scope]')).forEach((elm) => {
-    let scope = elm.dataset.scope
+    let { scope } = elm.dataset
     if (scope.length > 0 && scope[0] === '*') {
       scope = scope.slice(1)
     }
@@ -49,12 +49,19 @@ export const getConfirmFormElm = () => {
   return confirmFormElm
 }
 
-
 export const setConfirmFormSubmit = ({ confirmFormElm, onSubmitConfirm }) => {
   confirmFormElm.onsubmit = (e) => {
     e.preventDefault()
     e.stopPropagation()
     onSubmitConfirm()
+  }
+}
+
+export const getPostThrough = ({ apiEndpoint, postRequest }) => {
+  const url = `${apiEndpoint}/confirm/through/check`
+  return () => {
+    const param = {}
+    return postRequest(url, param)
   }
 }
 

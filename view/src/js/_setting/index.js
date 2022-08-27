@@ -14,13 +14,14 @@ export const getBrowserServerSetting = () => {
 }
 
 export const get = (...keyList) => {
+  /* eslint-disable no-param-reassign */
   const constantList = keyList.reduce((prev, curr) => {
     prev[curr] = settingList[curr]
     return prev
   }, {})
-  for(const key of keyList) {
-    if(!constantList[key]) {
-      throw new Error('[error] undefined setting constant: ' + key)
+  for (const key of keyList) {
+    if (!constantList[key]) {
+      throw new Error(`[error] undefined setting constant: ${key}`)
     }
   }
   return constantList

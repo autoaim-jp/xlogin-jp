@@ -42,7 +42,7 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
     if (paramList[1] !== 'auth') {
       paramList[1] = 'service'
     }
-    
+
     let label = ''
     const operation = modeList.map((mode) => { return labelList.scope.operation[mode] }).join('と')
     if (isRequired) {
@@ -60,3 +60,10 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
   return permissionLabelList
 }
 
+export const checkThrough = ({ postThrough, switchLoading, redirect }) => {
+  switchLoading(true)
+  postThrough().then((result) => {
+    switchLoading(false)
+    redirect(result)
+  })
+}
