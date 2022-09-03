@@ -350,6 +350,22 @@ const handleGlobalNotification = (authSession, getNotification) => {
   }
 }
 
+/* POST /api/$apiVersion/file/update */
+const handleFileUpdate = (clientId, accessToken, owner, filePath, content, updateFileByAccessToken) => {
+  const updateFileResult = updateFileByAccessToken(clientId, accessToken, owner, filePath, content)
+
+  if (!updateFileResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_update_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { updateFileResult } }, redirect: null,
+  }
+}
+
 /* GET /logout */
 const handleLogout = () => {
   const status = mod.setting.bsc.statusList.OK
@@ -373,6 +389,7 @@ export default {
   handleUserAdd,
   handleScope,
   handleGlobalNotification,
+  handleFileUpdate,
   handleLogout,
 }
 

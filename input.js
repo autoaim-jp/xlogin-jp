@@ -41,7 +41,7 @@ const _checkPermission = (splitPermissionList, operationKey, range, dataType) =>
       return false
     }
 
-    if (keySplit[0].indexOf('r') < 0) {
+    if (keySplit[0].indexOf(operationKey) < 0) {
       return false
     }
 

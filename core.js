@@ -140,6 +140,18 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
 }
 
 
+/* file */
+const updateFileByAccessToken = (clientId, accessToken, owner, filePath, content) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+}
+
+
 export default {
   init,
 
@@ -162,4 +174,6 @@ export default {
   openNotificationByAccessToken,
   getNotification,
   getNotificationByAccessToken,
+
+  updateFileByAccessToken,
 }
