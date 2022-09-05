@@ -138,6 +138,16 @@ const getNotification = (emailAddress, notificationRange) => {
   return filteredNotificationList
 }
 
+/* from fileList */
+const getFileContent = (emailAddress, clientId, owner, filePath) => {
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
+    return null
+  }
+
+  return fileList[emailAddress][owner][filePath].content
+}
+
 export default {
   init,
   isValidClient,
@@ -152,5 +162,7 @@ export default {
   checkPermissionAndGetEmailAddress,
 
   getNotification,
+
+  getFileContent,
 }
 

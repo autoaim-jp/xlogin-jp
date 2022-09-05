@@ -130,8 +130,16 @@ const _getFileRouter = () => {
     const resultHandleFileUpdate = await action.handleFileUpdate(clientId, accessToken, owner, filePath, content, core.updateFileByAccessToken)
     output.endResponse(req, res, resultHandleFileUpdate)
   })
-  return expressRouter
 
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+
+    const resultHandleFileContent = await action.handleFileContent(clientId, accessToken, owner, filePath, core.getFileContentByAccessToken)
+    output.endResponse(req, res, resultHandleFileContent)
+  })
+  return expressRouter
 }
 
 const _getFunctionRouter = () => {

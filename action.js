@@ -366,6 +366,23 @@ const handleFileUpdate = (clientId, accessToken, owner, filePath, content, updat
   }
 }
 
+/* GET /api/$apiVersion/file/content */
+const handleFileContent = (clientId, accessToken, owner, filePath, getFileContentByAccessToken) => {
+  const fileContent = getFileContentByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!fileContent) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_content_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { fileContent } }, redirect: null,
+  }
+}
+
+
 /* GET /logout */
 const handleLogout = () => {
   const status = mod.setting.bsc.statusList.OK
@@ -390,6 +407,7 @@ export default {
   handleScope,
   handleGlobalNotification,
   handleFileUpdate,
+  handleFileContent,
   handleLogout,
 }
 
