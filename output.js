@@ -118,6 +118,18 @@ const updateFile = (emailAddress, clientId, owner, filePath, content) => {
   return true
 }
 
+const deleteFile = (emailAddress, clientId, owner, filePath) => {
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
+    return false
+  }
+
+  delete fileList[emailAddress][owner][filePath]
+
+  mod.fs.writeFileSync(mod.setting.server.FILE_LIST_JSON, JSON.stringify(fileList, null, 2))
+  return true
+}
+
 
 /* to http client */
 const endResponse = (req, res, handleResult) => {
@@ -149,6 +161,7 @@ export default {
   appendNotification,
   openNotification,
   updateFile,
+  deleteFile,
 
   endResponse,
 }

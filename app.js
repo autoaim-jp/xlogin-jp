@@ -139,6 +139,16 @@ const _getFileRouter = () => {
     const resultHandleFileContent = await action.handleFileContent(clientId, accessToken, owner, filePath, core.getFileContentByAccessToken)
     output.endResponse(req, res, resultHandleFileContent)
   })
+
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleFileDelete = await action.handleFileDelete(clientId, accessToken, owner, filePath, core.updateFileByAccessToken)
+    output.endResponse(req, res, resultHandleFileDelete)
+  })
+
   return expressRouter
 }
 

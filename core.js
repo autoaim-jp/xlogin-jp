@@ -161,6 +161,18 @@ const getFileContentByAccessToken = (clientId, accessToken, owner, filePath) => 
   return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
 }
 
+const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+}
+
+
+
 export default {
   init,
 
@@ -186,5 +198,6 @@ export default {
 
   updateFileByAccessToken,
   getFileContentByAccessToken,
+  deleteFileByAccessToken,
 }
 

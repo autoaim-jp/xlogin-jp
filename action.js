@@ -382,6 +382,23 @@ const handleFileContent = (clientId, accessToken, owner, filePath, getFileConten
   }
 }
 
+/* POST /api/$apiVersion/file/delete */
+const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAccessToken) => {
+  const deleteFileResult = deleteFileByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!deleteFileResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_delete_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
+  }
+}
+
+
 
 /* GET /logout */
 const handleLogout = () => {
@@ -408,6 +425,7 @@ export default {
   handleGlobalNotification,
   handleFileUpdate,
   handleFileContent,
+  handleFileDelete,
   handleLogout,
 }
 
