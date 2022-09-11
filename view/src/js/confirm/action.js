@@ -24,5 +24,18 @@ export const getOnClickCheckAllScopeButton = ({
   }
 }
 
+export const getOnClickShowOptionPermissionBtn = ({
+  notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm, slideToggle
+}) => {
+  return (e) => {
+    slideToggle(notRequiredPermissionListElm, 300)
+    if (flipSvgElm.classList.contains('flipY')) {
+      flipSvgElm.classList.remove('flipY')
+    } else {
+      flipSvgElm.classList.add('flipY')
+    }
+  }
+}
+
 export default {}
 

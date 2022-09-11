@@ -74,6 +74,20 @@ const startThroughCheck = () => {
   }))
 }
 
+const loadNotRequiredPermissionList = () => {
+  const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
+
+  const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
+    elm: { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm },
+    lib: [a.lib.slideToggle],
+  }))
+
+  a.output.setOnClickShowOptionPermissionBtn(argNamed({
+    elm: { notRequiredPermissionListElm, showOptionPermissionBtnElm },
+    onClick: { onClickShowOptionPermissionBtn }
+  }))
+}
+
 const main = async () => {
   a.lib.switchLoading(true)
   a.lib.setOnClickNavManu()
@@ -83,6 +97,7 @@ const main = async () => {
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
   a.app.loadCheckAllScopeButton()
+  a.app.loadNotRequiredPermissionList()
 
   a.app.startThroughCheck()
 }
@@ -92,6 +107,7 @@ a.app = {
   loadPermissionList,
   loadConfirmForm,
   loadCheckAllScopeButton,
+  loadNotRequiredPermissionList,
   startThroughCheck,
 }
 

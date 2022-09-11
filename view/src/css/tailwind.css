@@ -8,3 +8,16 @@ html {
   font-family: Roboto, Arial, 'Noto Sans', sans-serif;
 }
 
+/* accordion */
+.accordion li > div {
+  display: none;
+}
+
+.accordion .flipY {
+  transform: rotate3d(1, 0, 0, 180deg);
+}
+
+.accordion svg {
+  transition: all 1s cubic-bezier(0, .5, 0, 1);
+}
+

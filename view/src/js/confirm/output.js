@@ -1,6 +1,7 @@
 /* confirm/output.js */
 export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) => {
-  const confirmForm = document.querySelector('#confirmForm')
+  const requiredPermissionListElm = document.querySelector('#requiredPermissionList')
+  const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
     const inputElmId = `permissionCheck_${getRandomStr(16)}`
     const wrapElmId = `wrap_${inputElmId}`
@@ -13,6 +14,7 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     const inputElm = permissionCheckElm.querySelector('#permissionCheckTemplateInput')
     inputElm.setAttribute('id', inputElmId)
     inputElm.setAttribute('data-scope', scope)
+    inputElm.setAttribute('data-scope-is-required', permission.isRequired)
     if (permission.isRequired) {
       inputElm.setAttribute('required', true)
     }
@@ -22,7 +24,11 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     labelElm.setAttribute('for', inputElmId)
     labelElm.innerText = permission.label
 
-    confirmForm.insertBefore(permissionCheckElm, confirmForm.children[confirmForm.children.length - 1])
+    if (permission.isRequired) {
+      requiredPermissionListElm.insertBefore(permissionCheckElm, requiredPermissionListElm.children[requiredPermissionListElm.children.length - 1])
+    } else {
+      notRequiredPermissionListElm.insertBefore(permissionCheckElm, notRequiredPermissionListElm.children[notRequiredPermissionListElm.children.length - 1])
+    }
   })
 }
 
@@ -78,3 +84,19 @@ export const setOnCheckAllScopeButton = ({ onClickCheckAllScopeButton }) => {
   checkAllScopeBtnElm.onclick = onClickCheckAllScopeButton
 }
 
+
+export const getAccordionElm = () => {
+  const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
+  const flipSvgElm = document.querySelector('#showOptionPermissionBtn svg')
+  const showOptionPermissionBtnElm = document.querySelector("#showOptionPermissionBtn")
+  return { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm }
+}
+
+export const setOnClickShowOptionPermissionBtn = ({
+  showOptionPermissionBtnElm, onClickShowOptionPermissionBtn, notRequiredPermissionListElm,
+}) => {
+  showOptionPermissionBtnElm.onclick = onClickShowOptionPermissionBtn
+  notRequiredPermissionListElm.onclick = (e) => {
+    e.stopPropagation()
+  }
+}

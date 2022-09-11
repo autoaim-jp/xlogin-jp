@@ -9,13 +9,15 @@
         <div id='memoContentWrap' class='w-full'>
         </div>
         <div class='block mx-auto p-6 rounded-lg shadow-lg bg-white max-w-sm'>
-          <button id='checkAllScopeBtn' class='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'>項目を全てチェック</button>
+          <button id='checkAllScopeBtn' class='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2'>項目を全てチェック</button>
           <form id='confirmForm' method='post' action='/error'>
+            <div id='requiredPermissionList'>
+            </div>
+            <%- await include(`${componentPath}notRequiredPermissionList.ejs`)  %>
             <button type='submit' class='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Confirm</button>
           </form>
         </div>
      </div>
-
     </div><!-- section1 -->
 
     <%- await include(`${componentPath}loading.ejs`)  %>
