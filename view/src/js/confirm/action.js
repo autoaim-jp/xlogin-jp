@@ -13,5 +13,16 @@ export const getOnSubmitConfirm = ({
   }
 }
 
+export const getOnClickCheckAllScopeButton = ({
+  getPermissionCheckElmList,
+}) => {
+  return (e) => {
+    const permissionCheckElmList = getPermissionCheckElmList()
+    permissionCheckElmList.forEach((elm) => {
+      elm.checked = true
+    })
+  }
+}
+
 export default {}
 

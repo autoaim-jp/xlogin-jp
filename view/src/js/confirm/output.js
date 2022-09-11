@@ -3,10 +3,12 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
   const confirmForm = document.querySelector('#confirmForm')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
     const inputElmId = `permissionCheck_${getRandomStr(16)}`
+    const wrapElmId = `wrap_${inputElmId}`
+    const labelElmId = `label_${inputElmId}`
 
     const permissionCheckElm = document.querySelector('#permissionCheckTemplate').cloneNode(true)
     permissionCheckElm.classList.remove('hidden')
-    permissionCheckElm.setAttribute('id', `${inputElmId}_wrap`)
+    permissionCheckElm.setAttribute('id', wrapElmId)
 
     const inputElm = permissionCheckElm.querySelector('#permissionCheckTemplateInput')
     inputElm.setAttribute('id', inputElmId)
@@ -16,7 +18,7 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     }
 
     const labelElm = permissionCheckElm.querySelector('#permissionCheckTemplateInputLabel')
-    labelElm.setAttribute('id', `${inputElmId}_label`)
+    labelElm.setAttribute('id', labelElmId)
     labelElm.setAttribute('for', inputElmId)
     labelElm.innerText = permission.label
 
@@ -63,5 +65,16 @@ export const getPostThrough = ({ apiEndpoint, postRequest }) => {
     const param = {}
     return postRequest(url, param)
   }
+}
+
+export const getPermissionCheckElmList = () => {
+  const permissionCheckElmList = Object.values(document.querySelectorAll('[data-scope]'))
+  return permissionCheckElmList
+}
+
+
+export const setOnCheckAllScopeButton = ({ onClickCheckAllScopeButton }) => {
+  const checkAllScopeBtnElm = document.querySelector('#checkAllScopeBtn')
+  checkAllScopeBtnElm.onclick = onClickCheckAllScopeButton
 }
 

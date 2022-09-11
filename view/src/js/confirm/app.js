@@ -34,7 +34,7 @@ const loadPermissionList = async () => {
   }))
 }
 
-const loadConfirmForm = async () => {
+const loadConfirmForm = () => {
   const postConfirm = a.output.getPostConfirm(argNamed({
     lib: [a.lib.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
@@ -50,6 +50,16 @@ const loadConfirmForm = async () => {
   a.output.setConfirmFormSubmit(argNamed({
     elm: { confirmFormElm },
     onSubmit: { onSubmitConfirm },
+  }))
+}
+
+const loadCheckAllScopeButton = () => {
+  const onClickCheckAllScopeButton = a.action.getOnClickCheckAllScopeButton(argNamed({
+    output: [a.output.getPermissionCheckElmList],
+  }))
+
+  a.output.setOnCheckAllScopeButton(argNamed({
+    onClick: { onClickCheckAllScopeButton },
   }))
 }
 
@@ -72,6 +82,7 @@ const main = async () => {
 
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
+  a.app.loadCheckAllScopeButton()
 
   a.app.startThroughCheck()
 }
@@ -80,6 +91,7 @@ a.app = {
   main,
   loadPermissionList,
   loadConfirmForm,
+  loadCheckAllScopeButton,
   startThroughCheck,
 }
 
