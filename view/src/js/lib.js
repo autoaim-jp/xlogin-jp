@@ -382,10 +382,10 @@ export const slideDown = (elm, duration = 300) => {
   }, duration)
 }
 
-export const slideToggle = (elm, duration = 300) => {
+export const slideToggle = (elm, duration = 300, ignoreIfOpen = false) => {
   if (window.getComputedStyle(elm).display === 'none') {
     return slideDown(elm, duration)
-  } else {
+  } else if (!ignoreIfOpen) {
     return slideUp(elm, duration)
   }
 }

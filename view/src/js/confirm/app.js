@@ -54,8 +54,11 @@ const loadConfirmForm = () => {
 }
 
 const loadCheckAllScopeButton = () => {
+  const { notRequiredPermissionListElm } = a.output.getAccordionElm()
   const onClickCheckAllScopeButton = a.action.getOnClickCheckAllScopeButton(argNamed({
-    output: [a.output.getPermissionCheckElmList],
+    elm: { notRequiredPermissionListElm },
+    output: [a.output.getRequiredPermissionCheckElmList],
+    lib: [a.lib.slideToggle],
   }))
 
   a.output.setOnCheckAllScopeButton(argNamed({

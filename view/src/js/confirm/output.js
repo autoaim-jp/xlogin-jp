@@ -73,8 +73,8 @@ export const getPostThrough = ({ apiEndpoint, postRequest }) => {
   }
 }
 
-export const getPermissionCheckElmList = () => {
-  const permissionCheckElmList = Object.values(document.querySelectorAll('[data-scope]'))
+export const getRequiredPermissionCheckElmList = () => {
+  const permissionCheckElmList = Object.values(document.querySelectorAll('[data-scope-is-required="true"]'))
   return permissionCheckElmList
 }
 
