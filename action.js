@@ -399,7 +399,6 @@ const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAc
 }
 
 
-
 /* GET /logout */
 const handleLogout = () => {
   const status = mod.setting.bsc.statusList.OK

@@ -54,11 +54,8 @@ const loadConfirmForm = () => {
 }
 
 const loadCheckAllScopeButton = () => {
-  const { notRequiredPermissionListElm } = a.output.getAccordionElm()
   const onClickCheckAllScopeButton = a.action.getOnClickCheckAllScopeButton(argNamed({
-    elm: { notRequiredPermissionListElm },
     output: [a.output.getRequiredPermissionCheckElmList],
-    lib: [a.lib.slideToggle],
   }))
 
   a.output.setOnCheckAllScopeButton(argNamed({
@@ -81,13 +78,13 @@ const loadNotRequiredPermissionList = () => {
   const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
 
   const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
-    elm: { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm },
+    elm: { notRequiredPermissionListElm, flipSvgElm },
     lib: [a.lib.slideToggle],
   }))
 
   a.output.setOnClickShowOptionPermissionBtn(argNamed({
     elm: { notRequiredPermissionListElm, showOptionPermissionBtnElm },
-    onClick: { onClickShowOptionPermissionBtn }
+    onClick: { onClickShowOptionPermissionBtn },
   }))
 }
 

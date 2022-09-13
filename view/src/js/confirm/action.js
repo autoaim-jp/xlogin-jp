@@ -14,9 +14,9 @@ export const getOnSubmitConfirm = ({
 }
 
 export const getOnClickCheckAllScopeButton = ({
-  notRequiredPermissionListElm, getRequiredPermissionCheckElmList, slideToggle,
+  getRequiredPermissionCheckElmList,
 }) => {
-  return (e) => {
+  return () => {
     setTimeout(() => {
       const permissionCheckElmList = getRequiredPermissionCheckElmList()
       permissionCheckElmList.forEach((elm) => {
@@ -27,9 +27,9 @@ export const getOnClickCheckAllScopeButton = ({
 }
 
 export const getOnClickShowOptionPermissionBtn = ({
-  notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm, slideToggle
+  notRequiredPermissionListElm, flipSvgElm, slideToggle,
 }) => {
-  return (e) => {
+  return () => {
     slideToggle(notRequiredPermissionListElm, 300, false)
     if (flipSvgElm.classList.contains('flipY')) {
       flipSvgElm.classList.remove('flipY')

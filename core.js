@@ -172,7 +172,6 @@ const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
 }
 
 
-
 export default {
   init,
 

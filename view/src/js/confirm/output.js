@@ -88,7 +88,7 @@ export const setOnCheckAllScopeButton = ({ onClickCheckAllScopeButton }) => {
 export const getAccordionElm = () => {
   const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   const flipSvgElm = document.querySelector('#showOptionPermissionBtn svg')
-  const showOptionPermissionBtnElm = document.querySelector("#showOptionPermissionBtn")
+  const showOptionPermissionBtnElm = document.querySelector('#showOptionPermissionBtn')
   return { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm }
 }
 

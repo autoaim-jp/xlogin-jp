@@ -325,10 +325,13 @@ export const getSearchQuery = () => {
 
 /* animation */
 export const slideUp = (elm, duration = 300) => {
-  elm.style.height = elm.offsetHeight + 'px'
-  elm.offsetHeight
+  elm.style.height = `${elm.offsetHeight}px`
+  if (elm.offsetHeight === null) {
+    /* dummy */
+    return
+  }
   elm.style.transitionProperty = 'height, margin, padding'
-  elm.style.transitionDuration = duration + 'ms'
+  elm.style.transitionDuration = `${duration}ms`
   elm.style.transitionTimingFunction = 'ease'
   elm.style.overflow = 'hidden'
   elm.style.height = 0
@@ -352,7 +355,7 @@ export const slideUp = (elm, duration = 300) => {
 
 export const slideDown = (elm, duration = 300) => {
   elm.style.removeProperty('display')
-  let display = window.getComputedStyle(elm).display
+  let { display } = window.getComputedStyle(elm)
   if (display === 'none') {
     display = 'block'
   }
@@ -364,11 +367,14 @@ export const slideDown = (elm, duration = 300) => {
   elm.style.paddingBottom = 0
   elm.style.marginTop = 0
   elm.style.marginBottom = 0
-  elm.offsetHeight
+  if (elm.offsetHeight === null) {
+    /* dummy */
+    return
+  }
   elm.style.transitionProperty = 'height, margin, padding'
-  elm.style.transitionDuration = duration + 'ms'
+  elm.style.transitionDuration = `${duration}ms`
   elm.style.transitionTimingFunction = 'ease'
-  elm.style.height = height + 'px'
+  elm.style.height = `${height}px`
   elm.style.removeProperty('padding-top')
   elm.style.removeProperty('padding-bottom')
   elm.style.removeProperty('margin-top')
@@ -384,9 +390,9 @@ export const slideDown = (elm, duration = 300) => {
 
 export const slideToggle = (elm, duration = 300, ignoreIfOpen = false) => {
   if (window.getComputedStyle(elm).display === 'none') {
-    return slideDown(elm, duration)
+    slideDown(elm, duration)
   } else if (!ignoreIfOpen) {
-    return slideUp(elm, duration)
+    slideUp(elm, duration)
   }
 }
 

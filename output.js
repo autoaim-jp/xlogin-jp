@@ -112,7 +112,7 @@ const updateFile = (emailAddress, clientId, owner, filePath, content) => {
   }
 
   const dateUpdated = Date.now()
-  fileList[emailAddress][owner][filePath] = { dateUpdated, clientId, content, }
+  fileList[emailAddress][owner][filePath] = { dateUpdated, clientId, content }
 
   mod.fs.writeFileSync(mod.setting.server.FILE_LIST_JSON, JSON.stringify(fileList, null, 2))
   return true
