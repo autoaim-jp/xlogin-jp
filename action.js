@@ -350,6 +350,55 @@ const handleGlobalNotification = (authSession, getNotification) => {
   }
 }
 
+/* POST /api/$apiVersion/file/update */
+const handleFileUpdate = (clientId, accessToken, owner, filePath, content, updateFileByAccessToken) => {
+  const updateFileResult = updateFileByAccessToken(clientId, accessToken, owner, filePath, content)
+
+  if (!updateFileResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_update_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { updateFileResult } }, redirect: null,
+  }
+}
+
+/* GET /api/$apiVersion/file/content */
+const handleFileContent = (clientId, accessToken, owner, filePath, getFileContentByAccessToken) => {
+  const fileContent = getFileContentByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!fileContent) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_content_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { fileContent } }, redirect: null,
+  }
+}
+
+/* POST /api/$apiVersion/file/delete */
+const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAccessToken) => {
+  const deleteFileResult = deleteFileByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!deleteFileResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_delete_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
+  }
+}
+
+
 /* GET /logout */
 const handleLogout = () => {
   const status = mod.setting.bsc.statusList.OK
@@ -373,6 +422,9 @@ export default {
   handleUserAdd,
   handleScope,
   handleGlobalNotification,
+  handleFileUpdate,
+  handleFileContent,
+  handleFileDelete,
   handleLogout,
 }
 

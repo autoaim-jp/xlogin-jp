@@ -34,7 +34,7 @@ const loadPermissionList = async () => {
   }))
 }
 
-const loadConfirmForm = async () => {
+const loadConfirmForm = () => {
   const postConfirm = a.output.getPostConfirm(argNamed({
     lib: [a.lib.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
@@ -53,6 +53,16 @@ const loadConfirmForm = async () => {
   }))
 }
 
+const loadCheckAllScopeButton = () => {
+  const onClickCheckAllScopeButton = a.action.getOnClickCheckAllScopeButton(argNamed({
+    output: [a.output.getRequiredPermissionCheckElmList],
+  }))
+
+  a.output.setOnCheckAllScopeButton(argNamed({
+    onClick: { onClickCheckAllScopeButton },
+  }))
+}
+
 const startThroughCheck = () => {
   const postThrough = a.output.getPostThrough(argNamed({
     lib: [a.lib.postRequest],
@@ -64,6 +74,20 @@ const startThroughCheck = () => {
   }))
 }
 
+const loadNotRequiredPermissionList = () => {
+  const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
+
+  const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
+    elm: { notRequiredPermissionListElm, flipSvgElm },
+    lib: [a.lib.slideToggle],
+  }))
+
+  a.output.setOnClickShowOptionPermissionBtn(argNamed({
+    elm: { notRequiredPermissionListElm, showOptionPermissionBtnElm },
+    onClick: { onClickShowOptionPermissionBtn },
+  }))
+}
+
 const main = async () => {
   a.lib.switchLoading(true)
   a.lib.setOnClickNavManu()
@@ -72,6 +96,8 @@ const main = async () => {
 
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
+  a.app.loadCheckAllScopeButton()
+  a.app.loadNotRequiredPermissionList()
 
   a.app.startThroughCheck()
 }
@@ -80,6 +106,8 @@ a.app = {
   main,
   loadPermissionList,
   loadConfirmForm,
+  loadCheckAllScopeButton,
+  loadNotRequiredPermissionList,
   startThroughCheck,
 }
 

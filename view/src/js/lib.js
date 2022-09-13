@@ -323,3 +323,76 @@ export const getSearchQuery = () => {
   return searchQuery
 }
 
+/* animation */
+export const slideUp = (elm, duration = 300) => {
+  elm.style.height = `${elm.offsetHeight}px`
+  if (elm.offsetHeight === null) {
+    /* dummy */
+    return
+  }
+  elm.style.transitionProperty = 'height, margin, padding'
+  elm.style.transitionDuration = `${duration}ms`
+  elm.style.transitionTimingFunction = 'ease'
+  elm.style.overflow = 'hidden'
+  elm.style.height = 0
+  elm.style.paddingTop = 0
+  elm.style.paddingBottom = 0
+  elm.style.marginTop = 0
+  elm.style.marginBottom = 0
+  setTimeout(() => {
+    elm.style.display = 'none'
+    elm.style.removeProperty('height')
+    elm.style.removeProperty('padding-top')
+    elm.style.removeProperty('padding-bottom')
+    elm.style.removeProperty('margin-top')
+    elm.style.removeProperty('margin-bottom')
+    elm.style.removeProperty('overflow')
+    elm.style.removeProperty('transition-duration')
+    elm.style.removeProperty('transition-property')
+    elm.style.removeProperty('transition-timing-function')
+  }, duration)
+}
+
+export const slideDown = (elm, duration = 300) => {
+  elm.style.removeProperty('display')
+  let { display } = window.getComputedStyle(elm)
+  if (display === 'none') {
+    display = 'block'
+  }
+  elm.style.display = display
+  const height = elm.offsetHeight
+  elm.style.overflow = 'hidden'
+  elm.style.height = 0
+  elm.style.paddingTop = 0
+  elm.style.paddingBottom = 0
+  elm.style.marginTop = 0
+  elm.style.marginBottom = 0
+  if (elm.offsetHeight === null) {
+    /* dummy */
+    return
+  }
+  elm.style.transitionProperty = 'height, margin, padding'
+  elm.style.transitionDuration = `${duration}ms`
+  elm.style.transitionTimingFunction = 'ease'
+  elm.style.height = `${height}px`
+  elm.style.removeProperty('padding-top')
+  elm.style.removeProperty('padding-bottom')
+  elm.style.removeProperty('margin-top')
+  elm.style.removeProperty('margin-bottom')
+  setTimeout(() => {
+    elm.style.removeProperty('height')
+    elm.style.removeProperty('overflow')
+    elm.style.removeProperty('transition-duration')
+    elm.style.removeProperty('transition-property')
+    elm.style.removeProperty('transition-timing-function')
+  }, duration)
+}
+
+export const slideToggle = (elm, duration = 300, ignoreIfOpen = false) => {
+  if (window.getComputedStyle(elm).display === 'none') {
+    slideDown(elm, duration)
+  } else if (!ignoreIfOpen) {
+    slideUp(elm, duration)
+  }
+}
+

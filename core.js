@@ -140,6 +140,38 @@ const getNotificationByAccessToken = (clientId, accessToken, notificationRange) 
 }
 
 
+/* file */
+const updateFileByAccessToken = (clientId, accessToken, owner, filePath, content) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+}
+
+const getFileContentByAccessToken = (clientId, accessToken, owner, filePath) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+}
+
+const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+}
+
+
 export default {
   init,
 
@@ -162,4 +194,9 @@ export default {
   openNotificationByAccessToken,
   getNotification,
   getNotificationByAccessToken,
+
+  updateFileByAccessToken,
+  getFileContentByAccessToken,
+  deleteFileByAccessToken,
 }
+

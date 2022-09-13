@@ -120,6 +120,37 @@ const _getNotificationApiRouter = () => {
   return expressRouter
 }
 
+const _getFileRouter = () => {
+  const expressRouter = express.Router()
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath, content } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleFileUpdate = await action.handleFileUpdate(clientId, accessToken, owner, filePath, content, core.updateFileByAccessToken)
+    output.endResponse(req, res, resultHandleFileUpdate)
+  })
+
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+
+    const resultHandleFileContent = await action.handleFileContent(clientId, accessToken, owner, filePath, core.getFileContentByAccessToken)
+    output.endResponse(req, res, resultHandleFileContent)
+  })
+
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleFileDelete = await action.handleFileDelete(clientId, accessToken, owner, filePath, core.updateFileByAccessToken)
+    output.endResponse(req, res, resultHandleFileDelete)
+  })
+
+  return expressRouter
+}
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
@@ -182,10 +213,10 @@ const _getOtherRouter = () => {
 
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.use((err, req, res) => {
-    console.error(err.stack)
+  expressRouter.use((req, res, next) => {
     res.status(500)
     res.end('Internal Server Error')
+    return next()
   })
   return expressRouter
 }
@@ -224,6 +255,7 @@ const main = () => {
   expressApp.use(_getUserApiRouter())
   expressApp.use(_getNotificationApiRouter())
   expressApp.use(_getFunctionRouter())
+  expressApp.use(_getFileRouter())
   expressApp.use(_getOtherRouter())
 
   expressApp.use(_getErrorRouter())
