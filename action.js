@@ -214,10 +214,12 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
     const error = 'handle_code_access_token'
     return _getErrorResponse(status, error, null)
   }
+  
+  const { splitPermissionList } = authSession.oidc
 
   const status = mod.setting.bsc.statusList.OK
   return {
-    status, session: newUserSession, response: { result: { accessToken } }, redirect: null,
+    status, session: newUserSession, response: { result: { accessToken, splitPermissionList } }, redirect: null,
   }
 }
 
@@ -231,6 +233,7 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
     const error = 'handle_user_info_access_token'
     return _getErrorResponse(status, error, null)
   }
+
 
   const status = mod.setting.bsc.statusList.OK
   return {
