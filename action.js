@@ -163,12 +163,10 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
     if (_key[0] === '*') {
       key = _key.slice(1)
       splitPermissionList.required[key] = permissionList[key]
-    } else {
-      splitPermissionList.optional[key] = permissionList[key]
-    }
 
-    if (!permissionList[key]) {
-      uncheckedPermissionExists = true
+      if (!permissionList[key]) {
+        uncheckedPermissionExists = true
+      }
     }
   })
 
