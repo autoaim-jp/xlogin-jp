@@ -8,6 +8,9 @@
     },
     "sample_localhost7001": {
       "serviceUserId": "3ubb1tcCGBNwHQrgRR04jy9z4LjXyJIIMIkSaRkWrJk62z9bY474xNccfZvyJJe1"
+    },
+    "sample_localhost": {
+      "serviceUserId": "4RZrY1Hr7zumyPaCD_AaQKR_QeJxAiYBBXLltQ0LFsmFFyF8VxXj63a8p7rd0i47"
     }
   },
   "user2@example.com": {

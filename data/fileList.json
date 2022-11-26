@@ -7,5 +7,14 @@
         "content": "ab"
       }
     }
+  },
+  "user@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1669470395710,
+        "clientId": "sample_localhost",
+        "content": "aaa"
+      }
+    }
   }
 }

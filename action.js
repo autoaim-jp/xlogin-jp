@@ -26,37 +26,32 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
 
 
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, isValidClient) => {
+const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, isValidClient) => {
   if (!isValidClient(clientId, redirectUri)) {
     const status = mod.setting.bsc.statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
     return _getErrorResponse(status, error, true)
   }
 
-  if (user) {
-    const condition = mod.setting.condition.CONFIRM
-    const newUserSession = {
-      oidc: {
-        clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri,
-      },
-      user,
-    }
-    const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
+  const newUserSession = {
+    oidc: {
+      clientId, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri, requestScope,
+    },
+  }
 
+  if (user) {
+    newUserSession.user = user
+    newUserSession.oidc.condition = mod.setting.condition.CONFIRM
+    const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
     const status = mod.setting.bsc.statusList.OK
     return {
       status, session: newUserSession, response: null, redirect,
     }
   }
-  const condition = mod.setting.condition.LOGIN
-  const newUserSession = {
-    oidc: {
-      clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri,
-    },
-  }
 
-  const status = mod.setting.bsc.statusList.OK
+  newUserSession.oidc.condition = mod.setting.condition.LOGIN
   const redirect = mod.setting.url.AFTER_CONNECT
+  const status = mod.setting.bsc.statusList.OK
   return {
     status, session: newUserSession, response: null, redirect,
   }
@@ -148,14 +143,14 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
   }
 
   const permissionList = getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  const { scope, requestScope } = authSession.oidc
 
   if (!permissionList) {
     const status = mod.setting.bsc.statusList.NOT_FOUND
-    const result = { oldPermissionList: null }
+    const result = { oldPermissionList: null, requestScope, }
     return { status, session: authSession, response: { result } }
   }
 
-  const { scope } = authSession.oidc
   let uncheckedPermissionExists = false
   const splitPermissionList = { required: {}, optional: {} }
   scope.split(',').forEach((_key) => {
@@ -169,10 +164,17 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
       }
     }
   })
+  requestScope.split(',').forEach((key) => {
+    splitPermissionList.required[key] = permissionList[key]
+
+    if (!permissionList[key]) {
+      uncheckedPermissionExists = true
+    }
+  })
 
   if (uncheckedPermissionExists) {
     const status = mod.setting.bsc.statusList.NOT_ENOUGH_PARAM
-    const result = { oldPermissionList: permissionList }
+    const result = { oldPermissionList: permissionList, requestScope, }
     return { status, session: authSession, response: { result } }
   }
 
