@@ -20,7 +20,7 @@ setting.oidc.CODE_L = 64
 setting.oidc.ACCESS_TOKEN_L = 64
 
 setting.url = {}
-setting.url.API_VERSION = 'v0.1'
+setting.url.API_VERSION = 'v0.1.0'
 setting.url.ERROR_PAGE = '/error'
 setting.url.AFTER_CONNECT = '/login'
 setting.url.AFTER_CHECK_CREDENTIAL = '/confirm'
