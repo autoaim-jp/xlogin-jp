@@ -32,6 +32,18 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
   })
 }
 
+export const updateRequestScope = ({ requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle }) => {
+  const requestScopeInputElm = document.querySelector(`[data-scope="${requestScope}"]`)
+  if (!requestScopeInputElm) {
+    return
+  }
+  requestScopeInputElm.parentNode.classList.add('bg-red-400')
+  slideToggle(notRequiredPermissionListElm, 300, true)
+  if (!flipSvgElm.classList.contains('flipY')) {
+    flipSvgElm.classList.add('flipY')
+  }
+}
+
 export const getPermissionCheckList = () => {
   const permissionCheckList = {}
   Object.values(document.querySelectorAll('[data-scope]')).forEach((elm) => {

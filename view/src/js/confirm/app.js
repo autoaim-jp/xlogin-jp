@@ -63,18 +63,21 @@ const loadCheckAllScopeButton = () => {
   }))
 }
 
-const startThroughCheck = () => {
+const startThroughCheck = async () => {
   const postThrough = a.output.getPostThrough(argNamed({
     lib: [a.lib.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
   }))
+
+  const { notRequiredPermissionListElm, flipSvgElm } = a.output.getAccordionElm()
   a.core.checkThrough(argNamed({
-    lib: [a.lib.switchLoading, a.lib.redirect],
-    param: { postThrough },
+    param: { postThrough, notRequiredPermissionListElm, flipSvgElm },
+    output: [a.output.updateRequestScope],
+    lib: [a.lib.switchLoading, a.lib.redirect, a.lib.slideToggle],
   }))
 }
 
-const loadNotRequiredPermissionList = () => {
+const loadNotRequiredPermissionList = async () => {
   const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
 
   const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
@@ -97,9 +100,9 @@ const main = async () => {
   a.app.loadPermissionList()
   a.app.loadConfirmForm()
   a.app.loadCheckAllScopeButton()
-  a.app.loadNotRequiredPermissionList()
 
-  a.app.startThroughCheck()
+  await a.app.loadNotRequiredPermissionList()
+  await a.app.startThroughCheck()
 }
 
 a.app = {
