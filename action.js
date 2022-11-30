@@ -401,6 +401,22 @@ const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAc
   }
 }
 
+/* GET /api/$apiVersion/file/list */
+const handleFileList = (clientId, accessToken, owner, filePath, getFileListByAccessToken) => {
+  const fileList = getFileListByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!fileList) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_list_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { fileList } }, redirect: null,
+  }
+}
+
 
 /* GET /logout */
 const handleLogout = () => {
@@ -428,6 +444,7 @@ export default {
   handleFileUpdate,
   handleFileContent,
   handleFileDelete,
+  handleFileList,
   handleLogout,
 }
 

@@ -148,6 +148,21 @@ const getFileContent = (emailAddress, clientId, owner, filePath) => {
   return fileList[emailAddress][owner][filePath].content
 }
 
+const getFileList = (emailAddress, clientId, owner, filePath) => {
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
+    return null
+  }
+
+  const resultFileList = Object.keys(fileList[emailAddress][owner]).map((_filePath) => {
+    return _filePath.indexOf(filePath) === 0
+  })
+
+
+  return resultFileList
+}
+
+
 export default {
   init,
   isValidClient,
@@ -164,5 +179,6 @@ export default {
   getNotification,
 
   getFileContent,
+  getFileList,
 }
 

@@ -149,6 +149,15 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileDelete)
   })
 
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+
+    const resultHandleFileList = await action.handleFileList(clientId, accessToken, owner, filePath, core.getFileListByAccessToken)
+    output.endResponse(req, res, resultHandleFileList)
+  })
+
   return expressRouter
 }
 
