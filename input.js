@@ -76,8 +76,10 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
       return
     }
     if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, 'r', keySplit[0], keySplit[1])) {
-      if (user[keySplit[0]] && user[keySplit[0]][keySplit[1]]) {
+      if (user[keySplit[0]] && user[keySplit[0]][keySplit[1]] !== undefined) {
         publicData[key] = user[keySplit[0]][keySplit[1]]
+      } else {
+        publicData[key] = null
       }
     }
   })
