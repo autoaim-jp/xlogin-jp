@@ -43,7 +43,12 @@ const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
   return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, emailAddress, backupEmailAddress) => {
+const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress')
+
+  if (!emailAddress) {
+    return null
+  }
   return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
 }
 

@@ -28,7 +28,12 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, sco
     const labelElm = permissionCheckElm.querySelector('#permissionCheckTemplateInputLabel')
     labelElm.setAttribute('id', labelElmId)
     labelElm.setAttribute('for', inputElmId)
-    labelElm.innerText = permission.label
+    permission.labelNoWrapList.forEach((label) => {
+      const noWrapElm = document.createElement('span')
+      noWrapElm.classList.add('whitespace-nowrap')
+      noWrapElm.innerText = label
+      labelElm.appendChild(noWrapElm)
+    })
 
     if (permission.isRequired) {
       requiredPermissionListElm.insertBefore(permissionCheckElm, requiredPermissionListElm.children[requiredPermissionListElm.children.length - 1])

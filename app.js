@@ -89,7 +89,7 @@ const _getUserApiRouter = () => {
     const clientId = req.headers['x-xlogin-client-id']
     const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.getUserByAccessToken, core.updateBackupEmailAddressByAccessToken)
+    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
     output.endResponse(req, res, resultHandleUserInfoUpdate)
   })
   return expressRouter
