@@ -43,6 +43,10 @@ const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
   return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
 }
 
+const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
+  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, backupEmailAddress)
+}
+
 
 /* user */
 const registerServiceUserId = (emailAddress, clientId) => {
@@ -194,6 +198,7 @@ export default {
   registerAccessToken,
   getUserByAccessToken,
   getCheckedRequiredPermissionList,
+  updateBackupEmailAddressByAccessToken,
 
   registerServiceUserId,
   getUserByEmailAddress,

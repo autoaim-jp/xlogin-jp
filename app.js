@@ -84,6 +84,14 @@ const _getUserApiRouter = () => {
     const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
   })
+  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
+    output.endResponse(req, res, resultHandleUserInfoUpdate)
+  })
   return expressRouter
 }
 

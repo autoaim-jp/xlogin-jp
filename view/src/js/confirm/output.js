@@ -1,5 +1,5 @@
 /* confirm/output.js */
-export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) => {
+export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, scopeColorClassList }) => {
   const requiredPermissionListElm = document.querySelector('#requiredPermissionList')
   const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
@@ -10,10 +10,16 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     const permissionCheckElm = document.querySelector('#permissionCheckTemplate').cloneNode(true)
     permissionCheckElm.classList.remove('hidden')
     permissionCheckElm.setAttribute('id', wrapElmId)
+    const scopeWithoutOperation = scope.split(':').slice(1).join(':')
+    const scopeColorClass = scopeColorClassList[scopeWithoutOperation]
+    if (scopeColorClass) {
+      permissionCheckElm.classList.add(...scopeColorClass)
+    }
 
     const inputElm = permissionCheckElm.querySelector('#permissionCheckTemplateInput')
     inputElm.setAttribute('id', inputElmId)
     inputElm.setAttribute('data-scope', scope)
+
     inputElm.setAttribute('data-scope-is-required', permission.isRequired)
     if (permission.isRequired) {
       inputElm.setAttribute('required', true)

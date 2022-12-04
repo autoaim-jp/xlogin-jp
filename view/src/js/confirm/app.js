@@ -17,7 +17,7 @@ asocial.output = output
 /* a is an alias of asocial */
 const a = asocial
 
-const loadPermissionList = async () => {
+const loadAllPermissionList = async () => {
   const resultFetchScope = await a.input.fetchScope(argNamed({
     setting: a.setting.bsc.get('apiEndpoint'),
     lib: [a.lib.getRequest],
@@ -29,6 +29,7 @@ const loadPermissionList = async () => {
   }))
 
   a.output.showPermissionLabelList(argNamed({
+    setting: a.setting.get('scopeColorClassList'),
     lib: [a.lib.getRandomStr],
     other: { permissionLabelList },
   }))
@@ -77,7 +78,7 @@ const startThroughCheck = async () => {
   }))
 }
 
-const loadNotRequiredPermissionList = async () => {
+const loadNotRequiredPermissionListAccordion = async () => {
   const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
 
   const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
@@ -97,20 +98,20 @@ const main = async () => {
   a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
   a.lib.monkeyPatch()
 
-  a.app.loadPermissionList()
+  a.app.loadAllPermissionList()
   a.app.loadConfirmForm()
   a.app.loadCheckAllScopeButton()
 
-  await a.app.loadNotRequiredPermissionList()
+  await a.app.loadNotRequiredPermissionListAccordion()
   await a.app.startThroughCheck()
 }
 
 a.app = {
   main,
-  loadPermissionList,
+  loadAllPermissionList,
   loadConfirmForm,
   loadCheckAllScopeButton,
-  loadNotRequiredPermissionList,
+  loadNotRequiredPermissionListAccordion,
   startThroughCheck,
 }
 

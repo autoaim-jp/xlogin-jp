@@ -241,6 +241,24 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
   }
 }
 
+/* POST /api/$apiVersion/user/update */
+const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, updateBackupEmailAddressByAccessToken) => {
+  const userInfoUpdateResult = updateBackupEmailAddressByAccessToken(clientId, accessToken, filterKeyList)
+
+  if (!userInfoUpdateResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_user_update_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { userInfoUpdateResult } }, redirect: null,
+  }
+}
+
+
 /* GET /api/$apiVersion/notification/list */
 const handleNotification = (clientId, accessToken, notificationRange, getNotificationByAccessToken) => {
   const notificationList = getNotificationByAccessToken(clientId, accessToken, notificationRange)
@@ -435,6 +453,7 @@ export default {
   handleThrough,
   handleCode,
   handleUserInfo,
+  handleUserInfoUpdate,
   handleNotification,
   handleNotificationAppend,
   handleNotificationOpen,
