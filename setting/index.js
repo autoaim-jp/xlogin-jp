@@ -41,6 +41,7 @@ setting.session.REDIS_DB = 1
 setting.user = {}
 setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
+setting.user.SCOPE_EMAIL_ADDRESS = `${setting.server.AUTH_SERVER_CLIENT_ID}:emailAddress`
 
 setting.notification = {}
 setting.notification.ALL_NOTIFICATION = 'global'

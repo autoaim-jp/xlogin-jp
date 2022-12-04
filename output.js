@@ -32,12 +32,12 @@ const registerServiceUserId = (emailAddress, clientId, serviceUserId) => {
   return true
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
+const updateBackupEmailAddressByAccessToken = (clientId, accessToken, emailAddress, backupEmailAddress) => {
   const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  if (userList[emailAddress]) {
+  if (!userList[emailAddress]) {
     return false
   }
-  userList[emailAddress].backupEmailAddress = backupEmailAddress
+  userList[emailAddress][mod.setting.server.AUTH_SERVER_CLIENT_ID].backupEmailAddress = backupEmailAddress
   mod.fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
   return true
 }

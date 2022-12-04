@@ -242,15 +242,22 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
 }
 
 /* POST /api/$apiVersion/user/update */
-const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, updateBackupEmailAddressByAccessToken) => {
-  const userInfoUpdateResult = updateBackupEmailAddressByAccessToken(clientId, accessToken, filterKeyList)
+const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, getUserByAccessToken, updateBackupEmailAddressByAccessToken) => {
+  const userInfo = getUserByAccessToken(clientId, accessToken, [mod.setting.user.SCOPE_EMAIL_ADDRESS])
 
-  if (!userInfoUpdateResult) {
+  if (!userInfo) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_user_update_access_token'
     return _getErrorResponse(status, error, null)
   }
 
+  const userInfoUpdateResult = updateBackupEmailAddressByAccessToken(clientId, accessToken, userInfo.public[mod.setting.user.SCOPE_EMAIL_ADDRESS], backupEmailAddress)
+
+  if (!userInfoUpdateResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_user_update_backup_email_address'
+    return _getErrorResponse(status, error, null)
+  }
 
   const status = mod.setting.bsc.statusList.OK
   return {

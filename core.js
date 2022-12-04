@@ -43,8 +43,8 @@ const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
   return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
-  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, backupEmailAddress)
+const updateBackupEmailAddressByAccessToken = (clientId, accessToken, emailAddress, backupEmailAddress) => {
+  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
 }
 
 
