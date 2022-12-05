@@ -1,3 +1,8 @@
+/* /app.js */
+/**
+ * @name エントリポイントのファイル
+ * @memberof file
+ */
 import fs from 'fs'
 import https from 'https'
 import crypto from 'crypto'
@@ -19,6 +24,11 @@ import input from './input.js'
 import action from './action.js'
 import lib from './lib.js'
 
+/**
+ * 全リクエストのセッションを初期化するExpressのルーター
+ * リクエストの前、つまり最初に呼び出す
+ * @memberof function
+ */
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
   const redis = new Redis({
@@ -56,6 +66,11 @@ const _getExpressMiddlewareRouter = () => {
 
 const _getOidcRouter = () => {
   const expressRouter = express.Router()
+  /**
+   * サービスでログインボタンがクリックされたときに、最初に来るAPI
+   * @name connect API
+   * @memberof feature
+   */
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const {
@@ -64,6 +79,12 @@ const _getOidcRouter = () => {
     const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
+
+  /**
+   * 認可コードを発行するAPI
+   * @name authCode API
+   * @memberof feature
+   */
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
     const {
       clientId, state, code, codeVerifier,

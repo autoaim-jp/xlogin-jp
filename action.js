@@ -1,4 +1,8 @@
 /* /action.js */
+/**
+ * @name 受動的に行う処理の開始地点をまとめたファイル
+ * @memberof file
+ */
 const mod = {}
 
 const init = (setting, lib) => {
@@ -7,6 +11,12 @@ const init = (setting, lib) => {
 }
 
 /* http */
+/**
+ * _getErrorResponse.
+ * エラーを返したいときに呼び出す。
+ * パラメータを渡すと、エラーレスポンスを作成する。
+ * @memberof function
+ */
 const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
   const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {

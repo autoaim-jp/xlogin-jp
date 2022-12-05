@@ -43,8 +43,20 @@ setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
 
 setting.notification = {}
+/**
+ * 全ての通知を取得する際に使うキーワード。
+ * xlogin内で表示するときに使う。
+ * 新サービスのクライアントIDには使用できない。
+ * @param setting.notification.ALL_NOTIFICATION
+ * @memberof parameter
+ */
 setting.notification.ALL_NOTIFICATION = 'global'
 
+/**
+ * xdevkitからコピーしたbrowserServerSettingをここから呼び出す。
+ * @param setting.bsc
+ * @memberof parameter
+ */
 setting.bsc = browserServerSetting
 
 export default setting

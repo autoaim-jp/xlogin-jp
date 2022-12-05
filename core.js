@@ -1,4 +1,9 @@
 /* /core.js */
+/**
+ * @name コア機能を集約したファイル
+ * @memberof file
+ */
+
 /* local setting */
 const mod = {}
 
