@@ -158,12 +158,11 @@ const getFileList = (emailAddress, clientId, owner, filePath) => {
 
   const resultFileList = Object.keys(fileList[emailAddress][owner]).map((_filePath) => {
     if (_filePath.indexOf(filePath) === 0) {
-      const fileObj = Object.assign({}, fileList[emailAddress][owner][_filePath])
+      const fileObj = { ...fileList[emailAddress][owner][_filePath] }
       delete fileObj.content
       return fileObj
-    } else {
-      return null
     }
+    return null
   }).filter((row) => { return row })
 
 

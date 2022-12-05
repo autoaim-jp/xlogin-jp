@@ -3,7 +3,7 @@ import * as browserServerSetting from './browserServerSetting.js'
 
 export const userHmacSecret = 'xlogin20220630'
 export const scopeColorClassList = {
-  'auth:backupEmailAddress': ['bg-black', 'text-white']
+  'auth:backupEmailAddress': ['bg-black', 'text-white'],
 }
 
 export const bsc = browserServerSetting

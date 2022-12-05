@@ -43,7 +43,9 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, sco
   })
 }
 
-export const updateRequestScope = ({ requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle }) => {
+export const updateRequestScope = ({
+  requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
+}) => {
   const requestScopeInputElm = document.querySelector(`[data-scope="${requestScope}"]`)
   if (!requestScopeInputElm) {
     return

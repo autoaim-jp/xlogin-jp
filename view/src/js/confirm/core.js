@@ -61,11 +61,15 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
   return permissionLabelList
 }
 
-export const checkThrough = ({ postThrough, notRequiredPermissionListElm, flipSvgElm, updateRequestScope, switchLoading, redirect, slideToggle }) => {
+export const checkThrough = ({
+  postThrough, notRequiredPermissionListElm, flipSvgElm, updateRequestScope, switchLoading, redirect, slideToggle,
+}) => {
   switchLoading(true)
   return postThrough().then((result) => {
     switchLoading(false)
     redirect(result)
-    updateRequestScope({ requestScope: result?.result?.requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle })
+    updateRequestScope({
+      requestScope: result?.result?.requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
+    })
   })
 }

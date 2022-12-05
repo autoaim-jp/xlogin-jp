@@ -157,7 +157,7 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
 
   if (!permissionList) {
     const status = mod.setting.bsc.statusList.NOT_FOUND
-    const result = { oldPermissionList: null, requestScope, }
+    const result = { oldPermissionList: null, requestScope }
     return { status, session: authSession, response: { result } }
   }
 
@@ -184,7 +184,7 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
 
   if (uncheckedPermissionExists) {
     const status = mod.setting.bsc.statusList.NOT_ENOUGH_PARAM
-    const result = { oldPermissionList: permissionList, requestScope, }
+    const result = { oldPermissionList: permissionList, requestScope }
     return { status, session: authSession, response: { result } }
   }
 
@@ -224,7 +224,7 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
     const error = 'handle_code_access_token'
     return _getErrorResponse(status, error, null)
   }
-  
+
   const { splitPermissionList } = authSession.oidc
 
   const status = mod.setting.bsc.statusList.OK
