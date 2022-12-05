@@ -1,4 +1,9 @@
 /* /core.js */
+/**
+ * @name コア機能を集約したファイル
+ * @memberof file
+ */
+
 /* local setting */
 const mod = {}
 
@@ -41,6 +46,15 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
 
 const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
   return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
+}
+
+const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress')
+
+  if (!emailAddress) {
+    return null
+  }
+  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
 }
 
 
@@ -171,6 +185,16 @@ const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
   return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
 }
 
+const getFileListByAccessToken = (clientId, accessToken, owner, filePath) => {
+  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+
+  if (!emailAddress) {
+    return null
+  }
+
+  return mod.input.getFileList(emailAddress, clientId, owner, filePath)
+}
+
 
 export default {
   init,
@@ -183,6 +207,7 @@ export default {
   registerAccessToken,
   getUserByAccessToken,
   getCheckedRequiredPermissionList,
+  updateBackupEmailAddressByAccessToken,
 
   registerServiceUserId,
   getUserByEmailAddress,
@@ -198,5 +223,6 @@ export default {
   updateFileByAccessToken,
   getFileContentByAccessToken,
   deleteFileByAccessToken,
+  getFileListByAccessToken,
 }
 

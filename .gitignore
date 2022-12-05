@@ -7,3 +7,5 @@ data/accessTokenList.json
 data/authSessionList.json
 data/notificationList.json
 
+doc/jsdoc/html/
+

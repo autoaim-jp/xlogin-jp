@@ -76,8 +76,10 @@ const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
       return
     }
     if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, 'r', keySplit[0], keySplit[1])) {
-      if (user[keySplit[0]]) {
+      if (user[keySplit[0]] && user[keySplit[0]][keySplit[1]] !== undefined) {
         publicData[key] = user[keySplit[0]][keySplit[1]]
+      } else {
+        publicData[key] = null
       }
     }
   })
@@ -148,6 +150,26 @@ const getFileContent = (emailAddress, clientId, owner, filePath) => {
   return fileList[emailAddress][owner][filePath].content
 }
 
+const getFileList = (emailAddress, clientId, owner, filePath) => {
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
+    return null
+  }
+
+  const resultFileList = Object.keys(fileList[emailAddress][owner]).map((_filePath) => {
+    if (_filePath.indexOf(filePath) === 0) {
+      const fileObj = { ...fileList[emailAddress][owner][_filePath] }
+      delete fileObj.content
+      return fileObj
+    }
+    return null
+  }).filter((row) => { return row })
+
+
+  return resultFileList
+}
+
+
 export default {
   init,
   isValidClient,
@@ -164,5 +186,6 @@ export default {
   getNotification,
 
   getFileContent,
+  getFileList,
 }
 

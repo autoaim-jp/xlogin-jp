@@ -1,4 +1,8 @@
 /* /action.js */
+/**
+ * @name 受動的に行う処理の開始地点をまとめたファイル
+ * @memberof file
+ */
 const mod = {}
 
 const init = (setting, lib) => {
@@ -7,6 +11,12 @@ const init = (setting, lib) => {
 }
 
 /* http */
+/**
+ * _getErrorResponse.
+ * エラーを返したいときに呼び出す。
+ * パラメータを渡すと、エラーレスポンスを作成する。
+ * @memberof function
+ */
 const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
   const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
@@ -26,37 +36,32 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
 
 
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, isValidClient) => {
+const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, isValidClient) => {
   if (!isValidClient(clientId, redirectUri)) {
     const status = mod.setting.bsc.statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
     return _getErrorResponse(status, error, true)
   }
 
-  if (user) {
-    const condition = mod.setting.condition.CONFIRM
-    const newUserSession = {
-      oidc: {
-        clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri,
-      },
-      user,
-    }
-    const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
+  const newUserSession = {
+    oidc: {
+      clientId, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri, requestScope,
+    },
+  }
 
+  if (user) {
+    newUserSession.user = user
+    newUserSession.oidc.condition = mod.setting.condition.CONFIRM
+    const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
     const status = mod.setting.bsc.statusList.OK
     return {
       status, session: newUserSession, response: null, redirect,
     }
   }
-  const condition = mod.setting.condition.LOGIN
-  const newUserSession = {
-    oidc: {
-      clientId, condition, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri,
-    },
-  }
 
-  const status = mod.setting.bsc.statusList.OK
+  newUserSession.oidc.condition = mod.setting.condition.LOGIN
   const redirect = mod.setting.url.AFTER_CONNECT
+  const status = mod.setting.bsc.statusList.OK
   return {
     status, session: newUserSession, response: null, redirect,
   }
@@ -148,14 +153,14 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
   }
 
   const permissionList = getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  const { scope, requestScope } = authSession.oidc
 
   if (!permissionList) {
     const status = mod.setting.bsc.statusList.NOT_FOUND
-    const result = { oldPermissionList: null }
+    const result = { oldPermissionList: null, requestScope }
     return { status, session: authSession, response: { result } }
   }
 
-  const { scope } = authSession.oidc
   let uncheckedPermissionExists = false
   const splitPermissionList = { required: {}, optional: {} }
   scope.split(',').forEach((_key) => {
@@ -163,9 +168,14 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
     if (_key[0] === '*') {
       key = _key.slice(1)
       splitPermissionList.required[key] = permissionList[key]
-    } else {
-      splitPermissionList.optional[key] = permissionList[key]
+
+      if (!permissionList[key]) {
+        uncheckedPermissionExists = true
+      }
     }
+  })
+  requestScope.split(',').forEach((key) => {
+    splitPermissionList.required[key] = permissionList[key]
 
     if (!permissionList[key]) {
       uncheckedPermissionExists = true
@@ -174,7 +184,7 @@ const handleThrough = (ipAddress, useragent, authSession, registerAuthSession, a
 
   if (uncheckedPermissionExists) {
     const status = mod.setting.bsc.statusList.NOT_ENOUGH_PARAM
-    const result = { oldPermissionList: permissionList }
+    const result = { oldPermissionList: permissionList, requestScope }
     return { status, session: authSession, response: { result } }
   }
 
@@ -215,9 +225,11 @@ const handleCode = (clientId, state, code, codeVerifier, registerAccessToken, ge
     return _getErrorResponse(status, error, null)
   }
 
+  const { splitPermissionList } = authSession.oidc
+
   const status = mod.setting.bsc.statusList.OK
   return {
-    status, session: newUserSession, response: { result: { accessToken } }, redirect: null,
+    status, session: newUserSession, response: { result: { accessToken, splitPermissionList } }, redirect: null,
   }
 }
 
@@ -232,11 +244,29 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
     return _getErrorResponse(status, error, null)
   }
 
+
   const status = mod.setting.bsc.statusList.OK
   return {
     status, session: null, response: { result: { userInfo } }, redirect: null,
   }
 }
+
+/* POST /api/$apiVersion/user/update */
+const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, updateBackupEmailAddressByAccessToken) => {
+  const userInfoUpdateResult = updateBackupEmailAddressByAccessToken(clientId, accessToken, backupEmailAddress)
+
+  if (!userInfoUpdateResult) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_user_update_backup_email_address'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { userInfoUpdateResult } }, redirect: null,
+  }
+}
+
 
 /* GET /api/$apiVersion/notification/list */
 const handleNotification = (clientId, accessToken, notificationRange, getNotificationByAccessToken) => {
@@ -398,6 +428,22 @@ const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAc
   }
 }
 
+/* GET /api/$apiVersion/file/list */
+const handleFileList = (clientId, accessToken, owner, filePath, getFileListByAccessToken) => {
+  const fileList = getFileListByAccessToken(clientId, accessToken, owner, filePath)
+
+  if (!fileList) {
+    const status = mod.setting.bsc.statusList.SERVER_ERROR
+    const error = 'handle_file_list_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.bsc.statusList.OK
+  return {
+    status, session: null, response: { result: { fileList } }, redirect: null,
+  }
+}
+
 
 /* GET /logout */
 const handleLogout = () => {
@@ -416,6 +462,7 @@ export default {
   handleThrough,
   handleCode,
   handleUserInfo,
+  handleUserInfoUpdate,
   handleNotification,
   handleNotificationAppend,
   handleNotificationOpen,
@@ -425,6 +472,7 @@ export default {
   handleFileUpdate,
   handleFileContent,
   handleFileDelete,
+  handleFileList,
   handleLogout,
 }
 

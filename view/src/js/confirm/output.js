@@ -1,5 +1,5 @@
 /* confirm/output.js */
-export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) => {
+export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, scopeColorClassList }) => {
   const requiredPermissionListElm = document.querySelector('#requiredPermissionList')
   const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
@@ -10,10 +10,16 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     const permissionCheckElm = document.querySelector('#permissionCheckTemplate').cloneNode(true)
     permissionCheckElm.classList.remove('hidden')
     permissionCheckElm.setAttribute('id', wrapElmId)
+    const scopeWithoutOperation = scope.split(':').slice(1).join(':')
+    const scopeColorClass = scopeColorClassList[scopeWithoutOperation]
+    if (scopeColorClass) {
+      permissionCheckElm.classList.add(...scopeColorClass)
+    }
 
     const inputElm = permissionCheckElm.querySelector('#permissionCheckTemplateInput')
     inputElm.setAttribute('id', inputElmId)
     inputElm.setAttribute('data-scope', scope)
+
     inputElm.setAttribute('data-scope-is-required', permission.isRequired)
     if (permission.isRequired) {
       inputElm.setAttribute('required', true)
@@ -22,7 +28,12 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
     const labelElm = permissionCheckElm.querySelector('#permissionCheckTemplateInputLabel')
     labelElm.setAttribute('id', labelElmId)
     labelElm.setAttribute('for', inputElmId)
-    labelElm.innerText = permission.label
+    permission.labelNoWrapList.forEach((label) => {
+      const noWrapElm = document.createElement('span')
+      noWrapElm.classList.add('whitespace-nowrap')
+      noWrapElm.innerText = label
+      labelElm.appendChild(noWrapElm)
+    })
 
     if (permission.isRequired) {
       requiredPermissionListElm.insertBefore(permissionCheckElm, requiredPermissionListElm.children[requiredPermissionListElm.children.length - 1])
@@ -30,6 +41,20 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr }) =
       notRequiredPermissionListElm.insertBefore(permissionCheckElm, notRequiredPermissionListElm.children[notRequiredPermissionListElm.children.length - 1])
     }
   })
+}
+
+export const updateRequestScope = ({
+  requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
+}) => {
+  const requestScopeInputElm = document.querySelector(`[data-scope="${requestScope}"]`)
+  if (!requestScopeInputElm) {
+    return
+  }
+  requestScopeInputElm.parentNode.classList.add('bg-red-400')
+  slideToggle(notRequiredPermissionListElm, 300, true)
+  if (!flipSvgElm.classList.contains('flipY')) {
+    flipSvgElm.classList.add('flipY')
+  }
 }
 
 export const getPermissionCheckList = () => {

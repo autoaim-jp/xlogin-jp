@@ -43,16 +43,17 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
       paramList[1] = 'service'
     }
 
-    let label = ''
     const operation = modeList.map((mode) => { return labelList.scope.operation[mode] }).join('と')
+    const labelNoWrapList = []
+    labelNoWrapList.push(labelList.scope[paramList[1]][paramList[2]])
     if (isRequired) {
-      label = `${labelList.scope[paramList[1]][paramList[2]]}の${operation} (${labelList.scope.other.isRequired})`
+      labelNoWrapList.push(`の${operation} (${labelList.scope.other.isRequired})`)
     } else {
-      label = `${labelList.scope[paramList[1]][paramList[2]]}の${operation}`
+      labelNoWrapList.push(`の${operation}`)
     }
 
     permissionLabelList[row] = {
-      label,
+      labelNoWrapList,
       isRequired,
     }
   })
@@ -60,10 +61,15 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
   return permissionLabelList
 }
 
-export const checkThrough = ({ postThrough, switchLoading, redirect }) => {
+export const checkThrough = ({
+  postThrough, notRequiredPermissionListElm, flipSvgElm, updateRequestScope, switchLoading, redirect, slideToggle,
+}) => {
   switchLoading(true)
-  postThrough().then((result) => {
+  return postThrough().then((result) => {
     switchLoading(false)
     redirect(result)
+    updateRequestScope({
+      requestScope: result?.result?.requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
+    })
   })
 }

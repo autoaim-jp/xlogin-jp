@@ -17,7 +17,7 @@ asocial.output = output
 /* a is an alias of asocial */
 const a = asocial
 
-const loadPermissionList = async () => {
+const loadAllPermissionList = async () => {
   const resultFetchScope = await a.input.fetchScope(argNamed({
     setting: a.setting.bsc.get('apiEndpoint'),
     lib: [a.lib.getRequest],
@@ -29,6 +29,7 @@ const loadPermissionList = async () => {
   }))
 
   a.output.showPermissionLabelList(argNamed({
+    setting: a.setting.get('scopeColorClassList'),
     lib: [a.lib.getRandomStr],
     other: { permissionLabelList },
   }))
@@ -63,18 +64,21 @@ const loadCheckAllScopeButton = () => {
   }))
 }
 
-const startThroughCheck = () => {
+const startThroughCheck = async () => {
   const postThrough = a.output.getPostThrough(argNamed({
     lib: [a.lib.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
   }))
+
+  const { notRequiredPermissionListElm, flipSvgElm } = a.output.getAccordionElm()
   a.core.checkThrough(argNamed({
-    lib: [a.lib.switchLoading, a.lib.redirect],
-    param: { postThrough },
+    param: { postThrough, notRequiredPermissionListElm, flipSvgElm },
+    output: [a.output.updateRequestScope],
+    lib: [a.lib.switchLoading, a.lib.redirect, a.lib.slideToggle],
   }))
 }
 
-const loadNotRequiredPermissionList = () => {
+const loadNotRequiredPermissionListAccordion = async () => {
   const { notRequiredPermissionListElm, flipSvgElm, showOptionPermissionBtnElm } = a.output.getAccordionElm()
 
   const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
@@ -94,20 +98,20 @@ const main = async () => {
   a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
   a.lib.monkeyPatch()
 
-  a.app.loadPermissionList()
+  a.app.loadAllPermissionList()
   a.app.loadConfirmForm()
   a.app.loadCheckAllScopeButton()
-  a.app.loadNotRequiredPermissionList()
 
-  a.app.startThroughCheck()
+  await a.app.loadNotRequiredPermissionListAccordion()
+  await a.app.startThroughCheck()
 }
 
 a.app = {
   main,
-  loadPermissionList,
+  loadAllPermissionList,
   loadConfirmForm,
   loadCheckAllScopeButton,
-  loadNotRequiredPermissionList,
+  loadNotRequiredPermissionListAccordion,
   startThroughCheck,
 }
 

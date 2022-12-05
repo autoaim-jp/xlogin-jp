@@ -20,7 +20,7 @@ setting.oidc.CODE_L = 64
 setting.oidc.ACCESS_TOKEN_L = 64
 
 setting.url = {}
-setting.url.API_VERSION = 'v0.7'
+setting.url.API_VERSION = 'v0.1.0'
 setting.url.ERROR_PAGE = '/error'
 setting.url.AFTER_CONNECT = '/login'
 setting.url.AFTER_CHECK_CREDENTIAL = '/confirm'
@@ -43,8 +43,20 @@ setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
 
 setting.notification = {}
+/**
+ * 全ての通知を取得する際に使うキーワード。
+ * xlogin内で表示するときに使う。
+ * 新サービスのクライアントIDには使用できない。
+ * @param setting.notification.ALL_NOTIFICATION
+ * @memberof parameter
+ */
 setting.notification.ALL_NOTIFICATION = 'global'
 
+/**
+ * xdevkitからコピーしたbrowserServerSettingをここから呼び出す。
+ * @param setting.bsc
+ * @memberof parameter
+ */
 setting.bsc = browserServerSetting
 
 export default setting

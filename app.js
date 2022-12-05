@@ -1,3 +1,8 @@
+/* /app.js */
+/**
+ * @name エントリポイントのファイル
+ * @memberof file
+ */
 import fs from 'fs'
 import https from 'https'
 import crypto from 'crypto'
@@ -19,6 +24,11 @@ import input from './input.js'
 import action from './action.js'
 import lib from './lib.js'
 
+/**
+ * 全リクエストのセッションを初期化するExpressのルーター
+ * リクエストの前、つまり最初に呼び出す
+ * @memberof function
+ */
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
   const redis = new Redis({
@@ -56,14 +66,25 @@ const _getExpressMiddlewareRouter = () => {
 
 const _getOidcRouter = () => {
   const expressRouter = express.Router()
+  /**
+   * サービスでログインボタンがクリックされたときに、最初に来るAPI
+   * @name connect API
+   * @memberof feature
+   */
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
     const user = req.session.auth?.user
     const {
-      clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod,
+      clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, core.isValidClient)
+    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
+
+  /**
+   * 認可コードを発行するAPI
+   * @name authCode API
+   * @memberof feature
+   */
   expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
     const {
       clientId, state, code, codeVerifier,
@@ -83,6 +104,14 @@ const _getUserApiRouter = () => {
 
     const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
+  })
+  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
+
+    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
+    output.endResponse(req, res, resultHandleUserInfoUpdate)
   })
   return expressRouter
 }
@@ -147,6 +176,15 @@ const _getFileRouter = () => {
 
     const resultHandleFileDelete = await action.handleFileDelete(clientId, accessToken, owner, filePath, core.updateFileByAccessToken)
     output.endResponse(req, res, resultHandleFileDelete)
+  })
+
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+
+    const resultHandleFileList = await action.handleFileList(clientId, accessToken, owner, filePath, core.getFileListByAccessToken)
+    output.endResponse(req, res, resultHandleFileList)
   })
 
   return expressRouter
