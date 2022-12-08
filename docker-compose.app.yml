@@ -18,7 +18,7 @@ services:
       - ./src:/app
       - /app/node_modules
     environment:
-     - WATCHPACK_POLLING=true
+     - IS_TEST=false
     command: sh -c "npm start"
     depends_on:
       - rediscontainer
