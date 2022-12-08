@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: ./docker/rediscontainer/Dockerfile
-    ports:
     volumes:
       - './data/redis:/data'
   webcontainer:
