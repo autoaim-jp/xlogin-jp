@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  rediscontainer:
+    build:
+      context: .
+      dockerfile: ./docker/rediscontainer/Dockerfile
+    ports:
+    volumes:
+      - './data/redis:/data'
+  webcontainer:
+    build:
+      context: .
+      dockerfile: ./docker/webcontainer/Dockerfile
+    tty: true
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/app
+      - /app/node_modules
+    environment:
+     - WATCHPACK_POLLING=true
+    command: sh -c "npm start"
+    depends_on:
+      - rediscontainer
+
+

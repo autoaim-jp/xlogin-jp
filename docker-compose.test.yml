@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  rediscontainer:
+    build:
+      context: .
+      dockerfile: ./docker/rediscontainer/Dockerfile
+    volumes:
+      - './data/redis:/data'
+  webcontainer:
+    build:
+      context: .
+      dockerfile: ./docker/webcontainer/Dockerfile
+    tty: false
+    volumes:
+      - /app/node_modules
+    environment:
+     - IS_TEST=true
+    command: sh -c "npm start"
+    depends_on:
+      - rediscontainer
+  testclient:
+    build:
+      context: .
+      dockerfile: ./docker/testclient/Dockerfile
+    command: sh -c "npm test"
+    depends_on:
+      - webcontainer
+
+
