@@ -7,7 +7,7 @@
   },
   "sample_localhost": {
     "serviceName": "localhost sample",
-    "redirectUri": "http://localhost:3001/f/xlogin/callback"
+    "redirectUri": "http://127.0.0.1:3001/f/xlogin/callback"
   },
   "sample_localhost7001": {
     "serviceName": "localhost sample",
