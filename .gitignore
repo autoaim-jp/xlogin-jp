@@ -1,13 +1,13 @@
-node_modules/
-.env
+src/node_modules/
+src/.env
 
-view/build/
+src/view/build/
 
-data/accessTokenList.json
-data/authSessionList.json
-data/notificationList.json
+src/data/accessTokenList.json
+src/data/authSessionList.json
+src/data/notificationList.json
 
-doc/jsdoc/html/
+src/doc/jsdoc/html/
 
 data/redis/
 
