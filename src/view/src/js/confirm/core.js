@@ -67,7 +67,7 @@ export const convertPermissionList = ({ labelList, resultFetchScope }) => {
 }
 
 export const checkThrough = ({
-  postThrough, notRequiredPermissionListElm, flipSvgElm, updateRequestScope, switchLoading, redirect, slideToggle,
+  postThrough, notRequiredPermissionListElm, flipSvgElm, updateRequestScope, updateScopeAlreadyChecked, switchLoading, redirect, slideToggle,
 }) => {
   switchLoading(true)
   return postThrough().then((result) => {
@@ -76,19 +76,29 @@ export const checkThrough = ({
     updateRequestScope({
       requestScope: result?.result?.requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
     })
+    updateScopeAlreadyChecked({
+      oldPermissionList: result?.result?.oldPermissionList,
+    })
+
+    return result
   })
 }
 
-export const checkImportantPermissionWithModal = async ({ permissionList, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter }) => {
+export const checkImportantPermissionWithModal = async ({ permissionList, resultCheckTrough, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter }) => {
   const { modalElm, setContent } = getErrorModalElmAndSetter()
+  const oldPermissionList = resultCheckTrough?.result?.oldPermissionList || {}
   for (const [scope, isChecked] of Object.entries(permissionList)) {
     if (!isChecked) {
+      continue
+    }
+    if (oldPermissionList[scope]) {
       continue
     }
     const scopeWithoutOperation= scope.split(':').slice(1).join(':')
     if (!scopeExtraConfigList[scopeWithoutOperation] || !scopeExtraConfigList[scopeWithoutOperation].dialogConfirm) {
       continue
     }
+
     const { labelNoWrapList } = _convertScopeToLabel({ labelList, scope })
     const label = labelNoWrapList.join('')
     setContent(`[${label}(${scope})]は重要な権限です。本当に許可しますか？`, null, '確認')

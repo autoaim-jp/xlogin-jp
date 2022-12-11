@@ -35,7 +35,7 @@ const loadAllPermissionList = async () => {
   }))
 }
 
-const loadConfirmForm = () => {
+const loadConfirmForm = ({ resultCheckTrough }) => {
   const postConfirm = a.output.getPostConfirm(argNamed({
     lib: [a.lib.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
@@ -47,7 +47,7 @@ const loadConfirmForm = () => {
     setting: a.setting.get('scopeExtraConfigList'),
     setting2: a.setting.bsc.get('labelList'),
     lib: [a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter],
-    other: { postConfirm },
+    other: { postConfirm, resultCheckTrough },
   }))
 
   const confirmFormElm = a.output.getConfirmFormElm()
@@ -74,11 +74,13 @@ const startThroughCheck = async () => {
   }))
 
   const { notRequiredPermissionListElm, flipSvgElm } = a.output.getAccordionElm()
-  a.core.checkThrough(argNamed({
+  const resultCheckTrough = a.core.checkThrough(argNamed({
     param: { postThrough, notRequiredPermissionListElm, flipSvgElm },
-    output: [a.output.updateRequestScope],
+    output: [a.output.updateRequestScope, a.output.updateScopeAlreadyChecked],
     lib: [a.lib.switchLoading, a.lib.redirect, a.lib.slideToggle],
   }))
+
+  return resultCheckTrough
 }
 
 const loadNotRequiredPermissionListAccordion = async () => {
@@ -102,11 +104,11 @@ const main = async () => {
   a.lib.monkeyPatch()
 
   a.app.loadAllPermissionList()
-  a.app.loadConfirmForm()
   a.app.loadCheckAllScopeButton()
 
   await a.app.loadNotRequiredPermissionListAccordion()
-  await a.app.startThroughCheck()
+  const resultCheckTrough = await a.app.startThroughCheck()
+  await a.app.loadConfirmForm({ resultCheckTrough })
 }
 
 a.app = {

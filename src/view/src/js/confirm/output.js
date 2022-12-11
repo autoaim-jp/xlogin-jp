@@ -57,6 +57,19 @@ export const updateRequestScope = ({
   }
 }
 
+export const updateScopeAlreadyChecked = ({ oldPermissionList }) => {
+  Object.values(document.querySelectorAll('[data-scope]')).forEach((elm) => {
+    let { scope } = elm.dataset
+    if (scope.length > 0 && scope[0] === '*') {
+      scope = scope.slice(1)
+    }
+
+    if (oldPermissionList[scope]) {
+      elm.checked = true
+    }
+  })
+}
+
 export const getPermissionCheckList = () => {
   const permissionCheckList = {}
   Object.values(document.querySelectorAll('[data-scope]')).forEach((elm) => {
