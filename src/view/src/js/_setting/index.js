@@ -6,14 +6,14 @@ export const scopeExtraConfigList = {
   'auth:backupEmailAddress': {
     classList: ['bg-black', 'text-white'],
     dialogConfirm: true,
-  }
+  },
 }
 
 export const bsc = browserServerSetting
 
 const settingList = {
   userHmacSecret,
-  scopeExtraConfigList
+  scopeExtraConfigList,
 }
 
 export const getBrowserServerSetting = () => {

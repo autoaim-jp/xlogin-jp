@@ -84,17 +84,19 @@ export const checkThrough = ({
   })
 }
 
-export const checkImportantPermissionWithModal = async ({ permissionList, resultCheckTrough, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter }) => {
+export const checkImportantPermissionWithModal = async ({
+  permissionList, resultCheckTrough, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter,
+}) => {
   const { modalElm, setContent } = getErrorModalElmAndSetter()
   const oldPermissionList = resultCheckTrough?.result?.oldPermissionList || {}
-  for (const [scope, isChecked] of Object.entries(permissionList)) {
+  for await (const [scope, isChecked] of Object.entries(permissionList)) {
     if (!isChecked) {
       continue
     }
     if (oldPermissionList[scope]) {
       continue
     }
-    const scopeWithoutOperation= scope.split(':').slice(1).join(':')
+    const scopeWithoutOperation = scope.split(':').slice(1).join(':')
     if (!scopeExtraConfigList[scopeWithoutOperation] || !scopeExtraConfigList[scopeWithoutOperation].dialogConfirm) {
       continue
     }
@@ -102,7 +104,7 @@ export const checkImportantPermissionWithModal = async ({ permissionList, result
     const { labelNoWrapList } = _convertScopeToLabel({ labelList, scope })
     const label = labelNoWrapList.join('')
     setContent(`[${label}(${scope})]は重要な権限です。本当に許可しますか？`, null, '確認')
-    const isAuthorized = await showModal(modalElm, true)
+    const isAuthorized = showModal(modalElm, true)
     if (!isAuthorized) {
       return false
     }

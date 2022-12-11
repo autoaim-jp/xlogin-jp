@@ -62,7 +62,7 @@ const closeModal = () => {
 }
 
 export const showModal = (modalElm, cancelButtonIsVisible = false) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (modalElm.id === 'modalTemplate') {
       modalElm.id = ''
     }

@@ -9,7 +9,9 @@ export const getOnSubmitConfirm = ({
     switchLoading(true)
 
     const permissionList = getPermissionCheckList()
-    const isAuthorized = await checkImportantPermissionWithModal({ permissionList, resultCheckTrough, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter })
+    const isAuthorized = await checkImportantPermissionWithModal({
+      permissionList, resultCheckTrough, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter,
+    })
     if (!isAuthorized) {
       switchLoading(false)
       return

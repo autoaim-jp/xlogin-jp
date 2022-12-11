@@ -15,6 +15,7 @@
     "start": "node app.js",
     "lint-server": "eslint *.js setting/",
     "lint-browser": "eslint view/src/js",
+    "lint-fix": "yarn lint-server --fix && yarn lint-browser --fix",
     "test": "curl http://webcontainer:3000",
     "dev-add-service": "node tool/src/registerNewService.js",
     "compile": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css",

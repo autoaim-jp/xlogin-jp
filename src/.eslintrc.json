@@ -78,6 +78,9 @@
     "import/extensions": ["error", "always", { "ignorePackages": true }],
 
     // allow param reassign
-    "no-param-reassign": [2, { "props": false }]
+    "no-param-reassign": [2, { "props": false }],
+
+    // allow continue
+    "no-continue": "off"
   }
 }
