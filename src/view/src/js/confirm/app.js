@@ -103,12 +103,12 @@ const main = async () => {
   a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
   a.lib.monkeyPatch()
 
-  a.app.loadAllPermissionList()
+  await a.app.loadAllPermissionList()
   a.app.loadCheckAllScopeButton()
 
   await a.app.loadNotRequiredPermissionListAccordion()
   const resultCheckTrough = await a.app.startThroughCheck()
-  await a.app.loadConfirmForm({ resultCheckTrough })
+  a.app.loadConfirmForm({ resultCheckTrough })
 }
 
 a.app = {

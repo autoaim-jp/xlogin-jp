@@ -76,8 +76,9 @@ export const checkThrough = ({
     updateRequestScope({
       requestScope: result?.result?.requestScope, notRequiredPermissionListElm, flipSvgElm, slideToggle,
     })
+    const oldPermissionList = result?.result?.oldPermissionList || {}
     updateScopeAlreadyChecked({
-      oldPermissionList: result?.result?.oldPermissionList,
+      oldPermissionList,
     })
 
     return result
@@ -104,7 +105,7 @@ export const checkImportantPermissionWithModal = async ({
     const { labelNoWrapList } = _convertScopeToLabel({ labelList, scope })
     const label = labelNoWrapList.join('')
     setContent(`[${label}(${scope})]は重要な権限です。本当に許可しますか？`, null, '確認')
-    const isAuthorized = showModal(modalElm, true)
+    const isAuthorized = await showModal(modalElm, true)
     if (!isAuthorized) {
       return false
     }

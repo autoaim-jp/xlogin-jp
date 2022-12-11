@@ -252,6 +252,7 @@ const _getOtherRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
+    console.log('debug:', req.path, req.query, req.body)
     res.status(500)
     res.end('Internal Server Error')
     return next()
