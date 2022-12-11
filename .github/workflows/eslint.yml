@@ -4,17 +4,19 @@ jobs:
   eslint:
     name: GitHub Actions eslint
     runs-on: ubuntu-latest
-    working-directory: ./src
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
       - run: yarn install
+        working-directory: ./src
       - name: Run eslint-server
         run: yarn lint-server
+        working-directory: ./src
       - name: Run eslint-browser
         run: yarn lint-browser
+        working-directory: ./src
 
   slack-notification:
     if: always()
