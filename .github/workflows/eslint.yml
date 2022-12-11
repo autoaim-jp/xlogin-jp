@@ -9,6 +9,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
+      - run: cd src
       - run: yarn install
       - run: version=v0.9 yarn init-xdevkit
       - name: Run eslint-server
