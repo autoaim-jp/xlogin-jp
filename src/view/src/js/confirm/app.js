@@ -29,7 +29,7 @@ const loadAllPermissionList = async () => {
   }))
 
   a.output.showPermissionLabelList(argNamed({
-    setting: a.setting.get('scopeColorClassList'),
+    setting: a.setting.get('scopeExtraConfigList'),
     lib: [a.lib.getRandomStr],
     other: { permissionLabelList },
   }))
@@ -43,7 +43,10 @@ const loadConfirmForm = () => {
 
   const onSubmitConfirm = a.action.getOnSubmitConfirm(argNamed({
     output: [a.output.getPermissionCheckList],
-    lib: [a.lib.switchLoading, a.lib.redirect],
+    core: [a.core.checkImportantPermissionWithModal],
+    setting: a.setting.get('scopeExtraConfigList'),
+    setting2: a.setting.bsc.get('labelList'),
+    lib: [a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter],
     other: { postConfirm },
   }))
 

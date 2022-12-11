@@ -1,11 +1,18 @@
 /* confirm/action.js */
 export const getOnSubmitConfirm = ({
   getPermissionCheckList, postConfirm, switchLoading, redirect,
+  checkImportantPermissionWithModal,
+  scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter,
 }) => {
-  return () => {
+  return async () => {
     switchLoading(true)
 
     const permissionList = getPermissionCheckList()
+    const isAuthorized = await checkImportantPermissionWithModal({ permissionList, scopeExtraConfigList, labelList, showModal, getErrorModalElmAndSetter })
+    if (!isAuthorized) {
+      switchLoading(false)
+      return
+    }
     postConfirm({ permissionList }).then((result) => {
       switchLoading(false)
       redirect(result)

@@ -2,15 +2,18 @@
 import * as browserServerSetting from './browserServerSetting.js'
 
 export const userHmacSecret = 'xlogin20220630'
-export const scopeColorClassList = {
-  'auth:backupEmailAddress': ['bg-black', 'text-white'],
+export const scopeExtraConfigList = {
+  'auth:backupEmailAddress': {
+    classList: ['bg-black', 'text-white'],
+    dialogConfirm: true,
+  }
 }
 
 export const bsc = browserServerSetting
 
 const settingList = {
   userHmacSecret,
-  scopeColorClassList,
+  scopeExtraConfigList
 }
 
 export const getBrowserServerSetting = () => {

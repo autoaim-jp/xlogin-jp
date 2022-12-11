@@ -61,54 +61,64 @@ const closeModal = () => {
   })
 }
 
-export const showModal = (modalElm, cancelButtonIsVisible = false, onConfirm = () => {}) => {
-  if (modalElm.id === 'modalTemplate') {
-    modalElm.id = ''
-  }
-  document.body.appendChild(modalElm)
-  closeModal()
-
-  setTimeout(() => {
-    applyElmList('[data-id="modalClose"], [data-id="modalCancelButton"]', (elm) => {
-      elm.onclick = closeModal
-    }, document)
-
-    if (cancelButtonIsVisible) {
-      modalElm.querySelector('[data-id="modalCancelButton"]').classList.remove('hidden')
-    } else {
-      modalElm.querySelector('[data-id="modalCancelButton"]').classList.add('hidden')
+export const showModal = (modalElm, cancelButtonIsVisible = false) => {
+  return new Promise((resolve, reject) => {
+    if (modalElm.id === 'modalTemplate') {
+      modalElm.id = ''
     }
-    modalElm.querySelector('[data-id="modalConfirmButton"]').onclick = () => {
-      if (typeof onConfirm === 'function') {
-        onConfirm()
+    document.body.appendChild(modalElm)
+    closeModal()
+
+    setTimeout(() => {
+      applyElmList('[data-id="modalClose"], [data-id="modalCancelButton"]', (elm) => {
+        elm.onclick = () => {
+          closeModal()
+          return resolve(false)
+        }
+      }, document)
+
+      if (cancelButtonIsVisible) {
+        modalElm.querySelector('[data-id="modalCancelButton"]').classList.remove('hidden')
+      } else {
+        modalElm.querySelector('[data-id="modalCancelButton"]').classList.add('hidden')
       }
-      closeModal()
-    }
-    modalElm.classList.remove('hidden')
-    document.querySelector('#modalBackground').classList.remove('hidden')
-    modalElm.querySelector('[data-id="modalContent"]').scrollTop = 0
-    modalElm.querySelector('[data-id="modalCard"]').onclick = (e) => {
-      e.stopPropagation()
-    }
-    modalElm.onclick = (e) => {
-      e.stopPropagation()
-      closeModal()
-    }
-  }, 100)
+      modalElm.querySelector('[data-id="modalConfirmButton"]').onclick = () => {
+        closeModal()
+        return resolve(true)
+      }
+      modalElm.classList.remove('hidden')
+      document.querySelector('#modalBackground').classList.remove('hidden')
+      modalElm.querySelector('[data-id="modalContent"]').scrollTop = 0
+      modalElm.querySelector('[data-id="modalCard"]').onclick = (e) => {
+        e.stopPropagation()
+      }
+      modalElm.onclick = (e) => {
+        e.stopPropagation()
+        closeModal()
+        return resolve(false)
+      }
+    }, 100)
+  })
 }
 
 export const getErrorModalElmAndSetter = () => {
   const modalTemplateElm = document.querySelector('#modalTemplate')
   const modalElm = modalTemplateElm.cloneNode(true)
 
-  modalElm.querySelector('[data-id="modalTitle"]').innerText = 'エラー'
+  const modalTitleElm = modalElm.querySelector('[data-id="modalTitle"]')
+  modalTitleElm.innerText = 'エラー'
 
   const labelP = document.createElement('p')
   labelP.innerText = 'エラーが発生しました。'
   modalElm.querySelector('[data-id="modalContent"]').appendChild(labelP)
 
-  const setContent = (textStr, errorLabelList) => {
-    labelP.innerText = errorLabelList[textStr] || textStr
+  const setContent = (textStr, errorLabelList = null, title = 'エラー') => {
+    if (errorLabelList) {
+      labelP.innerText = errorLabelList[textStr] || textStr
+    } else {
+      labelP.innerText = textStr
+    }
+    modalTitleElm.innerText = title
   }
 
   return { modalElm, setContent }
