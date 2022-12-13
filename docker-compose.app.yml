@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./docker/rediscontainer/Dockerfile
     volumes:
-      - './data/redis:/data'
+      - xl-rc-redis:/data
   webcontainer:
     build:
       context: .
@@ -16,11 +16,14 @@ services:
       - 3000:3000
     volumes:
       - ./src:/app
-      - /app/node_modules
+      - xl-wc-nm:/app/node_modules
     environment:
      - IS_TEST=false
     command: sh -c "npm start"
     depends_on:
       - rediscontainer
 
+volumes:
+  xl-rc-redis:
+  xl-wc-nm:
 
