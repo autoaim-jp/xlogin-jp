@@ -16,6 +16,7 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
 import expressUseragent from 'express-useragent'
+import pg from 'pg'
 
 import setting from './setting/index.js'
 import output from './output.js'
@@ -277,13 +278,16 @@ const startServer = (expressApp) => {
   }
 }
 
-const main = () => {
+const main = async () => {
   dotenv.config()
-  lib.init(crypto, ulid)
+  lib.init(crypto, ulid, pg)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
-  input.init(setting, fs)
+  input.init(setting, fs, pg)
   action.init(setting, lib)
+
+  await lib.waitForPsql()
+  await input.debugQuery()
 
   const expressApp = express()
 

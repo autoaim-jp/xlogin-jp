@@ -7,7 +7,7 @@ create table  auth_m.sample (
   primary key (col1)
 );
 
-grant all privileges on auth_m.sample to hoge;
+grant all privileges on auth_m.sample to xlogin_jp_admin;
 
 insert into auth_m.sample values('1111', '2221', '3331');
 insert into auth_m.sample values('1112', '2222', '3332');

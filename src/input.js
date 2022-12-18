@@ -1,10 +1,40 @@
 /* /input.js */
 const mod = {}
 
-const init = (setting, fs) => {
+const init = (setting, fs, pg) => {
   mod.setting = setting
 
   mod.fs = fs
+  mod.PGClient = pg.Client
+  mod.dbCredential = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+  }
+}
+
+const debugQuery = async () => {
+  console.log('[debug] query exec')
+  const { err, result } = await _query('select * from auth_m.sample', [])
+  console.log({ err, result })
+  console.log(result.rows)
+}
+
+const _query = (query, param) => {
+  const pgClient = new mod.PGClient(mod.dbCredential)
+  pgClient.connect()
+  return new Promise((resolve, reject) => {
+    pgClient.query(query, param, (err, result) => {
+      if(err || !result) {
+        console.log('error: psql', err, result)
+        console.log(err, result)
+      }
+      pgClient.end()
+      return resolve({ err, result })
+    })
+  })
 }
 
 /* from clientList */
@@ -172,6 +202,7 @@ const getFileList = (emailAddress, clientId, owner, filePath) => {
 
 export default {
   init,
+  debugQuery,
   isValidClient,
 
   getUserByEmailAddress,

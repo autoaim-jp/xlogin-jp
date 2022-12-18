@@ -9,6 +9,7 @@
     "express-session": "^1.17.3",
     "express-useragent": "^1.0.15",
     "ioredis": "^5.0.5",
+    "pg": "^8.8.0",
     "ulid": "^2.3.0"
   },
   "scripts": {

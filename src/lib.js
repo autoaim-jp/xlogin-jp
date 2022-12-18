@@ -1,8 +1,49 @@
 const mod = {}
 
-const init = (crypto, ulid) => {
+const init = (crypto, ulid, pg) => {
   mod.crypto = crypto
   mod.ulid = ulid
+  
+  mod.PGClient = pg.Client
+  mod.PGPool = pg.Pool
+}
+
+const awaitSleep = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
+
+/* db */
+const waitForPsql = async () => {
+  console.log('[info] waitForPsql')
+  const dbCredential = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+  }
+
+  while(true) {
+    await awaitSleep(1 * 1000)
+    let client = null
+    try {
+      const pool = new mod.PGPool(dbCredential)
+      client = await pool.connect()
+      const res = await client.query('select 1')
+      return res.rows[0]
+    } catch (err) {
+      console.log(err.stack)
+      console.log('[info] waiting for psql...')
+    } finally {
+      if (client) {
+        client.release()
+      }
+    }
+  }
 }
 
 /* url */
@@ -79,6 +120,9 @@ const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
 
 export default {
   init,
+
+  awaitSleep,
+  waitForPsql,
 
   objToQuery,
   addQueryStr,
