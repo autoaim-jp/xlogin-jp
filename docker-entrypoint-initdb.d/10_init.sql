@@ -1,13 +1,17 @@
-create database xlogin_jp_db;
+create database xl_db;
 
-revoke all on database xlogin_jp_db from public;
+revoke all on database xl_db from public;
 
-\c xlogin_jp_db
+\c xl_db
 
-create schema auth_m;
+create role xl_admin with login password 'xl_pass';
+grant connect on database xl_db to xl_admin;
 
-create role xlogin_jp_admin with login password 'xlogin_jp_pass';
+create schema user_info;
+grant all privileges on schema user_info to xl_admin;
 
-grant connect on database xlogin_jp_db to xlogin_jp_admin;
-grant all privileges on schema auth_m to xlogin_jp_admin;
+create schema access_info;
+grant all privileges on schema access_info to xl_admin;
+
+
 

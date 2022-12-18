@@ -1,49 +1,12 @@
 const mod = {}
 
-const init = (crypto, ulid, pg) => {
+const init = (crypto, ulid) => {
   mod.crypto = crypto
   mod.ulid = ulid
-  
-  mod.PGClient = pg.Client
-  mod.PGPool = pg.Pool
 }
 
-const awaitSleep = (ms) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
-}
-
-/* db */
-const waitForPsql = async () => {
-  console.log('[info] waitForPsql')
-  const dbCredential = {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-  }
-
-  while(true) {
-    await awaitSleep(1 * 1000)
-    let client = null
-    try {
-      const pool = new mod.PGPool(dbCredential)
-      client = await pool.connect()
-      const res = await client.query('select 1')
-      return res.rows[0]
-    } catch (err) {
-      console.log(err.stack)
-      console.log('[info] waiting for psql...')
-    } finally {
-      if (client) {
-        client.release()
-      }
-    }
-  }
+const setPgPool = (pgPool) => {
+  mod.pgPool = pgPool
 }
 
 /* url */
@@ -117,12 +80,51 @@ const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
     .replace(/ss/g, (`0${date.getSeconds()}`).slice(-2))
 }
 
+const awaitSleep = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
+
+
+/* db */
+const execQuery = async (query, paramList = []) => {
+  let client = null
+  const res = { err: null, result: null }
+  try {
+    const client = await mod.pgPool.connect()
+    const result = await client.query(query, paramList)
+    res.result = result
+  } catch (err) {
+    console.log(err.stack)
+    res.err = err
+  } finally {
+    if (client) {
+      client.release()
+    }
+  }
+  return res
+}
+
+const waitForPsql = async () => {
+  console.log('[info] waitForPsql')
+  while(true) {
+    await awaitSleep(1 * 1000)
+    const { err, result } = await execQuery('select 1')
+    if (!err && result) {
+      return result.rows[0]
+    }
+    console.log('[info] waiting for psql...')
+  }
+}
+
+
 
 export default {
   init,
-
-  awaitSleep,
-  waitForPsql,
+  setPgPool,
 
   objToQuery,
   addQueryStr,
@@ -134,5 +136,9 @@ export default {
   calcPbkdf2,
 
   formatDate,
+  awaitSleep,
+  
+  execQuery,
+  waitForPsql,
 }
 

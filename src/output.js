@@ -43,14 +43,16 @@ const updateBackupEmailAddressByAccessToken = (clientId, accessToken, emailAddre
 }
 
 /* to authSessionList */
-const registerAuthSession = (code, authSession) => {
-  const authSessionList = JSON.parse(mod.fs.readFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON))
-  if (authSessionList[code]) {
-    return false
-  }
-  authSessionList[code] = authSession
-  mod.fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, JSON.stringify(authSessionList, null, 2))
-  return true
+const registerAuthSession = async (authSession, execQuery) => {
+  const query = 'insert into access_info.auth_session_list (code, client_id, condition, code_challenge_method, code_challenge, email_address, split_permission_list) values ($1, $2, $3, $4, $5, $6, $7)'
+  const { code, clientId, condition, codeChallengeMethod, codeChallenge, splitPermissionList } = authSession.oidc
+  const { emailAddress } = authSession.user.auth
+  const paramList = [code, clientId, condition, codeChallengeMethod, codeChallenge, emailAddress, JSON.stringify(splitPermissionList)]
+  const { err, result } = await execQuery(query, paramList)
+  console.log({ err, result })
+  const { rowCount } =  result
+
+  return rowCount
 }
 
 /* to accessTokenList */

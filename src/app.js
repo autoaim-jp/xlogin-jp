@@ -86,11 +86,11 @@ const _getOidcRouter = () => {
    * @name authCode API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, async (req, res) => {
     const {
       clientId, state, code, codeVerifier,
     } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
+    const resultHandleCode = await action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
   return expressRouter
@@ -199,18 +199,18 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
+    const resultHandleThrough = await action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
     output.endResponse(req, res, resultHandleThrough)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
+    const resultHandleConfirm = await action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
 
@@ -280,14 +280,15 @@ const startServer = (expressApp) => {
 
 const main = async () => {
   dotenv.config()
-  lib.init(crypto, ulid, pg)
+  lib.init(crypto, ulid)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
-  input.init(setting, fs, pg)
+  input.init(setting, fs)
   action.init(setting, lib)
+  const pgPool = core.createPgPool(pg)
+  lib.setPgPool(pgPool)
 
   await lib.waitForPsql()
-  await input.debugQuery()
 
   const expressApp = express()
 

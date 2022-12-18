@@ -14,6 +14,17 @@ const init = (setting, output, input, lib) => {
   mod.lib = lib
 }
 
+const createPgPool = (pg) => {
+  const dbCredential = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+  }
+
+  return new pg.Pool(dbCredential)
+}
 
 const _generageServiceUserId = () => {
   return mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
@@ -26,12 +37,12 @@ const isValidClient = (clientId, redirectUri) => {
 
 
 /* authSession */
-const registerAuthSession = (code, authSession) => {
-  return mod.output.registerAuthSession(code, authSession)
+const registerAuthSession = (authSession) => {
+  return mod.output.registerAuthSession(authSession, mod.lib.execQuery)
 }
 
 const getAuthSessionByCode = (code) => {
-  return mod.input.getAuthSessionByCode(code)
+  return mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
@@ -198,6 +209,7 @@ const getFileListByAccessToken = (clientId, accessToken, owner, filePath) => {
 
 export default {
   init,
+  createPgPool,
 
   isValidClient,
 

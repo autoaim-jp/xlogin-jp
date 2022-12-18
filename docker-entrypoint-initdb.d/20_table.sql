@@ -1,15 +1,38 @@
-\c xlogin_jp_db
+\c xl_db
 
-create table  auth_m.sample (
+create table user_info.user_list (
   col1 varchar(10),
-  col2 varchar(10),
-  col3 varchar(10),
-  primary key (col1)
+  col2 varchar(10)
 );
+grant all privileges on user_info.user_list to xl_admin;
 
-grant all privileges on auth_m.sample to xlogin_jp_admin;
+create table user_info.notification_list (
+  col1 varchar(10),
+  col2 varchar(10)
+);
+grant all privileges on user_info.notification_list to xl_admin;
 
-insert into auth_m.sample values('1111', '2221', '3331');
-insert into auth_m.sample values('1112', '2222', '3332');
-insert into auth_m.sample values('1113', '2223', '3333');
+
+create table access_info.client_list (
+  col1 varchar(10),
+  col2 varchar(10)
+);
+grant all privileges on access_info.client_list to xl_admin;
+
+create table access_info.access_token_list (
+  col1 varchar(10),
+  col2 varchar(10)
+);
+grant all privileges on access_info.access_token_list to xl_admin;
+
+create table access_info.auth_session_list (
+  code varchar(256),
+  client_id varchar(256),
+  condition varchar(256),
+  code_challenge_method varchar(256),
+  code_challenge varchar(256),
+  email_address varchar(256),
+  split_permission_list varchar(256)
+);
+grant all privileges on access_info.auth_session_list to xl_admin;
 
