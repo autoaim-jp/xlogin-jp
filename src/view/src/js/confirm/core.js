@@ -32,17 +32,21 @@ const _convertScopeToLabel = ({ labelList, scope }) => {
     paramList[1] = 'service'
   }
 
-  const operation = modeList.map((mode) => { return labelList.scope.operation[mode] }).join('と')
+  const operation = modeList.map((mode) => { return labelList.scopeOperation.operation[mode] }).join('と')
+  const { label: labelPart, summary } = labelList.scopeBody[paramList[1]][paramList[2]]
   const labelNoWrapList = []
-  labelNoWrapList.push(labelList.scope[paramList[1]][paramList[2]])
+  labelNoWrapList.push(labelPart)
   if (isRequired) {
-    labelNoWrapList.push(`の${operation} (${labelList.scope.other.isRequired})`)
+    labelNoWrapList.push(`の${operation} (${labelList.scopeOperation.prefix.isRequired})`)
   } else {
     labelNoWrapList.push(`の${operation}`)
   }
+  const label = labelNoWrapList.join('')
 
   return {
     labelNoWrapList,
+    label,
+    summary,
     isRequired,
   }
 }
@@ -102,8 +106,7 @@ export const checkImportantPermissionWithModal = async ({
       continue
     }
 
-    const { labelNoWrapList } = _convertScopeToLabel({ labelList, scope })
-    const label = labelNoWrapList.join('')
+    const { label } = _convertScopeToLabel({ labelList, scope })
     setContent(`[${label}(${scope})]は重要な権限です。本当に許可しますか？`, null, '確認')
     const isAuthorized = await showModal(modalElm, true)
     if (!isAuthorized) {

@@ -49,5 +49,15 @@ export const getOnClickShowOptionPermissionBtn = ({
   }
 }
 
+export const getOnClickScopeDetailBtn = ({
+  getModalElmAndSetter, showModal,
+}) => {
+  const { modalElm, setContentElm } = getModalElmAndSetter()
+  return (modalTitle, contentElm) => {
+    setContentElm(modalTitle, contentElm)
+    showModal(modalElm)
+  }
+}
+
 export default {}
 

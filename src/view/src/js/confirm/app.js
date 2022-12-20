@@ -28,10 +28,15 @@ const loadAllPermissionList = async () => {
     other: { resultFetchScope },
   }))
 
+  const onClickScopeDetailBtn = a.action.getOnClickScopeDetailBtn(argNamed({
+    lib: [a.lib.showModal, a.lib.getModalElmAndSetter],
+  }))
+
   a.output.showPermissionLabelList(argNamed({
     setting: a.setting.get('scopeExtraConfigList'),
+    setting2: a.setting.bsc.get('labelList'),
     lib: [a.lib.getRandomStr],
-    other: { permissionLabelList },
+    other: { permissionLabelList, onClickScopeDetailBtn },
   }))
 }
 

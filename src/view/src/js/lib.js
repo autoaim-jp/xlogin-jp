@@ -124,6 +124,23 @@ export const getErrorModalElmAndSetter = () => {
   return { modalElm, setContent }
 }
 
+export const getModalElmAndSetter = () => {
+  const modalTemplateElm = document.querySelector('#modalTemplate')
+  const modalElm = modalTemplateElm.cloneNode(true)
+
+  const modalTitleElm = modalElm.querySelector('[data-id="modalTitle"]')
+  const modalContentElm = modalElm.querySelector('[data-id="modalContent"]')
+
+  const setContentElm = (title, contentElm) => {
+    modalTitleElm.innerText = title
+    modalContentElm.clearChildren()
+    modalContentElm.appendChild(contentElm)
+  }
+
+  return { modalElm, setContentElm }
+}
+
+
 export const switchLoading = (isVisible) => {
   const loadingElm = document.querySelector('#loading')
   if (!loadingElm) {

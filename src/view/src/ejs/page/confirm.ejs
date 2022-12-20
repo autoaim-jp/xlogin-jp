@@ -25,6 +25,7 @@
     <%- await include(`${componentPath}modal.ejs`)  %>
     <div id='hiddenForTailwindByJs' class='hidden w-full h-96 p-1'></div>
     <%- await include(`${componentPath}permissionCheckTemplate.ejs`)  %>
+    <%- await include(`${componentPath}permissionCheckDetailButtonTemplate.ejs`)  %>
   </body>
   <%- await include(`${componentPath}includeJs.ejs`, { inlineScriptList, externalScriptList, isProduction, })  %>
 
