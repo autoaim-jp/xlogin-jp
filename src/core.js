@@ -32,7 +32,7 @@ const _generageServiceUserId = () => {
 
 /* client */
 const isValidClient = (clientId, redirectUri) => {
-  return mod.input.isValidClient(clientId, redirectUri)
+  return mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 

@@ -26,7 +26,7 @@ const addQueryStr = (url, queryStr) => {
   return `${url}?${queryStr}`
 }
 
-const paramSnakeToCamel = (paramList) => {
+const paramSnakeToCamel = (paramList = {}) => {
   const newParamList = {}
   Object.entries(paramList).forEach(([key, value]) => {
     const newKey = key.replace(/([_][a-z])/g, (group) => {

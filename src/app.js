@@ -72,12 +72,12 @@ const _getOidcRouter = () => {
    * @name connect API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, async (req, res) => {
     const user = req.session.auth?.user
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
+    const resultHandleConnect = await action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
 

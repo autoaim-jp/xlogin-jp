@@ -8,11 +8,15 @@ const init = (setting, fs) => {
 }
 
 /* from clientList */
-const isValidClient = (clientId, redirectUri) => {
-  const clientList = JSON.parse(mod.fs.readFileSync(mod.setting.server.CLIENT_LIST_JSON))
-  return clientList[clientId] && clientList[clientId].redirectUri === decodeURIComponent(redirectUri)
-}
+const isValidClient = async (clientId, redirectUri, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from access_info.client_list where client_id = $1 and redirect_uri = $2'
+  const paramList = [clientId, decodeURIComponent(redirectUri)]
 
+  const { err, result } = await execQuery(query, paramList)
+  const client = paramSnakeToCamel(result.rows[0])
+
+  return client
+}
 
 /* from userList */
 const getUserByEmailAddress = (emailAddress) => {

@@ -14,8 +14,9 @@ grant all privileges on user_info.notification_list to xl_admin;
 
 
 create table access_info.client_list (
-  col1 varchar(10),
-  col2 varchar(10)
+  client_id varchar(128),
+  service_name varchar(128),
+  redirect_uri varchar(512)
 );
 grant all privileges on access_info.client_list to xl_admin;
 
