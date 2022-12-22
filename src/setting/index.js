@@ -11,7 +11,6 @@ setting.server.PRIVATE_FILE_DIR = 'data/file'
 setting.server.USER_LIST_JSON = 'data/userList.json'
 setting.server.ACCESS_TOKEN_LIST_JSON = 'data/accessTokenList.json'
 setting.server.AUTH_SESSION_LIST_JSON = 'data/authSessionList.json'
-setting.server.NOTIFICATION_LIST_JSON = 'data/notificationList.json'
 setting.server.FILE_LIST_JSON = 'data/fileList.json'
 
 setting.oidc = {}

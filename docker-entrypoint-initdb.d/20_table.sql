@@ -1,5 +1,6 @@
 \c xl_db
 
+-- user
 create table user_info.user_list (
   col1 varchar(10),
   col2 varchar(10)
@@ -13,8 +14,9 @@ create table user_info.notification_list (
 grant all privileges on user_info.notification_list to xl_admin;
 
 
+-- access
 create table access_info.client_list (
-  client_id varchar(128),
+  client_id varchar(256),
   service_name varchar(128),
   redirect_uri varchar(512)
 );
@@ -36,4 +38,25 @@ create table access_info.auth_session_list (
   split_permission_list varchar(256)
 );
 grant all privileges on access_info.auth_session_list to xl_admin;
+
+-- notification
+create table notification_info.opened_notification_list (
+  email_address varchar(256),
+  notification_range varchar(256),
+  notification_id varchar(256),
+  unique(email_address, notification_range)
+);
+grant all privileges on notification_info.opened_notification_list to xl_admin;
+
+create table notification_info.notification_list (
+  notification_id varchar(256),
+  client_id varchar(256),
+  email_address varchar(256),
+  notification_range varchar(256),
+  date_registered varchar(256),
+  subject varchar(256),
+  detail varchar(256),
+  is_opened boolean
+);
+grant all privileges on notification_info.notification_list to xl_admin;
 

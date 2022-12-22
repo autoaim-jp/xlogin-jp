@@ -130,21 +130,31 @@ const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, 
 
 
 /* from notificationList */
-const getNotification = (emailAddress, notificationRange) => {
-  const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
-  if (notificationRange === mod.setting.notification.ALL_NOTIFICATION) {
-    return notificationList[emailAddress]?.contentList || {}
+const getNotification = async (emailAddress, notificationRange, execQuery, paramSnakeToCamel) => {
+  const queryGetLastOpenedNotificationId = 'select * from notification_info.opened_notification_list where email_address = $1 and notification_range = $2'
+  const paramListGetLastOpenedNotificationId = [emailAddress, notificationRange]
+  const { err: errGetLastOpenedNotificationId, result: resultGetLastOpenedNotificationId } = await execQuery(queryGetLastOpenedNotificationId, paramListGetLastOpenedNotificationId)
+  let lastOpendNoticationId = '0'
+  if (!errGetLastOpenedNotificationId && resultGetLastOpenedNotificationId && resultGetLastOpenedNotificationId.rows[0]) {
+    lastOpendNoticationId = paramSnakeToCamel(resultGetLastOpenedNotificationId.rows[0]).notificationId
   }
-  if (!notificationList[emailAddress]) {
-    return {}
+
+
+  let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1 and notification_id > $2'
+  const paramListGetNotification = [emailAddress, lastOpendNoticationId]
+  if (notificationRange !== mod.setting.notification.ALL_NOTIFICATION) {
+    queryGetNotification += ' and notification_range = $3'
+    paramListGetNotification.push(notificationRange)
   }
+
+  const { err: errGetNotification, result: resultGetNotification } = await execQuery(queryGetNotification, paramListGetNotification)
   const filteredNotificationList = {}
-  const lastOpenNotificationId = notificationList[emailAddress].clientOpenNotificationIdList[notificationRange] || '0'
-  Object.entries(notificationList[emailAddress]?.contentList || {}).forEach(([notificationId, row]) => {
-    if (row.clientId === notificationRange && notificationId > lastOpenNotificationId) {
-      filteredNotificationList[notificationId] = row
-    }
-  })
+  if (resultGetNotification && resultGetNotification.rows) {
+    resultGetNotification.rows.forEach((_row) => {
+      const row = paramSnakeToCamel(_row)
+      filteredNotificationList[row.notificationId] = row
+    })
+  }
 
   return filteredNotificationList
 }

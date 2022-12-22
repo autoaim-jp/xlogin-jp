@@ -70,6 +70,12 @@ const calcPbkdf2 = (data, saltHex) => {
   })
 }
 
+const getMaxIdInList = (list) => {
+  return list.reduce((p, c) => {
+    return p > c? p : c
+  })
+}
+
 /* date */
 const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
   return format.replace(/YYYY/g, date.getFullYear())
@@ -91,21 +97,17 @@ const awaitSleep = (ms) => {
 
 /* db */
 const execQuery = async (query, paramList = []) => {
-  let client = null
-  const res = { err: null, result: null }
-  try {
-    const client = await mod.pgPool.connect()
-    const result = await client.query(query, paramList)
-    res.result = result
-  } catch (err) {
-    console.log(err.stack)
-    res.err = err
-  } finally {
-    if (client) {
-      client.release()
-    }
-  }
-  return res
+  return new Promise((resolve) => {
+    return mod.pgPool
+      .query(query, paramList)
+      .then((result) => {
+        return resolve({ err: null, result })
+      })
+      .catch((err) => {
+        console.error('Error executing query', err.stack)
+        return resolve({ err, result: null })
+      })
+  })
 }
 
 const waitForPsql = async () => {
@@ -134,6 +136,7 @@ export default {
   getRandomB64UrlSafe,
   convertToCodeChallenge,
   calcPbkdf2,
+  getMaxIdInList,
 
   formatDate,
   awaitSleep,

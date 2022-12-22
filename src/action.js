@@ -94,7 +94,7 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 
 /* after /f/confirm/ */
 const _afterCheckPermission = async (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, splitPermissionList) => {
-  appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  await appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
   registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
@@ -270,8 +270,8 @@ const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, updateB
 
 
 /* GET /api/$apiVersion/notification/list */
-const handleNotification = (clientId, accessToken, notificationRange, getNotificationByAccessToken) => {
-  const notificationList = getNotificationByAccessToken(clientId, accessToken, notificationRange)
+const handleNotification = async (clientId, accessToken, notificationRange, getNotificationByAccessToken) => {
+  const notificationList = await getNotificationByAccessToken(clientId, accessToken, notificationRange)
 
   if (!notificationList) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -286,8 +286,8 @@ const handleNotification = (clientId, accessToken, notificationRange, getNotific
 }
 
 /* POST /api/$apiVersion/notification/append */
-const handleNotificationAppend = (clientId, accessToken, notificationRange, subject, detail, appendNotificationByAccessToken) => {
-  const notificationAppendResult = appendNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
+const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail, appendNotificationByAccessToken) => {
+  const notificationAppendResult = await appendNotificationByAccessToken(clientId, accessToken, notificationRange, subject, detail)
 
   if (!notificationAppendResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -302,8 +302,8 @@ const handleNotificationAppend = (clientId, accessToken, notificationRange, subj
 }
 
 /* POST /api/$apiVersion/notification/open */
-const handleNotificationOpen = (clientId, accessToken, notificationRange, notificationIdList, openNotificationByAccessToken) => {
-  const notificationOpenResult = openNotificationByAccessToken(clientId, accessToken, notificationRange, notificationIdList)
+const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList, openNotificationByAccessToken) => {
+  const notificationOpenResult = await openNotificationByAccessToken(clientId, accessToken, notificationRange, notificationIdList)
 
   if (!notificationOpenResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -366,14 +366,14 @@ const handleScope = (authSession) => {
 }
 
 /* GET /f/notification/global/list */
-const handleGlobalNotification = (authSession, getNotification) => {
+const handleGlobalNotification = async (authSession, getNotification) => {
   if (!authSession) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_notification_list_session'
     return _getErrorResponse(status, error, false)
   }
 
-  const globalNotificationList = getNotification(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, mod.setting.notification.ALL_NOTIFICATION)
+  const globalNotificationList = await getNotification(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, mod.setting.notification.ALL_NOTIFICATION)
   const status = mod.setting.bsc.statusList.OK
 
   return {

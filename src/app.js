@@ -120,30 +120,30 @@ const _getUserApiRouter = () => {
 const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
+    const resultHandleNotification = await action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotification)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationAppend = action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
+    const resultHandleNotificationAppend = await action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationAppend)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
+    const resultHandleNotificationOpen = await action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationOpen)
   })
 
@@ -227,8 +227,9 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleScope)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
-    const resultHandleNotification = action.handleGlobalNotification(req.session.auth, core.getNotification)
+  expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, async (req, res) => {
+    console.log('globalNotificationList')
+    const resultHandleNotification = await action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })
 

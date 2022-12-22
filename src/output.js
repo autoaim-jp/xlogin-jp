@@ -8,7 +8,6 @@ const init = (setting, fs) => {
 
   mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify({ accessTokenList: {}, clientList: {} }, null, 2))
   mod.fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, '{}')
-  mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, '{}')
 }
 
 /* to userList */
@@ -74,41 +73,34 @@ const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissio
 }
 
 /* to notificationList */
-const appendNotification = (notificationId, clientId, emailAddress, subject, detail) => {
-  const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
-  if (!notificationList[emailAddress]) {
-    notificationList[emailAddress] = { clientOpenNotificationIdList: {}, contentList: {} }
-  }
-
+const appendNotification = async (notificationId, clientId, emailAddress, subject, detail, execQuery, paramSnakeToCamel) => {
   const dateRegistered = Date.now()
+  const isOpened = 0
+  const notificationRange = clientId
+  const query = 'insert into notification_info.notification_list (notification_id, client_id, email_address, notification_range, date_registered, subject, detail, is_opened) values ($1, $2, $3, $4, $5, $6, $7, $8)'
+  const paramList = [notificationId, clientId, emailAddress, notificationRange, dateRegistered, subject, detail, isOpened]
 
-  const notification = {
-    clientId, subject, detail, dateRegistered, isOpen: false,
-  }
-  notificationList[emailAddress].contentList[notificationId] = notification
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } =  result
 
-  mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
-  return true
+  return rowCount
 }
 
-const openNotification = (notificationIdList, clientId, emailAddress) => {
-  const notificationList = JSON.parse(mod.fs.readFileSync(mod.setting.server.NOTIFICATION_LIST_JSON))
-  if (!notificationList[emailAddress]) {
-    return false
-  }
+const openNotification = async (notificationIdList, clientId, emailAddress, execQuery, paramSnakeToCamel, getMaxIdInList) => {
+  const lastOpendNoticationId = getMaxIdInList(notificationIdList)
+  const notificationRange = clientId
+  const queryUpdateLastOpenedNotificationId = 'insert into notification_info.opened_notification_list (email_address, notification_range, notification_id) values ($1, $2, $3) on conflict(email_address, notification_range) do update set notification_id = $3'
+  const paramListUpdateLastOpenedNotificationId = [emailAddress, notificationRange, lastOpendNoticationId]
+  const { err: errUpdateLastOpenedNotificationId, result: resultUpdateLastOpenedNotificationId } = await execQuery(queryUpdateLastOpenedNotificationId, paramListUpdateLastOpenedNotificationId)
+  const { rowCount: rowCountUpdateLastOpenedNotificationId } =  resultUpdateLastOpenedNotificationId
 
-  notificationIdList.forEach((notificationId) => {
-    if (notificationList[emailAddress].contentList[notificationId]) {
-      notificationList[emailAddress].contentList[notificationId].isOpen = true
-      const notificationClientId = notificationList[emailAddress].contentList[notificationId].clientId
-      if (!notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] || notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] < notificationId) {
-        notificationList[emailAddress].clientOpenNotificationIdList[notificationClientId] = notificationId
-      }
-    }
-  })
+  const queryUpdateNotificationIsOpened = 'update notification_info.notification_list set is_opened = true where notification_id in ($1)'
+  const paramListUpdateNotificationIsOpened = [[notificationIdList]]
 
-  mod.fs.writeFileSync(mod.setting.server.NOTIFICATION_LIST_JSON, JSON.stringify(notificationList, null, 2))
-  return true
+  const { err: errUpdateNotificationIsOpened, result: resultUpdateNotificationIsOpened } = await execQuery(queryUpdateNotificationIsOpened, paramListUpdateNotificationIsOpened)
+  const { rowCount: rowCountUpdateNotificationIsOpened } =  resultUpdateNotificationIsOpened
+
+  return rowCountUpdateNotificationIsOpened
 }
 
 

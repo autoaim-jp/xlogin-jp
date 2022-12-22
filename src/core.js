@@ -21,6 +21,9 @@ const createPgPool = (pg) => {
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
+    max: 5,
+    idleTimeoutMillis: 5 * 1000,
+    connectionTimeoutMillis: 5 * 1000,
   }
 
   return new pg.Pool(dbCredential)
@@ -115,7 +118,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
 }
 
 /* notification */
-const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
+const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddress) => {
   let detail = 'Login'
   detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
   const subject = detail
@@ -124,10 +127,10 @@ const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) =
   detail += ` from ${ipAddress}`
 
   const notificationId = mod.lib.getUlid()
-  mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const appendNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
+const appendNotificationByAccessToken = async (clientId, accessToken, notificationRange, subject, detail) => {
   const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
 
   if (!emailAddress) {
@@ -136,32 +139,34 @@ const appendNotificationByAccessToken = (clientId, accessToken, notificationRang
 
   const notificationId = mod.lib.getUlid()
 
-  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
+  await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.getMaxIdInList)
+  return true
 }
 
-const openNotificationByAccessToken = (clientId, accessToken, notificationRange, notificationIdList) => {
+const openNotificationByAccessToken = async (clientId, accessToken, notificationRange, notificationIdList) => {
   const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
 
   if (!emailAddress) {
     return false
   }
 
-  return mod.output.openNotification(notificationIdList, notificationRange, emailAddress)
+  await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.getMaxIdInList)
+  return true
 }
 
 
-const getNotification = (emailAddress, notificationRange) => {
-  return mod.input.getNotification(emailAddress, notificationRange)
+const getNotification = async (emailAddress, notificationRange) => {
+  return await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const getNotificationByAccessToken = (clientId, accessToken, notificationRange) => {
+const getNotificationByAccessToken = async (clientId, accessToken, notificationRange) => {
   const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification')
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.input.getNotification(emailAddress, notificationRange)
+  return await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
