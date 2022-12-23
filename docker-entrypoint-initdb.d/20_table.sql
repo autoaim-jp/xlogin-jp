@@ -2,16 +2,25 @@
 
 -- user
 create table user_info.user_list (
-  col1 varchar(10),
-  col2 varchar(10)
+  email_address varchar(256),
+  user_name varchar(256)
 );
 grant all privileges on user_info.user_list to xl_admin;
 
-create table user_info.notification_list (
-  col1 varchar(10),
-  col2 varchar(10)
+create table user_info.credential_list (
+  email_address varchar(256),
+  pass_pbkdf2 varchar(256),
+  salt_hex varchar(256),
+  backup_email_address varchar(256)
 );
-grant all privileges on user_info.notification_list to xl_admin;
+grant all privileges on user_info.credential_list to xl_admin;
+
+create table user_info.service_user_list (
+  email_address varchar(256),
+  client_id varchar(256),
+  service_user_id varchar(256)
+);
+grant all privileges on user_info.service_user_list to xl_admin;
 
 
 -- access
@@ -23,8 +32,10 @@ create table access_info.client_list (
 grant all privileges on access_info.client_list to xl_admin;
 
 create table access_info.access_token_list (
-  col1 varchar(10),
-  col2 varchar(10)
+  access_token varchar(256),
+  client_id varchar(256),
+  email_address varchar(256),
+  split_permission_list varchar(256)
 );
 grant all privileges on access_info.access_token_list to xl_admin;
 

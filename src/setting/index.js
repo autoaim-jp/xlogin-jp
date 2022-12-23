@@ -9,7 +9,6 @@ setting.server.PUBLIC_BUILD_DIR = 'view/build'
 setting.server.PUBLIC_STATIC_DIR = 'view/static'
 setting.server.PRIVATE_FILE_DIR = 'data/file'
 setting.server.USER_LIST_JSON = 'data/userList.json'
-setting.server.ACCESS_TOKEN_LIST_JSON = 'data/accessTokenList.json'
 setting.server.AUTH_SESSION_LIST_JSON = 'data/authSessionList.json'
 setting.server.FILE_LIST_JSON = 'data/fileList.json'
 

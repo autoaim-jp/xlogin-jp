@@ -447,7 +447,7 @@ const handleFileList = (clientId, accessToken, owner, filePath, getFileListByAcc
 
 
 /* GET /logout */
-const handleLogout = () => {
+const handleLogout = async () => {
   const status = mod.setting.bsc.statusList.OK
   return {
     status, session: {}, response: null, redirect: '/',

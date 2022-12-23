@@ -69,63 +69,75 @@ const _checkPermission = (splitPermissionList, operationKey, range, dataType) =>
 }
 
 /* from accessTokenList, userList */
-const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
+const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel) => {
   /* clientId, accessToken => emailAddress */
-  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (!allAccessTokenList.accessTokenList[accessToken] || allAccessTokenList.accessTokenList[accessToken].clientId !== clientId) {
-    return null
-  }
-  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  const user = userList[allAccessTokenList.accessTokenList[accessToken].emailAddress]
+  const queryGetEmailAddress = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
+  const paramListGetEmailAddress = [clientId, accessToken]
+
+  const { err: errGetEmailAddress, result: resultGetEmailAddress } = await execQuery(queryGetEmailAddress, paramListGetEmailAddress)
+  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(resultGetEmailAddress.rows[0])
+  const splitPermissionList = JSON.parse(splitPermissionListStr)
+
+  /* emailAddress => userInfo */
   const publicData = {}
-  filterKeyList.forEach((key) => {
+  for await (const key of filterKeyList) {
     const keySplit = key.split(':')
     if (keySplit.length !== 2) {
       console.log('[warn] invalid key:', key)
       return
     }
-    if (_checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, 'r', keySplit[0], keySplit[1])) {
-      if (user[keySplit[0]] && user[keySplit[0]][keySplit[1]] !== undefined) {
-        publicData[key] = user[keySplit[0]][keySplit[1]]
+    if (_checkPermission(splitPermissionList, 'r', keySplit[0], keySplit[1])) {
+      if (keySplit[0] === mod.setting.server.AUTH_SERVER_CLIENT_ID && keySplit[1] === 'userName') {
+        const queryGetUserInfo = 'select * from user_info.user_list where email_address = $1'
+        const paramListGetUserInfo = [emailAddress]
+
+        const { err: errGetUserInfo, result: resultGetUserInfo } = await execQuery(queryGetUserInfo, paramListGetUserInfo)
+        const { userName } = paramSnakeToCamel(resultGetUserInfo.rows[0])
+        publicData[key] = userName
+      } else if (keySplit[1] === 'serviceUserId') {
+        const dataClientId = keySplit[0]
+        const queryGetServiceUserInfo = 'select * from user_info.service_user_list where email_address = $1 and client_id = $2'
+        const paramListGetServiceUserInfo = [emailAddress, dataClientId]
+
+        const { err: errGetServiceUserInfo, result: resultGetServiceUserInfo } = await execQuery(queryGetServiceUserInfo, paramListGetServiceUserInfo)
+        const { serviceUserId } = paramSnakeToCamel(resultGetServiceUserInfo.rows[0])
+        publicData[key] = serviceUserId
       } else {
         publicData[key] = null
       }
     }
-  })
+
+  }
+
   return { public: publicData }
 }
 
-/* from accessTokenList */
-const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
-  /* clientId, emailAddress => accessToken(permissionList) */
-  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+const getCheckedRequiredPermissionList = async (clientId, emailAddress, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
+  const paramList = [clientId, accessToken]
 
-  let permissionList = null
-  Object.entries(allAccessTokenList.clientList[clientId] || {}).some(([_emailAddress, row]) => {
-    if (_emailAddress === emailAddress) {
-      const { required, optional } = row.splitPermissionList
-      permissionList = { ...required, ...optional }
-      return true
-    }
-    return false
-  })
+  const { err, result } = await execQuery(query, paramList)
+  const { splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(result.rows[0])
+  const splitPermissionList = JSON.parse(splitPermissionListStr)
 
+  const { required, optional } = splitPermissionList
+  const permissionList = { ...required, ...optional }
   return permissionList
 }
 
-const checkPermissionAndGetEmailAddress = (accessToken, clientId, operationKey, range, dataType) => {
-  /* accessToken, clientId => emailAddress */
-  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
-  if (!allAccessTokenList.accessTokenList[accessToken] || allAccessTokenList.accessTokenList[accessToken].clientId !== clientId) {
-    return null
-  }
+const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
+  const paramList = [clientId, accessToken]
 
-  const isAuthorized = _checkPermission(allAccessTokenList.accessTokenList[accessToken].splitPermissionList, operationKey, range, dataType)
+  const { err, result } = await execQuery(query, paramList)
+  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(resultGetEmailAddress.rows[0])
+  const splitPermissionList = JSON.parse(splitPermissionListStr)
+  const isAuthorized = _checkPermission(splitPermissionList, operationKey, range, dataType)
   if (!isAuthorized) {
     return null
   }
 
-  return allAccessTokenList.accessTokenList[accessToken].emailAddress
+  return emailAddress
 }
 
 

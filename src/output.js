@@ -6,7 +6,6 @@ const init = (setting, fs) => {
 
   mod.fs = fs
 
-  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify({ accessTokenList: {}, clientList: {} }, null, 2))
   mod.fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, '{}')
 }
 
@@ -55,25 +54,19 @@ const registerAuthSession = async (authSession, execQuery) => {
 }
 
 /* to accessTokenList */
-const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
-  const allAccessTokenList = JSON.parse(mod.fs.readFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON))
+const registerAccessToken = async (clientId, accessToken, emailAddress, splitPermissionList, execQuery) => {
+  const splitPermissionListStr = JSON.stringify(splitPermissionList)
+  const query = 'insert into access_info.access_token_list (access_token, client_id, email_address, split_permission_list) values ($1, $2, $3, $4)'
+  const paramList = [accessToken, clientId, emailAddress, splitPermissionListStr]
 
-  if (allAccessTokenList.accessTokenList[accessToken]) {
-    return false
-  }
-  if (!allAccessTokenList.clientList[clientId]) {
-    allAccessTokenList.clientList[clientId] = {}
-  }
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
 
-  allAccessTokenList.clientList[clientId][emailAddress] = { accessToken, splitPermissionList }
-
-  allAccessTokenList.accessTokenList[accessToken] = { clientId, emailAddress, splitPermissionList }
-  mod.fs.writeFileSync(mod.setting.server.ACCESS_TOKEN_LIST_JSON, JSON.stringify(allAccessTokenList, null, 2))
-  return true
+  return rowCount
 }
 
 /* to notificationList */
-const appendNotification = async (notificationId, clientId, emailAddress, subject, detail, execQuery, paramSnakeToCamel) => {
+const appendNotification = async (notificationId, clientId, emailAddress, subject, detail, execQuery) => {
   const dateRegistered = Date.now()
   const isOpened = 0
   const notificationRange = clientId
@@ -81,12 +74,12 @@ const appendNotification = async (notificationId, clientId, emailAddress, subjec
   const paramList = [notificationId, clientId, emailAddress, notificationRange, dateRegistered, subject, detail, isOpened]
 
   const { err, result } = await execQuery(query, paramList)
-  const { rowCount } =  result
+  const { rowCount } = result
 
   return rowCount
 }
 
-const openNotification = async (notificationIdList, clientId, emailAddress, execQuery, paramSnakeToCamel, getMaxIdInList) => {
+const openNotification = async (notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList) => {
   const lastOpendNoticationId = getMaxIdInList(notificationIdList)
   const notificationRange = clientId
   const queryUpdateLastOpenedNotificationId = 'insert into notification_info.opened_notification_list (email_address, notification_range, notification_id) values ($1, $2, $3) on conflict(email_address, notification_range) do update set notification_id = $3'

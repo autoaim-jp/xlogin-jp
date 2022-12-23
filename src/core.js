@@ -34,56 +34,56 @@ const _generageServiceUserId = () => {
 }
 
 /* client */
-const isValidClient = (clientId, redirectUri) => {
-  return mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const isValidClient = async (clientId, redirectUri) => {
+  return await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 /* authSession */
-const registerAuthSession = (authSession) => {
-  return mod.output.registerAuthSession(authSession, mod.lib.execQuery)
+const registerAuthSession = async (authSession) => {
+  return await mod.output.registerAuthSession(authSession, mod.lib.execQuery)
 }
 
-const getAuthSessionByCode = (code) => {
-  return mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const getAuthSessionByCode = async (code) => {
+  return await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 /* accessToken */
-const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList)
+const registerAccessToken = async (clientId, accessToken, emailAddress, splitPermissionList) => {
+  return await mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, mod.lib.execQuery)
 }
 
-const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
+const getUserByAccessToken = async (clientId, accessToken, filterKeyList) => {
+  return await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
-  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
+const getCheckedRequiredPermissionList = async (clientId, emailAddress) => {
+  return await mod.input.getCheckedRequiredPermissionList(clientId, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress')
+const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, backupEmailAddress) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
-  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
+  return await mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
 }
 
 
 /* user */
-const registerServiceUserId = (emailAddress, clientId) => {
-  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
+const registerServiceUserId = async (emailAddress, clientId) => {
+  return await mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
 }
 
-const getUserByEmailAddress = (emailAddress) => {
-  return mod.input.getUserByEmailAddress(emailAddress)
+const getUserByEmailAddress = async (emailAddress) => {
+  return await mod.input.getUserByEmailAddress(emailAddress)
 }
 
 
 const credentialCheck = async (emailAddress, passHmac2) => {
-  const user = mod.input.getUserByEmailAddress(emailAddress)
+  const user = async mod.input.getUserByEmailAddress(emailAddress)
   if (!user) {
     return { credentialCheckResult: false }
   }
@@ -98,8 +98,8 @@ const credentialCheck = async (emailAddress, passHmac2) => {
   return { credentialCheckResult: true }
 }
 
-const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
-  if (mod.input.getUserByEmailAddress(emailAddress)) {
+const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
+  if (await mod.input.getUserByEmailAddress(emailAddress)) {
     return { registerResult: false }
   }
 
@@ -112,7 +112,7 @@ const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
     },
   }
 
-  mod.output.registerUserByEmailAddress(emailAddress, user)
+  await mod.output.registerUserByEmailAddress(emailAddress, user)
 
   return { registerResult: true }
 }
@@ -127,11 +127,11 @@ const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddr
   detail += ` from ${ipAddress}`
 
   const notificationId = mod.lib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery)
 }
 
 const appendNotificationByAccessToken = async (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return false
@@ -139,18 +139,18 @@ const appendNotificationByAccessToken = async (clientId, accessToken, notificati
 
   const notificationId = mod.lib.getUlid()
 
-  await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.getMaxIdInList)
+  await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.getMaxIdInList)
   return true
 }
 
 const openNotificationByAccessToken = async (clientId, accessToken, notificationRange, notificationIdList) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return false
   }
 
-  await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.getMaxIdInList)
+  await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
   return true
 }
 
@@ -160,7 +160,7 @@ const getNotification = async (emailAddress, notificationRange) => {
 }
 
 const getNotificationByAccessToken = async (clientId, accessToken, notificationRange) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification')
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -171,44 +171,44 @@ const getNotificationByAccessToken = async (clientId, accessToken, notificationR
 
 
 /* file */
-const updateFileByAccessToken = (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+const updateFileByAccessToken = async (clientId, accessToken, owner, filePath, content) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+  return await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
 }
 
-const getFileContentByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+const getFileContentByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+  return await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
 }
 
-const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+const deleteFileByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+  return await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
 }
 
-const getFileListByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+const getFileListByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.input.getFileList(emailAddress, clientId, owner, filePath)
+  return await mod.input.getFileList(emailAddress, clientId, owner, filePath)
 }
 
 

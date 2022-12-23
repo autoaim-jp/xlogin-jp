@@ -98,20 +98,20 @@ const _getOidcRouter = () => {
 
 const _getUserApiRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
+    const resultHandleUserInfo = await action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
   })
-  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
+    const resultHandleUserInfoUpdate = await action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
     output.endResponse(req, res, resultHandleUserInfoUpdate)
   })
   return expressRouter
@@ -214,16 +214,16 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleConfirm)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
+  expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, async (req, res) => {
     const {
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
     } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
+    const resultHandleUserAdd = await action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, (req, res) => {
-    const resultHandleScope = action.handleScope(req.session.auth)
+  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, async (req, res) => {
+    const resultHandleScope = await action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
   })
 
@@ -239,8 +239,8 @@ const _getFunctionRouter = () => {
 const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
-  expressRouter.get('/logout', (req, res) => {
-    const resultHandleLogout = action.handleLogout()
+  expressRouter.get('/logout', async (req, res) => {
+    const resultHandleLogout = await action.handleLogout()
     output.endResponse(req, res, resultHandleLogout)
   })
 
