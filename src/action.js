@@ -34,16 +34,20 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
   }
 }
 
-const getCheckSignature = (isValidSignature) => {
+const getCheckSignature = (isValidSignature, endResponse) => {
   return async (req, res, next) => {
     const clientId = req.headers['x-xlogin-client-id']
-    const signature = req.headers['x-xlogin-signature']
+    const timestamp = req.headers['x-xlogin-timestamp']
+    const path = req.originalUrl
     const requestBody = req.body
-    const isValidSignatureResult = await isValidSignature(clientId, requestBody, signature)
+    const signature = req.headers['x-xlogin-signature']
+    const authSession = req.session.auth
+    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, requestBody, signature)
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = mod.setting.bsc.statusList.INVALID_CREDENTIAL
       const error = 'check_signature'
-      return _getErrorResponse(status, error, false, null, authSession)
+      const resultGetCheckSignature = _getErrorResponse(status, error, false, null, authSession)
+      return endResponse(req, res, resultGetCheckSignature)
     }
     return next()
   }

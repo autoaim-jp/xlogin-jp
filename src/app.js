@@ -65,7 +65,7 @@ const _getExpressMiddlewareRouter = () => {
   return expressRouter
 }
 
-const _getOidcRouter = () => {
+const _getOidcRouter = (checkSignature) => {
   const expressRouter = express.Router()
   /**
    * サービスでログインボタンがクリックされたときに、最初に来るAPI
@@ -86,7 +86,7 @@ const _getOidcRouter = () => {
    * @name authCode API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, checkSignature, async (req, res) => {
     const {
       clientId, state, code, codeVerifier,
     } = lib.paramSnakeToCamel(req.query)
@@ -98,7 +98,7 @@ const _getOidcRouter = () => {
 
 const _getUserApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
@@ -117,10 +117,10 @@ const _getUserApiRouter = (checkSignature) => {
   return expressRouter
 }
 
-const _getNotificationApiRouter = () => {
+const _getNotificationApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
@@ -129,7 +129,7 @@ const _getNotificationApiRouter = () => {
     output.endResponse(req, res, resultHandleNotification)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
@@ -138,7 +138,7 @@ const _getNotificationApiRouter = () => {
     output.endResponse(req, res, resultHandleNotificationAppend)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
@@ -150,9 +150,9 @@ const _getNotificationApiRouter = () => {
   return expressRouter
 }
 
-const _getFileRouter = () => {
+const _getFileRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath, content } = lib.paramSnakeToCamel(req.body)
@@ -161,7 +161,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileUpdate)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -170,7 +170,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileContent)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.body)
@@ -179,7 +179,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileDelete)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -290,18 +290,18 @@ const main = async () => {
 
   await lib.waitForPsql()
 
-  const checkSignature = action.getCheckSignature(core.isValidSignature)
+  const checkSignature = action.getCheckSignature(core.isValidSignature, output.endResponse)
 
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
   expressApp.use(_getExpressMiddlewareRouter())
 
-  expressApp.use(_getOidcRouter())
+  expressApp.use(_getOidcRouter(checkSignature))
   expressApp.use(_getUserApiRouter(checkSignature))
-  expressApp.use(_getNotificationApiRouter())
+  expressApp.use(_getNotificationApiRouter(checkSignature))
+  expressApp.use(_getFileRouter(checkSignature))
   expressApp.use(_getFunctionRouter())
-  expressApp.use(_getFileRouter())
   expressApp.use(_getOtherRouter())
 
   expressApp.use(_getErrorRouter())

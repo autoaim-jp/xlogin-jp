@@ -43,11 +43,9 @@ const isValidClient = async (clientId, redirectUri) => {
   return { clientCheckResult: true }
 }
 
-const isValidSignature = async (clientId, requestBody, signature) => {
+const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
   const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
-  const dataToSign = contentHash
-  console.log({ contentHash, signature })
-
+  const dataToSign = `${timestamp}:${path}:${contentHash}`
   const isValidSignature = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcSha256HmacAsB64)
   if (!isValidSignature) {
     return { signatureCheckResult: false }
