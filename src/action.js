@@ -36,8 +36,9 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
 
 
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, isValidClient) => {
-  if (!isValidClient(clientId, redirectUri)) {
+const handleConnect = async (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, isValidClient) => {
+  const isValidClientResult = await isValidClient(clientId, redirectUri)
+  if (isValidClientResult.clientCheckResult !== true) {
     const status = mod.setting.bsc.statusList.INVALID_CLIENT
     const error = 'handle_connect_client'
     return _getErrorResponse(status, error, true)
@@ -82,8 +83,7 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
     return _getErrorResponse(status, error, false, null, authSession)
   }
 
-  const user = getUserByEmailAddress(emailAddress)
-
+  const user = await getUserByEmailAddress(emailAddress)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
   const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
@@ -94,8 +94,8 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 
 /* after /f/confirm/ */
 const _afterCheckPermission = async (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, splitPermissionList) => {
-  await appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
-  registerServiceUserId(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, authSession.oidc.clientId)
+  await appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user.emailAddress)
+  await registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId)
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
 
@@ -153,7 +153,7 @@ const handleThrough = async (ipAddress, useragent, authSession, registerAuthSess
     return _getErrorResponse(status, error, false)
   }
 
-  const permissionList = getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress)
+  const permissionList = await getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress)
   const { scope, requestScope } = authSession.oidc
 
   if (!permissionList) {
@@ -221,7 +221,7 @@ const handleCode = async (clientId, state, code, codeVerifier, registerAccessTok
   const newUserSession = { condition: mod.setting.condition.USER_INFO }
 
   const splitPermissionList = JSON.parse(authSession.splitPermissionList)
-  const resultRegisterAccessToken = registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList)
+  const resultRegisterAccessToken = await registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList)
   if (!resultRegisterAccessToken) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
     const error = 'handle_code_access_token'
@@ -235,9 +235,9 @@ const handleCode = async (clientId, state, code, codeVerifier, registerAccessTok
 }
 
 /* GET /api/$apiVersion/user/info */
-const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccessToken) => {
+const handleUserInfo = async (clientId, accessToken, filterKeyListStr, getUserByAccessToken) => {
   const filterKeyList = filterKeyListStr.split(',')
-  const userInfo = getUserByAccessToken(clientId, accessToken, filterKeyList)
+  const userInfo = await getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!userInfo) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -253,8 +253,8 @@ const handleUserInfo = (clientId, accessToken, filterKeyListStr, getUserByAccess
 }
 
 /* POST /api/$apiVersion/user/update */
-const handleUserInfoUpdate = (clientId, accessToken, backupEmailAddress, updateBackupEmailAddressByAccessToken) => {
-  const userInfoUpdateResult = updateBackupEmailAddressByAccessToken(clientId, accessToken, backupEmailAddress)
+const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress, updateBackupEmailAddressByAccessToken) => {
+  const userInfoUpdateResult = await updateBackupEmailAddressByAccessToken(clientId, accessToken, backupEmailAddress)
 
   if (!userInfoUpdateResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -318,7 +318,7 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
 }
 
 /* POST /f/login/user/add */
-const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getUserByEmailAddress) => {
+const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession, addUser, getUserByEmailAddress) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_user_add_session'
@@ -332,7 +332,7 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
   }
 
   const { clientId } = authSession.oidc
-  const resultAddUser = addUser(clientId, emailAddress, passPbkdf2, saltHex)
+  const resultAddUser = await addUser(clientId, emailAddress, passPbkdf2, saltHex)
 
   if (resultAddUser.registerResult !== true) {
     const status = mod.setting.bsc.statusList.REGISTER_FAIL
@@ -340,7 +340,7 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
     return _getErrorResponse(status, error, false, null, authSession)
   }
 
-  const user = getUserByEmailAddress(emailAddress)
+  const user = await getUserByEmailAddress(emailAddress)
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
   const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
@@ -350,7 +350,7 @@ const handleUserAdd = (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivac
 }
 
 /* GET /f/confirm/scope/list */
-const handleScope = (authSession) => {
+const handleScope = async (authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.bsc.statusList.INVALID_SESSION
     const error = 'handle_permission_list_session'
@@ -373,7 +373,7 @@ const handleGlobalNotification = async (authSession, getNotification) => {
     return _getErrorResponse(status, error, false)
   }
 
-  const globalNotificationList = await getNotification(authSession.user[mod.setting.server.AUTH_SERVER_CLIENT_ID].emailAddress, mod.setting.notification.ALL_NOTIFICATION)
+  const globalNotificationList = await getNotification(authSession.user.emailAddress, mod.setting.notification.ALL_NOTIFICATION)
   const status = mod.setting.bsc.statusList.OK
 
   return {
@@ -382,8 +382,8 @@ const handleGlobalNotification = async (authSession, getNotification) => {
 }
 
 /* POST /api/$apiVersion/file/update */
-const handleFileUpdate = (clientId, accessToken, owner, filePath, content, updateFileByAccessToken) => {
-  const updateFileResult = updateFileByAccessToken(clientId, accessToken, owner, filePath, content)
+const handleFileUpdate = async (clientId, accessToken, owner, filePath, content, updateFileByAccessToken) => {
+  const updateFileResult = await updateFileByAccessToken(clientId, accessToken, owner, filePath, content)
 
   if (!updateFileResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -398,8 +398,8 @@ const handleFileUpdate = (clientId, accessToken, owner, filePath, content, updat
 }
 
 /* GET /api/$apiVersion/file/content */
-const handleFileContent = (clientId, accessToken, owner, filePath, getFileContentByAccessToken) => {
-  const fileContent = getFileContentByAccessToken(clientId, accessToken, owner, filePath)
+const handleFileContent = async (clientId, accessToken, owner, filePath, getFileContentByAccessToken) => {
+  const fileContent = await getFileContentByAccessToken(clientId, accessToken, owner, filePath)
 
   if (!fileContent) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -414,8 +414,8 @@ const handleFileContent = (clientId, accessToken, owner, filePath, getFileConten
 }
 
 /* POST /api/$apiVersion/file/delete */
-const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAccessToken) => {
-  const deleteFileResult = deleteFileByAccessToken(clientId, accessToken, owner, filePath)
+const handleFileDelete = async (clientId, accessToken, owner, filePath, deleteFileByAccessToken) => {
+  const deleteFileResult = await deleteFileByAccessToken(clientId, accessToken, owner, filePath)
 
   if (!deleteFileResult) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR
@@ -430,8 +430,8 @@ const handleFileDelete = (clientId, accessToken, owner, filePath, deleteFileByAc
 }
 
 /* GET /api/$apiVersion/file/list */
-const handleFileList = (clientId, accessToken, owner, filePath, getFileListByAccessToken) => {
-  const fileList = getFileListByAccessToken(clientId, accessToken, owner, filePath)
+const handleFileList = async (clientId, accessToken, owner, filePath, getFileListByAccessToken) => {
+  const fileList = await getFileListByAccessToken(clientId, accessToken, owner, filePath)
 
   if (!fileList) {
     const status = mod.setting.bsc.statusList.SERVER_ERROR

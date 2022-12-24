@@ -35,7 +35,12 @@ const _generageServiceUserId = () => {
 
 /* client */
 const isValidClient = async (clientId, redirectUri) => {
-  return await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const isValidClient = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  if (!isValidClient) {
+    return { clientCheckResult: false }
+  }
+
+  return { clientCheckResult: true }
 }
 
 
@@ -68,30 +73,29 @@ const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, back
   if (!emailAddress) {
     return null
   }
-  return await mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
+  return await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
 }
 
 
 /* user */
 const registerServiceUserId = async (emailAddress, clientId) => {
-  return await mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
+  return await mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId(), mod.lib.execQuery)
 }
 
 const getUserByEmailAddress = async (emailAddress) => {
-  return await mod.input.getUserByEmailAddress(emailAddress)
+  return await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 const credentialCheck = async (emailAddress, passHmac2) => {
-  const user = async mod.input.getUserByEmailAddress(emailAddress)
+  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!user) {
     return { credentialCheckResult: false }
   }
 
-  const { saltHex } = user[mod.setting.server.AUTH_SERVER_CLIENT_ID]
+  const isValidCredential = await mod.input.isValidCredential(emailAddress, passHmac2, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcPbkdf2)
 
-  const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if (user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
+  if (!isValidCredential) {
     return { credentialCheckResult: false }
   }
 
@@ -99,20 +103,12 @@ const credentialCheck = async (emailAddress, passHmac2) => {
 }
 
 const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
-  if (await mod.input.getUserByEmailAddress(emailAddress)) {
+  if (await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)) {
     return { registerResult: false }
   }
 
-  const user = {
-    auth: {
-      emailAddress,
-      passPbkdf2,
-      saltHex,
-      userName: 'no name',
-    },
-  }
-
-  await mod.output.registerUserByEmailAddress(emailAddress, user)
+  const userName = mod.setting.user.DEFAULT_USER_NAME
+  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
 
   return { registerResult: true }
 }

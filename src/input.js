@@ -13,17 +13,51 @@ const isValidClient = async (clientId, redirectUri, execQuery, paramSnakeToCamel
   const paramList = [clientId, decodeURIComponent(redirectUri)]
 
   const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return false
+  }
+
   const client = paramSnakeToCamel(result.rows[0])
 
-  return client
+  return true
 }
 
 /* from userList */
-const getUserByEmailAddress = (emailAddress) => {
-  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  return userList[emailAddress]
+const getUserByEmailAddress = async (emailAddress, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from user_info.user_list where email_address = $1'
+  const paramList = [emailAddress]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return null
+  }
+
+  const { userName } = paramSnakeToCamel(result.rows[0])
+  const user = { emailAddress, userName }
+  return user
 }
 
+const isValidCredential = async (emailAddress, passHmac2, execQuery, paramSnakeToCamel, calcPbkdf2) => {
+  const query = 'select * from user_info.credential_list where email_address = $1'
+  const paramList = [emailAddress]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return false
+  }
+
+  const { passHmac2: correctPassHmac2, saltHex } = paramSnakeToCamel(result.rows[0])
+
+  if (!saltHex) {
+    return false
+  }
+
+  const passPbkdf2 = await calcPbkdf2(passHmac2, saltHex)
+  return passPbkdf2 === correctPassHmac2
+}
 
 /* from authSessionList */
 const getAuthSessionByCode = async (code, execQuery, paramSnakeToCamel) => {
@@ -31,6 +65,11 @@ const getAuthSessionByCode = async (code, execQuery, paramSnakeToCamel) => {
   const paramList = [code]
 
   const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return null
+  }
+
   const authSession = paramSnakeToCamel(result.rows[0])
 
   return authSession
@@ -75,6 +114,11 @@ const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQue
   const paramListGetEmailAddress = [clientId, accessToken]
 
   const { err: errGetEmailAddress, result: resultGetEmailAddress } = await execQuery(queryGetEmailAddress, paramListGetEmailAddress)
+  const { rowCount: rowCountGetEmailAddress } = resultGetEmailAddress
+  if (errGetEmailAddress || rowCountGetEmailAddress === 0) {
+    return null
+  }
+
   const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(resultGetEmailAddress.rows[0])
   const splitPermissionList = JSON.parse(splitPermissionListStr)
 
@@ -92,16 +136,38 @@ const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQue
         const paramListGetUserInfo = [emailAddress]
 
         const { err: errGetUserInfo, result: resultGetUserInfo } = await execQuery(queryGetUserInfo, paramListGetUserInfo)
-        const { userName } = paramSnakeToCamel(resultGetUserInfo.rows[0])
-        publicData[key] = userName
+        const { rowCount: rowCountGetUserInfo } = resultGetUserInfo
+        if (errGetUserInfo || rowCountGetUserInfo === 0) {
+          publicData[key] = null
+        } else {
+          const { userName } = paramSnakeToCamel(resultGetUserInfo.rows[0])
+          publicData[key] = userName
+        }
+      } else if (keySplit[0] === mod.setting.server.AUTH_SERVER_CLIENT_ID && keySplit[1] === 'backupEmailAddress') {
+        const queryGetUserPersonalInfo = 'select * from user_info.personal_data_list where email_address = $1'
+        const paramListGetUserPersonalInfo = [emailAddress]
+
+        const { err: errGetUserPersonalInfo, result: resultGetUserPersonalInfo } = await execQuery(queryGetUserPersonalInfo, paramListGetUserPersonalInfo)
+        const { rowCount: rowCountGetUserPersonalInfo } = resultGetUserPersonalInfo
+        if (errGetUserPersonalInfo || rowCountGetUserPersonalInfo === 0) {
+          publicData[key] = null
+        } else {
+          const { backupEmailAddress } = paramSnakeToCamel(resultGetUserPersonalInfo.rows[0])
+          publicData[key] = backupEmailAddress
+        }
       } else if (keySplit[1] === 'serviceUserId') {
         const dataClientId = keySplit[0]
         const queryGetServiceUserInfo = 'select * from user_info.service_user_list where email_address = $1 and client_id = $2'
         const paramListGetServiceUserInfo = [emailAddress, dataClientId]
 
         const { err: errGetServiceUserInfo, result: resultGetServiceUserInfo } = await execQuery(queryGetServiceUserInfo, paramListGetServiceUserInfo)
-        const { serviceUserId } = paramSnakeToCamel(resultGetServiceUserInfo.rows[0])
-        publicData[key] = serviceUserId
+        const { rowCount: rowCountGetServiceUserInfo } = resultGetServiceUserInfo
+        if (errGetServiceUserInfo || rowCountGetServiceUserInfo === 0) {
+          publicData[key] = null
+        } else {
+          const { serviceUserId } = paramSnakeToCamel(resultGetServiceUserInfo.rows[0])
+          publicData[key] = serviceUserId
+        }
       } else {
         publicData[key] = null
       }
@@ -113,10 +179,14 @@ const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQue
 }
 
 const getCheckedRequiredPermissionList = async (clientId, emailAddress, execQuery, paramSnakeToCamel) => {
-  const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
-  const paramList = [clientId, accessToken]
+  const query = 'select * from access_info.access_token_list where client_id = $1 and email_address = $2'
+  const paramList = [clientId, emailAddress]
 
   const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return null
+  }
   const { splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(result.rows[0])
   const splitPermissionList = JSON.parse(splitPermissionListStr)
 
@@ -130,7 +200,11 @@ const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operatio
   const paramList = [clientId, accessToken]
 
   const { err, result } = await execQuery(query, paramList)
-  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(resultGetEmailAddress.rows[0])
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return null
+  }
+  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(result.rows[0])
   const splitPermissionList = JSON.parse(splitPermissionListStr)
   const isAuthorized = _checkPermission(splitPermissionList, operationKey, range, dataType)
   if (!isAuthorized) {
@@ -147,6 +221,9 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
   const paramListGetLastOpenedNotificationId = [emailAddress, notificationRange]
   const { err: errGetLastOpenedNotificationId, result: resultGetLastOpenedNotificationId } = await execQuery(queryGetLastOpenedNotificationId, paramListGetLastOpenedNotificationId)
   let lastOpendNoticationId = '0'
+  if (errGetLastOpenedNotificationId) {
+    return null
+  }
   if (!errGetLastOpenedNotificationId && resultGetLastOpenedNotificationId && resultGetLastOpenedNotificationId.rows[0]) {
     lastOpendNoticationId = paramSnakeToCamel(resultGetLastOpenedNotificationId.rows[0]).notificationId
   }
@@ -160,6 +237,9 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
   }
 
   const { err: errGetNotification, result: resultGetNotification } = await execQuery(queryGetNotification, paramListGetNotification)
+  if (errGetNotification) {
+    return null
+  }
   const filteredNotificationList = {}
   if (resultGetNotification && resultGetNotification.rows) {
     resultGetNotification.rows.forEach((_row) => {
@@ -172,7 +252,7 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
 }
 
 /* from fileList */
-const getFileContent = (emailAddress, clientId, owner, filePath) => {
+const getFileContent = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
     return null
@@ -181,7 +261,7 @@ const getFileContent = (emailAddress, clientId, owner, filePath) => {
   return fileList[emailAddress][owner][filePath].content
 }
 
-const getFileList = (emailAddress, clientId, owner, filePath) => {
+const getFileList = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
     return null
@@ -206,6 +286,7 @@ export default {
   isValidClient,
 
   getUserByEmailAddress,
+  isValidCredential,
 
   getAuthSessionByCode,
 

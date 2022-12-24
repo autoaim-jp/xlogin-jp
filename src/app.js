@@ -228,7 +228,6 @@ const _getFunctionRouter = () => {
   })
 
   expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, async (req, res) => {
-    console.log('globalNotificationList')
     const resultHandleNotification = await action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })

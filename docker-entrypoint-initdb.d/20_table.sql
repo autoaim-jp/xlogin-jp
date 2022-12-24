@@ -10,10 +10,17 @@ grant all privileges on user_info.user_list to xl_admin;
 create table user_info.credential_list (
   email_address varchar(256),
   pass_pbkdf2 varchar(256),
-  salt_hex varchar(256),
-  backup_email_address varchar(256)
+  salt_hex varchar(256)
 );
 grant all privileges on user_info.credential_list to xl_admin;
+
+create table user_info.personal_data_list (
+  email_address varchar(256),
+  backup_email_address varchar(256),
+  unique(email_address)
+);
+grant all privileges on user_info.personal_data_list to xl_admin;
+
 
 create table user_info.service_user_list (
   email_address varchar(256),

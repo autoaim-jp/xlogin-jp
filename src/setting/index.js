@@ -8,8 +8,6 @@ setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.server.PUBLIC_BUILD_DIR = 'view/build'
 setting.server.PUBLIC_STATIC_DIR = 'view/static'
 setting.server.PRIVATE_FILE_DIR = 'data/file'
-setting.server.USER_LIST_JSON = 'data/userList.json'
-setting.server.AUTH_SESSION_LIST_JSON = 'data/authSessionList.json'
 setting.server.FILE_LIST_JSON = 'data/fileList.json'
 
 setting.oidc = {}
@@ -38,6 +36,7 @@ setting.session.REDIS_DB = 1
 setting.user = {}
 setting.user.SERVICE_USER_ID_L = 64
 setting.user.HMAC_SECRET = 'xlogin20220630'
+setting.user.DEFAULT_USER_NAME = 'no name'
 
 setting.notification = {}
 /**

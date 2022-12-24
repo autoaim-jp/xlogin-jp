@@ -5,49 +5,50 @@ const init = (setting, fs) => {
   mod.setting = setting
 
   mod.fs = fs
-
-  mod.fs.writeFileSync(mod.setting.server.AUTH_SESSION_LIST_JSON, '{}')
 }
 
 /* to userList */
-const registerUserByEmailAddress = (emailAddress, user) => {
-  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  if (userList[emailAddress]) {
-    return false
-  }
-  userList[emailAddress] = user
-  mod.fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
+const registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {
+  const queryAddUser = 'insert into user_info.user_list (email_address, user_name) values ($1, $2)'
+  const paramListAddUser = [emailAddress, userName]
+
+  const { err: errAddUser, result: resultAddUser } = await execQuery(queryAddUser, paramListAddUser)
+  const { rowCount: rowCountAddUser } = resultAddUser
+
+  const queryAddCredential = 'insert into user_info.credential_list (email_address, pass_pbkdf2, salt_hex) values ($1, $2, $3)'
+  const paramListAddCredential = [emailAddress, passPbkdf2, saltHex]
+
+  const { err: errAddCredential, result: resultAddCredential } = await execQuery(queryAddCredential, paramListAddCredential)
+  const { rowCount: rowCountAddCredential } = resultAddCredential
+
   return true
 }
 
-const registerServiceUserId = (emailAddress, clientId, serviceUserId) => {
-  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  if (userList[emailAddress] && userList[emailAddress][clientId]) {
-    return false
-  }
-  userList[emailAddress][clientId] = { serviceUserId }
-  mod.fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
-  return true
+const registerServiceUserId = async (emailAddress, clientId, serviceUserId, execQuery) => {
+  const query = 'insert into user_info.service_user_list (email_address, client_id, service_user_id) values ($1, $2, $3)'
+  const paramList = [emailAddress, clientId, serviceUserId]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  return rowCount
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, emailAddress, backupEmailAddress) => {
-  const userList = JSON.parse(mod.fs.readFileSync(mod.setting.server.USER_LIST_JSON))
-  if (!userList[emailAddress]) {
-    return false
-  }
-  userList[emailAddress][mod.setting.server.AUTH_SERVER_CLIENT_ID].backupEmailAddress = backupEmailAddress
-  mod.fs.writeFileSync(mod.setting.server.USER_LIST_JSON, JSON.stringify(userList, null, 2))
-  return true
+const updateBackupEmailAddressByAccessToken = async (emailAddress, backupEmailAddress, execQuery) => {
+  const query = 'insert into user_info.personal_data_list (email_address, backup_email_address) values ($1, $2) on conflict(email_address) do update set backup_email_address = $2'
+  const paramList = [emailAddress, backupEmailAddress]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  return rowCount
 }
 
 /* to authSessionList */
 const registerAuthSession = async (authSession, execQuery) => {
   const query = 'insert into access_info.auth_session_list (code, client_id, condition, code_challenge_method, code_challenge, email_address, split_permission_list) values ($1, $2, $3, $4, $5, $6, $7)'
   const { code, clientId, condition, codeChallengeMethod, codeChallenge, splitPermissionList } = authSession.oidc
-  const { emailAddress } = authSession.user.auth
+  const { emailAddress } = authSession.user
   const paramList = [code, clientId, condition, codeChallengeMethod, codeChallenge, emailAddress, JSON.stringify(splitPermissionList)]
   const { err, result } = await execQuery(query, paramList)
-  console.log({ err, result })
   const { rowCount } =  result
 
   return rowCount
@@ -98,7 +99,7 @@ const openNotification = async (notificationIdList, clientId, emailAddress, exec
 
 
 /* to fileList */
-const updateFile = (emailAddress, clientId, owner, filePath, content) => {
+const updateFile = async (emailAddress, clientId, owner, filePath, content) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
   if (!fileList[emailAddress]) {
     fileList[emailAddress] = {}
@@ -115,7 +116,7 @@ const updateFile = (emailAddress, clientId, owner, filePath, content) => {
   return true
 }
 
-const deleteFile = (emailAddress, clientId, owner, filePath) => {
+const deleteFile = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
     return false
