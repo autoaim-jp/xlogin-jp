@@ -23,6 +23,23 @@ const isValidClient = async (clientId, redirectUri, execQuery, paramSnakeToCamel
   return true
 }
 
+const isValidSignature = async (clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64) => {
+  const query = 'select * from access_info.secret_list where client_id = $1'
+  const paramList = [clientId]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  if (err || rowCount === 0) {
+    return false
+  }
+
+  const { clientSecret } = paramSnakeToCamel(result.rows[0])
+  const correctSignature = calcSha256HmacAsB64(clientSecret, dataToSign)
+
+  return signature === correctSignature
+}
+
+
 /* from userList */
 const getUserByEmailAddress = async (emailAddress, execQuery, paramSnakeToCamel) => {
   const query = 'select * from user_info.user_list where email_address = $1'
@@ -284,6 +301,7 @@ const getFileList = async (emailAddress, clientId, owner, filePath) => {
 export default {
   init,
   isValidClient,
+  isValidSignature,
 
   getUserByEmailAddress,
   isValidCredential,

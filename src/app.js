@@ -96,7 +96,7 @@ const _getOidcRouter = () => {
   return expressRouter
 }
 
-const _getUserApiRouter = () => {
+const _getUserApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
   expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -106,7 +106,7 @@ const _getUserApiRouter = () => {
     const resultHandleUserInfo = await action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
   })
-  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
@@ -290,13 +290,15 @@ const main = async () => {
 
   await lib.waitForPsql()
 
+  const checkSignature = action.getCheckSignature(core.isValidSignature)
+
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
   expressApp.use(_getExpressMiddlewareRouter())
 
   expressApp.use(_getOidcRouter())
-  expressApp.use(_getUserApiRouter())
+  expressApp.use(_getUserApiRouter(checkSignature))
   expressApp.use(_getNotificationApiRouter())
   expressApp.use(_getFunctionRouter())
   expressApp.use(_getFileRouter())

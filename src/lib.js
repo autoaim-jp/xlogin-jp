@@ -46,6 +46,17 @@ const getRandomB64UrlSafe = (len) => {
   return mod.crypto.randomBytes(len).toString('base64url').slice(0, len)
 }
 
+const calcSha256AsB64 = (str) => {
+  const sha256 = mod.crypto.createHash('sha256')
+  sha256.update(str)
+  return sha256.digest('base64')
+}
+const calcSha256HmacAsB64 = (secret, str) => {
+  const sha256Hmac = mod.crypto.createHmac('sha256', secret)
+  sha256Hmac.update(str)
+  return sha256Hmac.digest('base64')
+}
+
 const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
   const calcSha256AsB64Url = (str) => {
     const sha256 = mod.crypto.createHash('sha256')
@@ -134,6 +145,8 @@ export default {
 
   getUlid,
   getRandomB64UrlSafe,
+  calcSha256AsB64,
+  calcSha256HmacAsB64,
   convertToCodeChallenge,
   calcPbkdf2,
   getMaxIdInList,

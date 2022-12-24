@@ -34,6 +34,21 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
   }
 }
 
+const getCheckSignature = (isValidSignature) => {
+  return async (req, res, next) => {
+    const clientId = req.headers['x-xlogin-client-id']
+    const signature = req.headers['x-xlogin-signature']
+    const requestBody = req.body
+    const isValidSignatureResult = await isValidSignature(clientId, requestBody, signature)
+    if (isValidSignatureResult.signatureCheckResult !== true) {
+      const status = mod.setting.bsc.statusList.INVALID_CREDENTIAL
+      const error = 'check_signature'
+      return _getErrorResponse(status, error, false, null, authSession)
+    }
+    return next()
+  }
+}
+
 
 /* GET /api/$apiVersion/auth/connect */
 const handleConnect = async (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, isValidClient) => {
@@ -457,6 +472,7 @@ const handleLogout = async () => {
 
 export default {
   init,
+  getCheckSignature,
   handleConnect,
   handleCredentialCheck,
   handleConfirm,

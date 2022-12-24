@@ -38,6 +38,12 @@ create table access_info.client_list (
 );
 grant all privileges on access_info.client_list to xl_admin;
 
+create table access_info.secret_list (
+  client_id varchar(256),
+  client_secret varchar(256)
+);
+grant all privileges on access_info.secret_list to xl_admin;
+
 create table access_info.access_token_list (
   access_token varchar(256),
   client_id varchar(256),
