@@ -4,7 +4,7 @@ import * as browserServerSetting from './browserServerSetting.js'
 export const userHmacSecret = 'xlogin20220630'
 export const scopeExtraConfigList = {
   'auth:backupEmailAddress': {
-    classList: ['bg-black', 'text-white'],
+    templateId: '#permissionCheckBlackTemplate',
     dialogConfirm: true,
   },
 }

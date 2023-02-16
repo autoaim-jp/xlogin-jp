@@ -4,14 +4,20 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, sco
   const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   const permissionCheckDetailButtonTemplateElm = document.querySelector('#permissionCheckDetailButtonTemplate')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
-    const permissionCheckElm = document.querySelector('#permissionCheckTemplate').cloneNode(true)
-    permissionCheckElm.id = ''
-    permissionCheckElm.classList.remove('hidden')
+    const inputElmId = `permissionCheck_${getRandomStr(16)}`
+    const wrapElmId = `wrap_${inputElmId}`
+    const labelElmId = `label_${inputElmId}`
+
     const scopeWithoutOperation = scope.split(':').slice(1).join(':')
     const scopeExtraConfig = scopeExtraConfigList[scopeWithoutOperation]
-    if (scopeExtraConfig && scopeExtraConfig.classList) {
-      permissionCheckElm.classList.add(...scopeExtraConfig.classList)
+    let permissionCheckElm = null
+    if (scopeExtraConfig && scopeExtraConfig.templateId) {
+      permissionCheckElm = document.querySelector(scopeExtraConfig.templateId).cloneNode(true)
+    } else {
+      permissionCheckElm = document.querySelector('#permissionCheckTemplate').cloneNode(true)
     }
+    permissionCheckElm.classList.remove('hidden')
+    permissionCheckElm.setAttribute('id', wrapElmId)
 
     const inputElmId = `permissionCheck_${getRandomStr(16)}`
     const inputElm = permissionCheckElm.querySelector('[data-id="permissionCheckTemplateInput"]')
@@ -147,3 +153,4 @@ export const setOnClickShowOptionPermissionBtn = ({
     e.stopPropagation()
   }
 }
+

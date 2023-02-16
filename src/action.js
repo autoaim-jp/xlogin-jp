@@ -118,7 +118,7 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, register
 
   const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
 
-  const iss = process.env.SERVER_ORIGIN
+  const iss = mod.setting.env.SERVER_ORIGIN
   const { redirectUri, state } = authSession.oidc
   const redirect = mod.lib.addQueryStr(decodeURIComponent(redirectUri), mod.lib.objToQuery({ state, code, iss }))
 

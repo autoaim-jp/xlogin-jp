@@ -39,7 +39,7 @@ const _getSessionRouter = () => {
   })
 
   expressRouter.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: setting.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
     rolling: true,
@@ -262,18 +262,18 @@ const _getErrorRouter = () => {
 }
 
 const startServer = (expressApp) => {
-  if (process.env.SERVER_ORIGIN.indexOf('https') >= 0) {
+  if (setting.env.SERVER_ORIGIN.indexOf('https') >= 0) {
     const tlsConfig = {
-      key: fs.readFileSync(process.env.TLS_KEY_PATH),
-      cert: fs.readFileSync(process.env.TLS_CERT_PATH),
+      key: fs.readFileSync(setting.env.TLS_KEY_PATH),
+      cert: fs.readFileSync(setting.env.TLS_CERT_PATH),
     }
     const server = https.createServer(tlsConfig, expressApp)
-    server.listen(process.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    server.listen(setting.env.SERVER_PORT, () => {
+      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
     })
   } else {
-    expressApp.listen(process.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    expressApp.listen(setting.env.SERVER_PORT, () => {
+      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
     })
   }
 }
@@ -308,7 +308,7 @@ const main = async () => {
 
   startServer(expressApp)
 
-  console.log(`open: http://${process.env.SERVER_ORIGIN}/`)
+  console.log(`open: http://${setting.env.SERVER_ORIGIN}/`)
 }
 
 main()
