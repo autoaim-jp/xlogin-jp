@@ -18,7 +18,7 @@ import path from 'path'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
 
-import setting from './setting/index.js'
+import { setting, init as settingInit } from './setting/index.js'
 import output from './output.js'
 import core from './core.js'
 import input from './input.js'
@@ -281,6 +281,7 @@ const startServer = (expressApp) => {
 const main = async () => {
   dotenv.config()
   lib.init(crypto, ulid)
+  settingInit(process.env)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
   input.init(setting, fs)

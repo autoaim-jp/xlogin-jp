@@ -16,5 +16,14 @@
         "content": "ddd"
       }
     }
+  },
+  "user3@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1676637822346,
+        "clientId": "sample_localhost",
+        "content": "dddd"
+      }
+    }
   }
 }

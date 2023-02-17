@@ -1,14 +1,16 @@
 /* /setting/index.js */
 import browserServerSetting from './browserServerSetting.js'
 
-const setting = {}
+export const setting = {}
 
-setting.env = {}
-setting.env.SERVER_ORIGIN = process.env.SERVER_ORIGIN
-setting.env.SESSION_SECRET = process.env.SESSION_SECRET
-setting.env.TLS_KEY_PATH = process.env.TLS_KEY_PATH
-setting.env.TLS_CERT_PATH = process.env.TLS_CERT_PATH
-setting.env.SERVER_PORT = process.env.SERVER_PORT
+export const init = (env) => {
+  setting.env = {}
+  setting.env.SERVER_ORIGIN = env.SERVER_ORIGIN
+  setting.env.SESSION_SECRET = env.SESSION_SECRET
+  setting.env.TLS_KEY_PATH = env.TLS_KEY_PATH
+  setting.env.TLS_CERT_PATH = env.TLS_CERT_PATH
+  setting.env.SERVER_PORT = env.SERVER_PORT
+}
 
 setting.server = {}
 setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
@@ -61,6 +63,4 @@ setting.notification.ALL_NOTIFICATION = 'global'
  * @memberof parameter
  */
 setting.bsc = browserServerSetting
-
-export default setting
 
