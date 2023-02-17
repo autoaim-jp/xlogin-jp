@@ -19,7 +19,6 @@ export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, sco
     permissionCheckElm.classList.remove('hidden')
     permissionCheckElm.setAttribute('id', wrapElmId)
 
-    const inputElmId = `permissionCheck_${getRandomStr(16)}`
     const inputElm = permissionCheckElm.querySelector('[data-id="permissionCheckTemplateInput"]')
     inputElm.setAttribute('data-scope', scope)
     inputElm.setAttribute('id', inputElmId)
