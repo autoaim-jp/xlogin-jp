@@ -1,12 +1,13 @@
 /* confirm/output.js */
-export const showPermissionLabelList = ({ permissionLabelList, getRandomStr, scopeExtraConfigList, onClickScopeDetailBtn }) => {
+export const showPermissionLabelList = ({
+  permissionLabelList, getRandomStr, scopeExtraConfigList, onClickScopeDetailBtn,
+}) => {
   const requiredPermissionListElm = document.querySelector('#requiredPermissionList')
   const notRequiredPermissionListElm = document.querySelector('#notRequiredPermissionList')
   const permissionCheckDetailButtonTemplateElm = document.querySelector('#permissionCheckDetailButtonTemplate')
   Object.entries(permissionLabelList).forEach(([scope, permission]) => {
     const inputElmId = `permissionCheck_${getRandomStr(16)}`
     const wrapElmId = `wrap_${inputElmId}`
-    const labelElmId = `label_${inputElmId}`
 
     const scopeWithoutOperation = scope.split(':').slice(1).join(':')
     const scopeExtraConfig = scopeExtraConfigList[scopeWithoutOperation]
