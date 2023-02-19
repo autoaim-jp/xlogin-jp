@@ -289,7 +289,7 @@ const main = async () => {
   const pgPool = core.createPgPool(pg)
   lib.setPgPool(pgPool)
 
-  await lib.waitForPsql()
+  await lib.waitForPsql(setting.startup.MAX_RETRY_PSQL_CONNECT_N)
 
   const checkSignature = action.getCheckSignature(core.isValidSignature, output.endResponse)
 

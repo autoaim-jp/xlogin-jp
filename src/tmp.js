@@ -18,7 +18,7 @@ const main = async () => {
     const client = await pool.connect()
     const result = await client.query(query, paramList)
     console.log({ result })
-  } catch(e) {
+  } catch (e) {
     console.log(e)
   }
 }

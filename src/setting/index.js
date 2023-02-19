@@ -12,6 +12,8 @@ export const init = (env) => {
   setting.env.SERVER_PORT = env.SERVER_PORT
 }
 
+setting.startup = {}
+setting.startup.MAX_RETRY_PSQL_CONNECT_N = 5
 setting.server = {}
 setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.server.PUBLIC_BUILD_DIR = 'view/build'

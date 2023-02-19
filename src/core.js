@@ -35,8 +35,8 @@ const _generageServiceUserId = () => {
 
 /* client */
 const isValidClient = async (clientId, redirectUri) => {
-  const isValidClient = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  if (!isValidClient) {
+  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
+  if (!isValidClientResult) {
     return { clientCheckResult: false }
   }
 
@@ -46,8 +46,8 @@ const isValidClient = async (clientId, redirectUri) => {
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
   const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
   const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignature = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcSha256HmacAsB64)
-  if (!isValidSignature) {
+  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcSha256HmacAsB64)
+  if (!isValidSignatureResult) {
     return { signatureCheckResult: false }
   }
 
@@ -56,26 +56,26 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 
 
 /* authSession */
-const registerAuthSession = async (authSession) => {
-  return await mod.output.registerAuthSession(authSession, mod.lib.execQuery)
+const registerAuthSession = (authSession) => {
+  return mod.output.registerAuthSession(authSession, mod.lib.execQuery)
 }
 
-const getAuthSessionByCode = async (code) => {
-  return await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const getAuthSessionByCode = (code) => {
+  return mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 /* accessToken */
-const registerAccessToken = async (clientId, accessToken, emailAddress, splitPermissionList) => {
-  return await mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, mod.lib.execQuery)
+const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
+  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, mod.lib.execQuery)
 }
 
-const getUserByAccessToken = async (clientId, accessToken, filterKeyList) => {
-  return await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
+  return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const getCheckedRequiredPermissionList = async (clientId, emailAddress) => {
-  return await mod.input.getCheckedRequiredPermissionList(clientId, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
+  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, backupEmailAddress) => {
@@ -84,17 +84,17 @@ const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, back
   if (!emailAddress) {
     return null
   }
-  return await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
+  return mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
 }
 
 
 /* user */
-const registerServiceUserId = async (emailAddress, clientId) => {
-  return await mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId(), mod.lib.execQuery)
+const registerServiceUserId = (emailAddress, clientId) => {
+  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId(), mod.lib.execQuery)
 }
 
 const getUserByEmailAddress = async (emailAddress) => {
-  return await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  return mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
@@ -163,7 +163,7 @@ const openNotificationByAccessToken = async (clientId, accessToken, notification
 
 
 const getNotification = async (emailAddress, notificationRange) => {
-  return await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 const getNotificationByAccessToken = async (clientId, accessToken, notificationRange) => {
@@ -173,7 +173,7 @@ const getNotificationByAccessToken = async (clientId, accessToken, notificationR
     return null
   }
 
-  return await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
@@ -185,7 +185,7 @@ const updateFileByAccessToken = async (clientId, accessToken, owner, filePath, c
     return null
   }
 
-  return await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+  return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
 }
 
 const getFileContentByAccessToken = async (clientId, accessToken, owner, filePath) => {
@@ -195,7 +195,7 @@ const getFileContentByAccessToken = async (clientId, accessToken, owner, filePat
     return null
   }
 
-  return await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+  return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
 }
 
 const deleteFileByAccessToken = async (clientId, accessToken, owner, filePath) => {
@@ -205,7 +205,7 @@ const deleteFileByAccessToken = async (clientId, accessToken, owner, filePath) =
     return null
   }
 
-  return await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+  return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
 }
 
 const getFileListByAccessToken = async (clientId, accessToken, owner, filePath) => {
@@ -215,7 +215,7 @@ const getFileListByAccessToken = async (clientId, accessToken, owner, filePath) 
     return null
   }
 
-  return await mod.input.getFileList(emailAddress, clientId, owner, filePath)
+  return mod.input.getFileList(emailAddress, clientId, owner, filePath)
 }
 
 

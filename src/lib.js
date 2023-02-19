@@ -83,7 +83,7 @@ const calcPbkdf2 = (data, saltHex) => {
 
 const getMaxIdInList = (list) => {
   return list.reduce((p, c) => {
-    return p > c? p : c
+    return p > c ? p : c
   })
 }
 
@@ -98,7 +98,7 @@ const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
 }
 
 const awaitSleep = (ms) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve()
     }, ms)
@@ -109,7 +109,7 @@ const awaitSleep = (ms) => {
 /* db */
 const execQuery = async (query, paramList = []) => {
   return new Promise((resolve) => {
-    return mod.pgPool
+    mod.pgPool
       .query(query, paramList)
       .then((result) => {
         return resolve({ err: null, result })
@@ -121,18 +121,18 @@ const execQuery = async (query, paramList = []) => {
   })
 }
 
-const waitForPsql = async () => {
+const waitForPsql = async (maxRetryCnt) => {
   console.log('[info] waitForPsql')
-  while(true) {
-    await awaitSleep(1 * 1000)
-    const { err, result } = await execQuery('select 1')
+  for await (const retryCnt of [...Array(maxRetryCnt).keys()]) {
+    awaitSleep(1 * 1000)
+    const { err, result } = execQuery('select 1')
     if (!err && result) {
       return result.rows[0]
     }
-    console.log('[info] waiting for psql...')
+    console.log('[info] waiting for psql... retry:', retryCnt)
   }
+  return null
 }
-
 
 
 export default {
@@ -153,7 +153,7 @@ export default {
 
   formatDate,
   awaitSleep,
-  
+
   execQuery,
   waitForPsql,
 }

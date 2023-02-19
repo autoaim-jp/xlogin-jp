@@ -8,7 +8,7 @@ const init = (setting, fs) => {
 }
 
 /* from clientList */
-const isValidClient = async (clientId, redirectUri, execQuery, paramSnakeToCamel) => {
+const isValidClient = async (clientId, redirectUri, execQuery) => {
   const query = 'select * from access_info.client_list where client_id = $1 and redirect_uri = $2'
   const paramList = [clientId, decodeURIComponent(redirectUri)]
 
@@ -17,8 +17,6 @@ const isValidClient = async (clientId, redirectUri, execQuery, paramSnakeToCamel
   if (err || rowCount === 0) {
     return false
   }
-
-  const client = paramSnakeToCamel(result.rows[0])
 
   return true
 }
@@ -125,7 +123,7 @@ const _checkPermission = (splitPermissionList, operationKey, range, dataType) =>
 }
 
 /* from accessTokenList, userList */
-const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel) => {
+const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel) => {
   /* clientId, accessToken => emailAddress */
   const queryGetEmailAddress = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
   const paramListGetEmailAddress = [clientId, accessToken]
@@ -145,7 +143,7 @@ const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQue
     const keySplit = key.split(':')
     if (keySplit.length !== 2) {
       console.log('[warn] invalid key:', key)
-      return
+      return null
     }
     if (_checkPermission(splitPermissionList, 'r', keySplit[0], keySplit[1])) {
       if (keySplit[0] === mod.setting.server.AUTH_SERVER_CLIENT_ID && keySplit[1] === 'userName') {
@@ -189,7 +187,6 @@ const getUserByAccessToken = async(clientId, accessToken, filterKeyList, execQue
         publicData[key] = null
       }
     }
-
   }
 
   return { public: publicData }
