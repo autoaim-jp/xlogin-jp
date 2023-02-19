@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  rediscontainer:
+    build:
+      context: .
+      dockerfile: ./docker/rediscontainer/Dockerfile
+    volumes:
+      - xl-rc-redis:/data
+  psqlcontainer:
+    build:
+      context: .
+      dockerfile: ./docker/psqlcontainer/Dockerfile
+    volumes:
+      - xl-pc-psql:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=psqladmin
+      - POSTGRES_PASSWORD=psqlpass
+  webcontainer:
+    build:
+      context: .
+      dockerfile: ./docker/webcontainer/Dockerfile
+    tty: true
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/app
+      - xl-wc-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "npm start"
+    depends_on:
+      - rediscontainer
+      - psqlcontainer
+
+volumes:
+  xl-rc-redis:
+  xl-pc-psql:
+  xl-wc-nm:
+
+

@@ -10,11 +10,13 @@ jobs:
         with:
           node-version: '16'
       - run: yarn install
-      - run: version=v0.9 yarn init-xdevkit
+        working-directory: ./src
       - name: Run eslint-server
         run: yarn lint-server
+        working-directory: ./src
       - name: Run eslint-browser
         run: yarn lint-browser
+        working-directory: ./src
 
   slack-notification:
     if: always()

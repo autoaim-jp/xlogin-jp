@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "connect-redis": "^6.1.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.1",
+    "eslint-plugin-jest": "^26.8.2",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "express-useragent": "^1.0.15",
+    "ioredis": "^5.0.5",
+    "pg": "^8.8.0",
+    "ulid": "^2.3.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "lint-server": "eslint *.js setting/",
+    "lint-browser": "eslint view/src/js",
+    "lint-fix": "yarn lint-server --fix && yarn lint-browser --fix",
+    "test": "curl http://webcontainer:3000",
+    "dev-add-service": "node tool/src/registerNewService.js",
+    "compile": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css",
+    "compile-minify": "bash gdeno run xdevkit-cli compile --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css --minify",
+    "watch": "bash gdeno run xdevkit-cli watch --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --out ./view/build/ --ejsconfig ./view/src/config/ejs.config.js --tailwindconfig ./view/src/config/tailwind.config.cjs --tailwindcss ./view/src/css/tailwind.css",
+    "gendoc": "yarn jsdoc -c doc/jsdoc/config.json"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/eslint-parser": "^7.18.9",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "jsdoc": "^4.0.0"
+  }
+}

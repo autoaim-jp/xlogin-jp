@@ -1,11 +1,15 @@
-node_modules/
-.env
+.idea
 
-view/build/
+src/node_modules/
+src/.env
 
-data/accessTokenList.json
-data/authSessionList.json
-data/notificationList.json
+src/view/build/
 
-doc/jsdoc/html/
+src/data/accessTokenList.json
+src/data/authSessionList.json
+src/data/notificationList.json
+
+src/doc/jsdoc/html/
+
+data/redis/
 

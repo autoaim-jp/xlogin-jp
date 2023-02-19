@@ -1,0 +1,29 @@
+{
+  "user2@example.com": {
+    "sample_localhost7001": {
+      "/message.txt": {
+        "dateUpdated": 1662879456944,
+        "clientId": "sample_localhost7001",
+        "content": "ab"
+      }
+    }
+  },
+  "user@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1671866815053,
+        "clientId": "sample_localhost",
+        "content": "ddd"
+      }
+    }
+  },
+  "user3@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1676637822346,
+        "clientId": "sample_localhost",
+        "content": "dddd"
+      }
+    }
+  }
+}
