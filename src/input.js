@@ -64,14 +64,14 @@ const isValidCredential = async (emailAddress, passHmac2, execQuery, paramSnakeT
     return false
   }
 
-  const { passHmac2: correctPassHmac2, saltHex } = paramSnakeToCamel(result.rows[0])
+  const { passPbkdf2: correctPassPbkdf2, saltHex } = paramSnakeToCamel(result.rows[0])
 
   if (!saltHex) {
     return false
   }
 
   const passPbkdf2 = await calcPbkdf2(passHmac2, saltHex)
-  return passPbkdf2 === correctPassHmac2
+  return passPbkdf2 === correctPassPbkdf2
 }
 
 /* from authSessionList */

@@ -11,9 +11,9 @@
   "user@example.com": {
     "sample_localhost": {
       "/message.txt": {
-        "dateUpdated": 1671866815053,
+        "dateUpdated": 1681392778950,
         "clientId": "sample_localhost",
-        "content": "ddd"
+        "content": "oiooo"
       }
     }
   },
