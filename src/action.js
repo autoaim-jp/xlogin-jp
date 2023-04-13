@@ -195,6 +195,9 @@ const handleThrough = async (ipAddress, useragent, authSession, registerAuthSess
     }
   })
   requestScope.split(',').forEach((key) => {
+    if (key === '') {
+      return
+    }
     splitPermissionList.required[key] = permissionList[key]
 
     if (!permissionList[key]) {
