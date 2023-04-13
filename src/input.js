@@ -71,7 +71,7 @@ const isValidCredential = async (emailAddress, passHmac2, execQuery, paramSnakeT
   }
 
   const passPbkdf2 = await calcPbkdf2(passHmac2, saltHex)
-  return passPbkdf2 === correctPassPbkdf2 
+  return passPbkdf2 === correctPassPbkdf2
 }
 
 /* from authSessionList */
