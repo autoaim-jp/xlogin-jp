@@ -1,9 +1,7 @@
 .idea
 
-src/node_modules/
-src/.env
-
-src/view/build/
+node_modules/
+.env
 
 src/data/accessTokenList.json
 src/data/authSessionList.json
@@ -12,4 +10,5 @@ src/data/notificationList.json
 src/doc/jsdoc/html/
 
 data/redis/
+
 
