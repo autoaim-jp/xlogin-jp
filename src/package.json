@@ -8,10 +8,12 @@
     "express-session": "^1.17.3",
     "express-useragent": "^1.0.15",
     "ioredis": "^5.0.5",
+    "nodemon": "^2.0.22",
     "pg": "^8.8.0",
     "ulid": "^2.3.0"
   },
   "scripts": {
+    "start-watch": "nodemon --delay 1 app.js",
     "start": "node app.js",
     "lint-server": "eslint *.js setting/",
     "lint-browser": "eslint view/src/js",
