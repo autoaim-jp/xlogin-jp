@@ -29,7 +29,7 @@ services:
       - xl-wc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm start"
+    command: sh -c "npm run start-watch"
     depends_on:
       - rediscontainer
       - psqlcontainer
