@@ -1,6 +1,6 @@
 #! /bin/bash
 
-XDEVKIT_VERSION=v0.13
+XDEVKIT_VERSION=v0.17
 
 if [ $# != 2 ]; then
   echo "run.sh (app | test) (build | config | up | down)"
