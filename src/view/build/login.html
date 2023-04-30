@@ -1,2 +1,776 @@
-<html lang="ja"><meta charset="utf-8"><meta name="viewport"content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>login | xlogin.jp</title><meta name="author"content="autoaim_jp"><meta name="description"content="login page"><link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined"rel="stylesheet"><link rel="apple-touch-icon"sizes="180x180"href="/img/logo/apple-touch-icon.webp"><link rel="icon"type="image/webp"sizes="32x32"href="/img/logo/favicon-32x32.webp"><link rel="icon"type="image/webp"sizes="16x16"href="/img/logo/favicon-16x16.webp"><link rel="mask-icon"href="/img/logo/safari-pinned-tab.svg"color="#5bbad5"><link rel="shortcut icon"href="/img/logo/favicon.ico"><meta name="msapplication-TileColor"content="#ffffff"><meta name="theme-color"content="#ffffff"><link href="/css/tailwind.css"rel="stylesheet"><body class="flex flex-col"><nav class="w-full z-30 top-0 py-1"><div class="max-w-3xl container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-2"><div class="pl-4 flex items-center"><a class="font-bold text-2xl"href="/"><img class="inline-block align-bottom"src="/img/logo.webp"width="48px"height="48px"><div class="inline-block ml-2"><span>xlogin.jp</span><br><span class="text-sm">simple login service</span></div></a></div><div class="pl-4 flex items-center z-40"><div class="block xl:hidden pr-4"><button id="commonNavToggle"class="flex items-center px-3 py-2 rounded text-gray-500 hover:text-gray-800 appearance-none bg-white focus:outline-none"><svg viewBox="0 0 100 80"width="40"height="70"><rect width="100"height="20"></rect><rect y="30"width="100"height="20"></rect><rect y="60"width="100"height="20"></rect><text x="50%"y="90"text-anchor="middle"dominant-baseline="central"font-family="Meiryo"font-size="30">Menu</text></svg></button></div></div><div class="xl:relative absolute w-full left-0 xl:top-auto top-24 flex items-center grid xl:w-auto"><div class="xl:flex xl:items-center xl:w-auto xl:block mt-2 xl:mt-0 p-1 xl:p-0 z-20 bg-gray-100 border-2 xl:bg-transparent xl:border-0 rounded hidden"id="commonNavContent"><ul class="lg:flex justify-end flex-1 xl:flex-row flex-col items-center text-center text-xl"><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a data-id="notificationBtn"class="inline-block py-2 px-4 font-bold no-underline"href="#">Notification</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="/logout">Logout</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="/serviceList"target="_blank">Service</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="https://github.com/autoaim-jp/xlogin-jp"target="_blank">GitHub</a></ul></div></div></div></nav><div id="notificationContainer"class="z-50 mt-20 p-4 absolute right-0 top-0 flex-col"></div><a id="notificationTemplate"data-id="notification"class="flex flex-col block bg-white max-w-md rounded-lg p-6 shadow mb-4 w-80 hidden"href="#"><p data-id="subject"class="text-xl text-slate-700 font-medium">Login at 2022/01/01 00:00:00<div class="flex justify-end"><div class="text-sm inline-flex space-x-1 items-center"><span>show detail</span> <svg class="w-3 h-3"fill="none"stroke="currentColor"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round"stroke-linejoin="round"stroke-width="2"d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg></div></div></a><div class="section1 min-h-80 flex flex-col text-black md:flex items-center justify-center flex-grow p-2"><div class="max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full"><ul class="inline-flex space-x-1 md:space-x-3"><li class="inline-flex items-center"><a href="/"class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"><svg class="w-4 h-4 mr-2"fill="currentColor"viewBox="0 0 20 20"xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg> ホーム</a><li class="inline-flex items-center"><a href="/login"class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"><svg class="w-6 h-6 text-gray-400"fill="currentColor"viewBox="0 0 20 20"xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd"d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"clip-rule="evenodd"></path></svg> ログイン</a></ul></div></div><div class="section1 min-h-80 flex flex-col text-center text-black md:flex items-center justify-center flex-grow p-2"><div class="max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full"><div id="memoContentWrap"class="w-full"></div><div class="block mx-auto p-6 rounded-lg shadow-lg bg-white max-w-sm"><p class="font-bold text-4xl mb-3">Login<form id="loginForm"method="post"action="/error"><div class="form-group mb-6"><label for="emailAddressInput"class="form-label inline-block mb-2 text-gray-700">Email address</label> <input id="emailAddressInput"name="emailAddress"type="email"class="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"placeholder="user@xlogin.jp"></div><div class="form-group mb-6"><label for="passInput"class="form-label inline-block mb-2 text-gray-700">Password</label> <input id="passInput"name="pass"type="password"class="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"id="exampleInputPassword2"placeholder="Password"></div><div class="flex justify-end items-center mb-6"><a href="/resetPass"class="text-blue-600 hover:text-blue-700 focus:text-blue-700 transition duration-200 ease-in-out">Forgot password?</a></div><button type="submit"class="w-full px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">login</button><p class="text-gray-800 mt-6 text-center">Not a member?<a href="/register"class="text-blue-600 hover:text-blue-700 focus:text-blue-700 transition duration-200 ease-in-out">Register</a></form></div></div></div><img id="loading"class="fixed -translate-x-1/2 -translate-y-1/2 inset-1/2 transform hidden"src="/img/loading.svg"><div id="modalBackground"data-id="modalClose"class="fixed bg-white bg-opacity-50 w-full h-full z-40 inset-0 hidden"></div><div id="modalTemplate"data-id="modal"class="transition-opacity duration-500 fixed w-11/12 lg:w-5/12 h-full left-0 right-0 m-auto flex font-extrabold z-50 hidden"><div data-id="modalCard"class="card relative m-auto w-4/5 shadow-lg rounded-2xl"><div class="p-4 bg-gray-200 text-black rounded-t-2xl"><span data-id="modalClose"class="float-right text-lg font-bold hover:text-gray-500 no-underline cursor-pointer">&times;</span><h2 data-id="modalTitle">Modal Title</h2></div><div data-id="modalContent"class="p-8 bg-gray-100"></div><div class="p-2 text-white bg-gray-200 flex justify-end rounded-b-2xl"><button data-id="modalCancelButton"class="bg-gray-800 hover:underline font-extrabold rounded py-4 px-8 shadow">キャンセル</button> <button data-id="modalConfirmButton"class="bg-green-400 hover:underline font-extrabold rounded py-4 px-8 ml-2 shadow">確認</button></div></div></div><div id="hiddenForTailwindByJs"class="hidden w-full h-96 p-1"></div><script>(()=>{var __defProp=Object.defineProperty,__export=(target,all)=>{for(var name in(target=>__defProp(target,"__esModule",{value:!0}))(target),all)__defProp(target,name,{get:all[name],enumerable:!0})},setting_exports={},browserServerSetting_exports=(__export(setting_exports,{bsc:()=>bsc,get:()=>get2,getBrowserServerSetting:()=>getBrowserServerSetting,scopeExtraConfigList:()=>scopeExtraConfigList,userHmacSecret:()=>userHmacSecret}),{}),apiEndpoint=(__export(browserServerSetting_exports,{apiEndpoint:()=>apiEndpoint,default:()=>browserServerSetting_default,get:()=>get,labelList:()=>labelList,statusList:()=>statusList,userReadableDateFormat:()=>userReadableDateFormat}),"/f"),labelList={scopeBody:{global:{notification:{label:"すべての通知",summary:"すべてのサービスの通知に関する権限です。ログイン時刻などを含みます。"}},auth:{emailAddress:{label:"メールアドレス",summary:"ログインに使用するメールアドレスに関する権限です。バックアップメールアドレスは含みません。"},backupEmailAddress:{label:"バックアップメールアドレス",summary:"バックアップメールアドレスに関する権限です。ログインに使用するメールアドレスは含みません。"},userName:{label:"ユーザー名",summary:"一般公開されているユーザーの名前です。"}},service:{serviceUserId:{label:"ユーザーID",summary:"連携するサービスに提供する、あなたのアカウントのIDです。サービス毎に異なります。"},notification:{label:"サービス内通知",summary:"連携するサービス内で、通知機能を利用するための権限です。"},file:{label:"ファイル",summary:"連携するサービスで、あなたがデータを保存できます。"}}},scopeOperation:{operation:{read:"取得",write:"保存",append:"追記"},prefix:{isRequired:"必須"}},error:{undefined:"error",handle_credential_credential:"メールアドレスまたはパスワードが違います。",handle_user_add_register:"メールアドレスは既に登録されています。",handle_xlogin_code_session:"セッションが不正です。"}},statusList={OK:1,SUCCESS:100,LOGIN_SUCCESS:101,INVALID:1e3,NOT_ENOUGH_PARAM:1001,INVALID_SESSION:1002,API_ERROR:1100,INVALID_OIDC_ISSUER:1101,NOT_FOUND:1200},userReadableDateFormat={full:"YYYY/MM/DD hh:mm:ss",day:"YYYY/MM/DD",hourMinute:"hh:mm",time:"hh:mm:ss"},settingList={apiEndpoint:apiEndpoint,labelList:labelList,statusList:statusList,userReadableDateFormat:userReadableDateFormat},get=(...keyList)=>{var constantList=keyList.reduce((prev,curr)=>(prev[curr]=settingList[curr],prev),{});for(const key of keyList)if(!constantList[key])throw new Error("[error] undefined setting constant: "+key);return constantList},browserServerSetting_default=settingList,userHmacSecret="xlogin20220630",scopeExtraConfigList={"auth:backupEmailAddress":{templateId:"#permissionCheckBlackTemplate",dialogConfirm:!0}},bsc=browserServerSetting_exports,settingList2={userHmacSecret:userHmacSecret,scopeExtraConfigList:scopeExtraConfigList},getBrowserServerSetting=()=>browserServerSetting_exports,get2=(...keyList)=>{var constantList=keyList.reduce((prev,curr)=>(prev[curr]=settingList2[curr],prev),{});for(const key of keyList)if(!constantList[key])throw new Error("[error] undefined setting constant: "+key);return constantList},lib_exports={},getCaller=(__export(lib_exports,{buf2Hex:()=>buf2Hex,calcHmac512:()=>calcHmac512,calcPbkdf2:()=>calcPbkdf2,genSalt:()=>genSalt,getCaller:()=>getCaller,getErrorModalElmAndSetter:()=>getErrorModalElmAndSetter,getModalElmAndSetter:()=>getModalElmAndSetter,getRandomStr:()=>getRandomStr,getRequest:()=>getRequest,getSearchQuery:()=>getSearchQuery,monkeyPatch:()=>monkeyPatch,postRequest:()=>postRequest,redirect:()=>redirect,setOnClickNavManu:()=>setOnClickNavManu,setOnClickNotification:()=>setOnClickNotification,showGlobalNotification:()=>showGlobalNotification,showModal:()=>showModal,slideDown:()=>slideDown,slideToggle:()=>slideToggle,slideUp:()=>slideUp,switchLoading:()=>switchLoading}),()=>{return(new Error).stack.replace(/^Error\n.*\n.*\n/,"")}),getRequest=(_url,param={})=>{var query=param&&Object.keys(param).map(key=>key+"="+param[key]).join("&");return fetch(query?_url+"?"+query:_url,{method:"GET",credentials:"same-origin",timeout:3e4}).then(res=>!res.error&&res.body&&res.json?res.json():null).catch(e=>(console.error("[fatal] error @getRequest:",e),null))},postRequest=(url,param={})=>{var opt={method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},timeout:3e4};return param&&(opt.body=JSON.stringify(param)),fetch(url,opt).then(res=>!res.error&&res.body&&res.json?res.json():null).catch(e=>(console.error("[fatal] error @postRequest:",e),null))},applyElmList=(query,f,parent=document)=>{Object.values(parent.querySelectorAll(query)).forEach(elm=>{f(elm)})},closeModal=()=>{applyElmList('[data-id="modal"], #modalBackground',elm=>{elm.classList.add("hidden")})},showModal=(modalElm,cancelButtonIsVisible=!1)=>new Promise(resolve=>{"modalTemplate"===modalElm.id&&(modalElm.id=""),document.body.appendChild(modalElm),closeModal(),setTimeout(()=>{applyElmList('[data-id="modalClose"], [data-id="modalCancelButton"]',elm=>{elm.onclick=()=>(closeModal(),resolve(!1))},document),cancelButtonIsVisible?modalElm.querySelector('[data-id="modalCancelButton"]').classList.remove("hidden"):modalElm.querySelector('[data-id="modalCancelButton"]').classList.add("hidden"),modalElm.querySelector('[data-id="modalConfirmButton"]').onclick=()=>(closeModal(),resolve(!0)),modalElm.classList.remove("hidden"),document.querySelector("#modalBackground").classList.remove("hidden"),modalElm.querySelector('[data-id="modalContent"]').scrollTop=0,modalElm.querySelector('[data-id="modalCard"]').onclick=e=>{e.stopPropagation()},modalElm.onclick=e=>(e.stopPropagation(),closeModal(),resolve(!1))},100)}),getErrorModalElmAndSetter=()=>{var modalElm=document.querySelector("#modalTemplate").cloneNode(!0);const modalTitleElm=modalElm.querySelector('[data-id="modalTitle"]'),labelP=(modalTitleElm.innerText="エラー",document.createElement("p"));labelP.innerText="エラーが発生しました。",modalElm.querySelector('[data-id="modalContent"]').appendChild(labelP);return{modalElm:modalElm,setContent:(textStr,errorLabelList=null,title="エラー")=>{labelP.innerText=errorLabelList&&errorLabelList[textStr]||textStr,modalTitleElm.innerText=title}}},getModalElmAndSetter=()=>{var modalElm=document.querySelector("#modalTemplate").cloneNode(!0);const modalTitleElm=modalElm.querySelector('[data-id="modalTitle"]'),modalContentElm=modalElm.querySelector('[data-id="modalContent"]');return{modalElm:modalElm,setContentElm:(title,contentElm)=>{modalTitleElm.innerText=title,modalContentElm.clearChildren(),modalContentElm.appendChild(contentElm)}}},switchLoading=isVisible=>{var loadingElm=document.querySelector("#loading");loadingElm&&(isVisible?loadingElm.classList.remove("hidden"):loadingElm.classList.add("hidden"))},setOnClickNavManu=()=>{var toggleElm=document.querySelector("#commonNavToggle");const navContentElm=document.querySelector("#commonNavContent");toggleElm.onclick=()=>{0<=[...navContentElm.classList.values()].indexOf("hidden")?navContentElm.classList.remove("hidden"):navContentElm.classList.add("hidden")}},notificationIsVisible=!1,showGlobalNotification=async apiEndpoint2=>{apiEndpoint2=await getRequest(apiEndpoint2+"/notification/global/list");const notificationContainerElm=document.querySelector("#notificationContainer"),notificationTemplateElm=(notificationContainerElm.clearChildren(),document.querySelector("#notificationTemplate")),notificationList=Object.values(apiEndpoint2?.result?.globalNotificationList||{}).reverse();notificationList.forEach((row,i)=>{const notificationElm=notificationTemplateElm.cloneNode(!0);notificationElm.classList.remove("hidden"),notificationElm.querySelector('[data-id="subject"]').innerText=row.subject,notificationElm.onclick=e=>{e.preventDefault(),e.stopPropagation();e=document.querySelector("#modalTemplate").cloneNode(!0);e.classList.remove("hidden"),e.querySelector('[data-id="modalTitle"]').innerText=row.subject,e.querySelector('[data-id="modalContent"]').appendChild(document.createTextNode(row.detail)),showModal(e)},setTimeout(()=>{notificationElm.style.transitionDuration="0.5s",notificationElm.style.opacity=0,notificationContainerElm.appendChild(notificationElm),setTimeout(()=>{notificationElm.style.opacity=1},100)},.5*i*1e3),setTimeout(()=>{notificationElm.style.transitionDuration="0.2s",notificationElm.style.opacity=0},.5*notificationList.length*1e3+3e3+.2*i*1e3)}),setTimeout(()=>{notificationContainerElm.clearChildren(),notificationIsVisible=!1},.7*notificationList.length*1e3+3e3)},setOnClickNotification=apiEndpoint2=>{applyElmList('[data-id="notificationBtn"]',notificationBtn=>{notificationBtn.onclick=e=>{e.preventDefault(),e.stopPropagation(),notificationIsVisible||(notificationIsVisible=!0,showGlobalNotification(apiEndpoint2))}})},monkeyPatch=()=>{void 0===Element.prototype.clearChildren&&Object.defineProperty(Element.prototype,"clearChildren",{configurable:!0,enumerable:!1,value(){for(;this.firstChild;)this.removeChild(this.lastChild)}}),void 0===window.argNamed&&(window.argNamed=obj=>{const flattened={};return Object.keys(obj).forEach(key=>{Array.isArray(obj[key])?Object.assign(flattened,obj[key].reduce((prev,curr)=>{if(void 0===curr)throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}
-===== maybe you need make func exported like  module.exports = { func, } =====`);if("function"!=typeof curr)throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @`+key);return prev[curr.name]=curr,prev},{})):"object"==typeof obj[key]&&null!==obj[key]?Object.assign(flattened,obj[key]):flattened[key]=obj[key]}),flattened})},getRandomStr=len=>btoa(crypto.getRandomValues(new Uint8Array(len))).slice(0,len),buf2Hex=buf=>Array.prototype.map.call(new Uint8Array(buf),x=>("00"+x.toString(16)).slice(-2)).join(""),calcHmac512=(data,secret)=>new Promise(resolve=>{const enc=new TextEncoder("utf-8");window.crypto.subtle.importKey("raw",enc.encode(secret),{name:"HMAC",hash:{name:"SHA-512"}},!1,["sign","verify"]).then(key=>{window.crypto.subtle.sign("HMAC",key,enc.encode(data)).then(hash=>{hash=new Uint8Array(hash);resolve(buf2Hex(hash))})})}),genSalt=()=>window.crypto.getRandomValues(new Uint8Array(64)),calcPbkdf2=(str,salt)=>new Promise(resolve=>{var byteList=new Uint8Array(Array.prototype.map.call(str,c=>c.charCodeAt(0)));window.crypto.subtle.importKey("raw",byteList,{name:"PBKDF2"},!1,["deriveBits"]).then(key=>{return window.crypto.subtle.deriveBits({name:"PBKDF2",salt:salt,iterations:1e6,hash:{name:"SHA-512"}},key,512).then(buf=>{resolve(buf2Hex(buf))})})}),redirect=response=>{response&&response.redirect&&(window.location.href=response.redirect)},getSearchQuery=()=>{const searchQuery={};return window.location.search.replace(/^\?/,"").split("&").forEach(row=>{var[row,value]=row.split("=");searchQuery[row]=value}),searchQuery},slideUp=(elm,duration=300)=>{elm.style.height=elm.offsetHeight+"px",null!==elm.offsetHeight&&(elm.style.transitionProperty="height, margin, padding",elm.style.transitionDuration=duration+"ms",elm.style.transitionTimingFunction="ease",elm.style.overflow="hidden",elm.style.height=0,elm.style.paddingTop=0,elm.style.paddingBottom=0,elm.style.marginTop=0,elm.style.marginBottom=0,setTimeout(()=>{elm.style.display="none",elm.style.removeProperty("height"),elm.style.removeProperty("padding-top"),elm.style.removeProperty("padding-bottom"),elm.style.removeProperty("margin-top"),elm.style.removeProperty("margin-bottom"),elm.style.removeProperty("overflow"),elm.style.removeProperty("transition-duration"),elm.style.removeProperty("transition-property"),elm.style.removeProperty("transition-timing-function")},duration))},slideDown=(elm,duration=300)=>{elm.style.removeProperty("display");let display=window.getComputedStyle(elm)["display"];"none"===display&&(display="block"),elm.style.display=display;var height=elm.offsetHeight;elm.style.overflow="hidden",elm.style.height=0,elm.style.paddingTop=0,elm.style.paddingBottom=0,elm.style.marginTop=0,elm.style.marginBottom=0,null!==elm.offsetHeight&&(elm.style.transitionProperty="height, margin, padding",elm.style.transitionDuration=duration+"ms",elm.style.transitionTimingFunction="ease",elm.style.height=height+"px",elm.style.removeProperty("padding-top"),elm.style.removeProperty("padding-bottom"),elm.style.removeProperty("margin-top"),elm.style.removeProperty("margin-bottom"),setTimeout(()=>{elm.style.removeProperty("height"),elm.style.removeProperty("overflow"),elm.style.removeProperty("transition-duration"),elm.style.removeProperty("transition-property"),elm.style.removeProperty("transition-timing-function")},duration))},slideToggle=(elm,duration=300,ignoreIfOpen=!1)=>{"none"===window.getComputedStyle(elm).display?slideDown(elm,duration):ignoreIfOpen||slideUp(elm,duration)},action_exports={},getOnSubmitLogin=(__export(action_exports,{default:()=>action_default,getOnSubmitLogin:()=>getOnSubmitLogin}),({calcHmac512:calcHmac5122,userHmacSecret:userHmacSecret2,labelList:labelList2,emailAddressInputElm,passInputElm,postLogin,redirect:redirect2,switchLoading:switchLoading2,showModal:showModal2,getErrorModalElmAndSetter:getErrorModalElmAndSetter2})=>{const{modalElm,setContent}=getErrorModalElmAndSetter2();return async()=>{switchLoading2(!0);var emailAddress=emailAddressInputElm.value,pass=passInputElm.value,pass=await calcHmac5122(pass,userHmacSecret2),pass=await calcHmac5122(pass,userHmacSecret2);return postLogin({emailAddress:emailAddress,passHmac2:pass}).then(result=>{switchLoading2(!1),result.error?(setContent(result.error,labelList2.error),showModal2(modalElm,!1)):redirect2(result)}),!1}}),action_default={},output_exports={},getPostLogin=(__export(output_exports,{getLoginFormElm:()=>getLoginFormElm,getPostLogin:()=>getPostLogin,setLoginFormSubmit:()=>setLoginFormSubmit}),({apiEndpoint:apiEndpoint2,postRequest:postRequest2})=>{const url=apiEndpoint2+"/login/credential/check";return({emailAddress,passHmac2})=>{emailAddress={emailAddress:emailAddress,passHmac2:passHmac2};return postRequest2(url,emailAddress)}}),getLoginFormElm=()=>{return{emailAddressInputElm:document.querySelector("#emailAddressInput"),passInputElm:document.querySelector("#passInput")}},setLoginFormSubmit=({onSubmitLogin})=>{document.querySelector("#loginForm").onsubmit=e=>{e.preventDefault(),e.stopPropagation(),onSubmitLogin()}},__export={},a=(__export.setting=setting_exports,__export.lib=lib_exports,__export.action=action_exports,__export.output=output_exports,__export);a.app={main:async()=>{a.lib.switchLoading(!0),a.lib.setOnClickNavManu(),a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint),a.lib.monkeyPatch(),a.app.loadLoginForm(),setTimeout(()=>{a.lib.switchLoading(!1)},300)},loadLoginForm:()=>{var postLogin=a.output.getPostLogin(argNamed({browserServerSetting:a.setting.bsc.get("apiEndpoint"),lib:[a.lib.postRequest]})),{emailAddressInputElm,passInputElm}=a.output.getLoginFormElm(),emailAddressInputElm=a.action.getOnSubmitLogin(argNamed({browserServerSetting:a.setting.bsc.get("labelList"),setting:a.setting.get("userHmacSecret"),lib:[a.lib.calcHmac512,a.lib.switchLoading,a.lib.redirect,a.lib.showModal,a.lib.getErrorModalElmAndSetter],other:{emailAddressInputElm:emailAddressInputElm,passInputElm:passInputElm,postLogin:postLogin}}));a.output.setLoginFormSubmit(argNamed({onSubmit:{onSubmitLogin:emailAddressInputElm}}))}},a.app.main()})();</script>
+<html lang='ja'>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <title>login | xlogin.jp</title>
+    <meta name='author' content='autoaim_jp'>
+    <meta name='description' content='login page'>
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel='apple-touch-icon' sizes='180x180' href='/img/logo/apple-touch-icon.webp'>
+    <link rel='icon' type='image/webp' sizes='32x32' href='/img/logo/favicon-32x32.webp'>
+    <link rel='icon' type='image/webp' sizes='16x16' href='/img/logo/favicon-16x16.webp'>
+    <link rel='mask-icon' href='/img/logo/safari-pinned-tab.svg' color='#5bbad5'>
+    <link rel='shortcut icon' href='/img/logo/favicon.ico'>
+    <meta name='msapplication-TileColor' content='#ffffff'>
+    <meta name='theme-color' content='#ffffff'>
+    <link href='/css/tailwind.css' rel='stylesheet' />
+
+<body class='flex flex-col'>
+    <nav class='w-full z-30 top-0 py-1'>
+        <div class='max-w-3xl container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-2'>
+            <div class='pl-4 flex items-center'>
+                <a class='font-bold text-2xl' href='/'>
+                    <img class='inline-block align-bottom' src='/img/logo.webp' width='48px' height='48px'>
+                    <div class='inline-block ml-2'>
+                        <span>xlogin.jp</span>
+                        <br />
+                        <span class='text-sm'>simple login service</span>
+                    </div>
+                </a>
+            </div>
+            <div class='pl-4 flex items-center z-40'>
+                <div class='block xl:hidden pr-4'>
+                    <button id='commonNavToggle' class='flex items-center px-3 py-2 rounded text-gray-500 hover:text-gray-800 appearance-none bg-white focus:outline-none'>
+                        <svg viewBox='0 0 100 80' width='40' height='70'>
+                            <rect width='100' height='20'></rect>
+                            <rect y='30' width='100' height='20'></rect>
+                            <rect y='60' width='100' height='20'></rect>
+                            <text x='50%' y='90' text-anchor='middle' dominant-baseline='central' font-family='Meiryo' font-size='30'>Menu</text>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class='xl:relative absolute w-full left-0 xl:top-auto top-24 flex items-center grid xl:w-auto'>
+                <div class='xl:flex xl:items-center xl:w-auto xl:block mt-2 xl:mt-0 p-1 xl:p-0 z-20 bg-gray-100 border-2 xl:bg-transparent xl:border-0 rounded hidden' id='commonNavContent'>
+                    <ul class='lg:flex justify-end flex-1 xl:flex-row flex-col items-center text-center text-xl'>
+                        <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a data-id='notificationBtn' class='inline-block py-2 px-4 font-bold no-underline' href='#'>Notification</a></li>
+                        <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='/logout'>Logout</a></li>
+                        <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='/serviceList' target='_blank'>Service</a></li>
+                        <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='https://github.com/autoaim-jp/xlogin-jp' target='_blank'>GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- https://tailwindcomponents.com/component/simple-notification -->
+    <div id='notificationContainer' class='z-50 mt-20 p-4 absolute right-0 top-0 flex-col'>
+    </div>
+    <a id='notificationTemplate' data-id='notification' class='flex flex-col block bg-white max-w-md rounded-lg p-6 shadow mb-4 w-80 hidden' href='#'>
+        <p data-id='subject' class='text-xl text-slate-700 font-medium'>Login at 2022/01/01 00:00:00</p>
+        <div class='flex justify-end'>
+            <div class='text-sm inline-flex space-x-1 items-center'>
+                <span>show detail</span>
+                <svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 8l4 4m0 0l-4 4m4-4H3'></path>
+                </svg>
+            </div>
+        </div>
+    </a>
+    <div class='section1 min-h-80 flex flex-col text-black md:flex items-center justify-center flex-grow p-2'>
+        <div class='max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full'>
+            <ul class='inline-flex space-x-1 md:space-x-3'>
+                <li class='inline-flex items-center'>
+                    <a href='/' class='inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'>
+                        <svg class='w-4 h-4 mr-2' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z'></path>
+                        </svg> ホーム </a>
+                </li>
+                <li class='inline-flex items-center'>
+                    <a href='/login' class='inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'>
+                        <svg class='w-6 h-6 text-gray-400' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
+                            <path fill-rule='evenodd' d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z' clip-rule='evenodd'></path>
+                        </svg> ログイン </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class='section1 min-h-80 flex flex-col text-center text-black md:flex items-center justify-center flex-grow p-2'>
+        <div class='max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full'>
+            <div id='memoContentWrap' class='w-full'>
+            </div>
+            <!-- MIT License https://tailwind-elements.com/docs/standard/forms/form-templates/ -->
+            <div class='block mx-auto p-6 rounded-lg shadow-lg bg-white max-w-sm'>
+                <p class='font-bold text-4xl mb-3'>Login</p>
+                <form id='loginForm' method='post' action='/error'>
+                    <div class='form-group mb-6'>
+                        <label for='emailAddressInput' class='form-label inline-block mb-2 text-gray-700'>Email address</label>
+                        <input id='emailAddressInput' name='emailAddress' type='email' class='form-control  block  w-full  px-3  py-1.5  text-base  font-normal  text-gray-700  bg-white bg-clip-padding  border border-solid border-gray-300  rounded  transition  ease-in-out  m-0  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none' placeholder='user@xlogin.jp'>
+                    </div>
+                    <div class='form-group mb-6'>
+                        <label for='passInput' class='form-label inline-block mb-2 text-gray-700'>Password</label>
+                        <input id='passInput' name='pass' type='password' class='form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none' id='exampleInputPassword2' placeholder='Password'>
+                    </div>
+                    <div class='flex justify-end items-center mb-6'>
+                        <a href='/resetPass' class='text-blue-600 hover:text-blue-700 focus:text-blue-700 transition duration-200 ease-in-out'>Forgot password?</a>
+                    </div>
+                    <button type='submit' class=' w-full px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out'>login</button>
+                    <p class='text-gray-800 mt-6 text-center'>Not a member?<a href='/register' class='text-blue-600 hover:text-blue-700 focus:text-blue-700 transition duration-200 ease-in-out'>Register</a></p>
+                </form>
+            </div>
+        </div>
+    </div><!-- section1 -->
+    <img id='loading' class='fixed -translate-x-1/2 -translate-y-1/2 inset-1/2 transform hidden' src='/img/loading.svg' />
+    <div id='modalBackground' data-id='modalClose' class='fixed bg-white bg-opacity-50 w-full h-full z-40 inset-0 hidden'></div>
+    <div id='modalTemplate' data-id='modal' class='transition-opacity duration-500 fixed w-11/12 lg:w-5/12 h-full left-0 right-0 m-auto flex font-extrabold z-50 hidden'>
+        <div data-id='modalCard' class='card relative m-auto w-4/5 shadow-lg rounded-2xl'>
+            <div class='p-4 bg-gray-200 text-black rounded-t-2xl'>
+                <span data-id='modalClose' class='float-right text-lg font-bold hover:text-gray-500 no-underline cursor-pointer'>&times;</span>
+                <h2 data-id='modalTitle'>Modal Title</h2>
+            </div>
+            <div data-id='modalContent' class='p-8 bg-gray-100'>
+            </div>
+            <div class='p-2 text-white bg-gray-200 flex justify-end rounded-b-2xl'>
+                <button data-id='modalCancelButton' class='bg-gray-800 hover:underline font-extrabold rounded py-4 px-8 shadow'> キャンセル </button>
+                <button data-id='modalConfirmButton' class='bg-green-400 hover:underline font-extrabold rounded py-4 px-8 ml-2 shadow'> 確認 </button>
+            </div>
+        </div>
+    </div>
+    <div id='hiddenForTailwindByJs' class='hidden w-full h-96 p-1'></div>
+</body>
+<script>
+(() => {
+  var __defProp = Object.defineProperty;
+  var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+  var __export = (target, all) => {
+    __markAsModule(target);
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+
+  // view/src/js/_setting/index.js
+  var setting_exports = {};
+  __export(setting_exports, {
+    bsc: () => bsc,
+    get: () => get2,
+    getBrowserServerSetting: () => getBrowserServerSetting,
+    scopeExtraConfigList: () => scopeExtraConfigList,
+    userHmacSecret: () => userHmacSecret
+  });
+
+  // view/src/js/_setting/browserServerSetting.js
+  var browserServerSetting_exports = {};
+  __export(browserServerSetting_exports, {
+    apiEndpoint: () => apiEndpoint,
+    default: () => browserServerSetting_default,
+    get: () => get,
+    labelList: () => labelList,
+    statusList: () => statusList,
+    userReadableDateFormat: () => userReadableDateFormat
+  });
+  var apiEndpoint = "/f";
+  var labelList = {
+    scopeBody: {
+      global: {
+        notification: {
+          label: "\u3059\u3079\u3066\u306E\u901A\u77E5",
+          summary: "\u3059\u3079\u3066\u306E\u30B5\u30FC\u30D3\u30B9\u306E\u901A\u77E5\u306B\u95A2\u3059\u308B\u6A29\u9650\u3067\u3059\u3002\u30ED\u30B0\u30A4\u30F3\u6642\u523B\u306A\u3069\u3092\u542B\u307F\u307E\u3059\u3002"
+        }
+      },
+      auth: {
+        emailAddress: {
+          label: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9",
+          summary: "\u30ED\u30B0\u30A4\u30F3\u306B\u4F7F\u7528\u3059\u308B\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306B\u95A2\u3059\u308B\u6A29\u9650\u3067\u3059\u3002\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u542B\u307F\u307E\u305B\u3093\u3002"
+        },
+        backupEmailAddress: {
+          label: "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9",
+          summary: "\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306B\u95A2\u3059\u308B\u6A29\u9650\u3067\u3059\u3002\u30ED\u30B0\u30A4\u30F3\u306B\u4F7F\u7528\u3059\u308B\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u542B\u307F\u307E\u305B\u3093\u3002"
+        },
+        userName: {
+          label: "\u30E6\u30FC\u30B6\u30FC\u540D",
+          summary: "\u4E00\u822C\u516C\u958B\u3055\u308C\u3066\u3044\u308B\u30E6\u30FC\u30B6\u30FC\u306E\u540D\u524D\u3067\u3059\u3002"
+        }
+      },
+      service: {
+        serviceUserId: {
+          label: "\u30E6\u30FC\u30B6\u30FCID",
+          summary: "\u9023\u643A\u3059\u308B\u30B5\u30FC\u30D3\u30B9\u306B\u63D0\u4F9B\u3059\u308B\u3001\u3042\u306A\u305F\u306E\u30A2\u30AB\u30A6\u30F3\u30C8\u306EID\u3067\u3059\u3002\u30B5\u30FC\u30D3\u30B9\u6BCE\u306B\u7570\u306A\u308A\u307E\u3059\u3002"
+        },
+        notification: {
+          label: "\u30B5\u30FC\u30D3\u30B9\u5185\u901A\u77E5",
+          summary: "\u9023\u643A\u3059\u308B\u30B5\u30FC\u30D3\u30B9\u5185\u3067\u3001\u901A\u77E5\u6A5F\u80FD\u3092\u5229\u7528\u3059\u308B\u305F\u3081\u306E\u6A29\u9650\u3067\u3059\u3002"
+        },
+        file: {
+          label: "\u30D5\u30A1\u30A4\u30EB",
+          summary: "\u9023\u643A\u3059\u308B\u30B5\u30FC\u30D3\u30B9\u3067\u3001\u3042\u306A\u305F\u304C\u30C7\u30FC\u30BF\u3092\u4FDD\u5B58\u3067\u304D\u307E\u3059\u3002"
+        }
+      }
+    },
+    scopeOperation: {
+      operation: {
+        read: "\u53D6\u5F97",
+        write: "\u4FDD\u5B58",
+        append: "\u8FFD\u8A18"
+      },
+      prefix: {
+        isRequired: "\u5FC5\u9808"
+      }
+    },
+    error: {
+      undefined: "error",
+      handle_credential_credential: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u307E\u305F\u306F\u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u9055\u3044\u307E\u3059\u3002",
+      handle_user_add_register: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u65E2\u306B\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u3059\u3002",
+      handle_xlogin_code_session: "\u30BB\u30C3\u30B7\u30E7\u30F3\u304C\u4E0D\u6B63\u3067\u3059\u3002"
+    }
+  };
+  var statusList = {
+    OK: 1,
+    SUCCESS: 100,
+    LOGIN_SUCCESS: 101,
+    INVALID: 1e3,
+    NOT_ENOUGH_PARAM: 1001,
+    INVALID_SESSION: 1002,
+    API_ERROR: 1100,
+    INVALID_OIDC_ISSUER: 1101,
+    NOT_FOUND: 1200
+  };
+  var userReadableDateFormat = {
+    full: "YYYY/MM/DD hh:mm:ss",
+    day: "YYYY/MM/DD",
+    hourMinute: "hh:mm",
+    time: "hh:mm:ss"
+  };
+  var settingList = {
+    apiEndpoint,
+    labelList,
+    statusList,
+    userReadableDateFormat
+  };
+  var get = (...keyList) => {
+    const constantList = keyList.reduce((prev, curr) => {
+      prev[curr] = settingList[curr];
+      return prev;
+    }, {});
+    for (const key of keyList) {
+      if (!constantList[key]) {
+        throw new Error(`[error] undefined setting constant: ${key}`);
+      }
+    }
+    return constantList;
+  };
+  var browserServerSetting_default = settingList;
+
+  // view/src/js/_setting/index.js
+  var userHmacSecret = "xlogin20220630";
+  var scopeExtraConfigList = {
+    "auth:backupEmailAddress": {
+      templateId: "#permissionCheckBlackTemplate",
+      dialogConfirm: true
+    }
+  };
+  var bsc = browserServerSetting_exports;
+  var settingList2 = {
+    userHmacSecret,
+    scopeExtraConfigList
+  };
+  var getBrowserServerSetting = () => {
+    return browserServerSetting_exports;
+  };
+  var get2 = (...keyList) => {
+    const constantList = keyList.reduce((prev, curr) => {
+      prev[curr] = settingList2[curr];
+      return prev;
+    }, {});
+    for (const key of keyList) {
+      if (!constantList[key]) {
+        throw new Error(`[error] undefined setting constant: ${key}`);
+      }
+    }
+    return constantList;
+  };
+
+  // view/src/js/lib.js
+  var lib_exports = {};
+  __export(lib_exports, {
+    buf2Hex: () => buf2Hex,
+    calcHmac512: () => calcHmac512,
+    calcPbkdf2: () => calcPbkdf2,
+    genSalt: () => genSalt,
+    getCaller: () => getCaller,
+    getErrorModalElmAndSetter: () => getErrorModalElmAndSetter,
+    getModalElmAndSetter: () => getModalElmAndSetter,
+    getRandomStr: () => getRandomStr,
+    getRequest: () => getRequest,
+    getSearchQuery: () => getSearchQuery,
+    monkeyPatch: () => monkeyPatch,
+    postRequest: () => postRequest,
+    redirect: () => redirect,
+    setOnClickNavManu: () => setOnClickNavManu,
+    setOnClickNotification: () => setOnClickNotification,
+    showGlobalNotification: () => showGlobalNotification,
+    showModal: () => showModal,
+    slideDown: () => slideDown,
+    slideToggle: () => slideToggle,
+    slideUp: () => slideUp,
+    switchLoading: () => switchLoading
+  });
+  var getCaller = () => {
+    const callerInfo = new Error().stack.replace(/^Error\n.*\n.*\n/, "");
+    return callerInfo;
+  };
+  var getRequest = (_url, param = {}) => {
+    const query = param && Object.keys(param).map((key) => {
+      return `${key}=${param[key]}`;
+    }).join("&");
+    const url = query ? `${_url}?${query}` : _url;
+    const opt = {
+      method: "GET",
+      credentials: "same-origin",
+      timeout: 30 * 1e3
+    };
+    return fetch(url, opt).then((res) => {
+      if (res.error || !res.body || !res.json) {
+        return null;
+      }
+      return res.json();
+    }).catch((e) => {
+      console.error("[fatal] error @getRequest:", e);
+      return null;
+    });
+  };
+  var postRequest = (url, param = {}) => {
+    const opt = {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      timeout: 30 * 1e3
+    };
+    if (param) {
+      opt.body = JSON.stringify(param);
+    }
+    return fetch(url, opt).then((res) => {
+      if (res.error || !res.body || !res.json) {
+        return null;
+      }
+      return res.json();
+    }).catch((e) => {
+      console.error("[fatal] error @postRequest:", e);
+      return null;
+    });
+  };
+  var applyElmList = (query, f, parent = document) => {
+    Object.values(parent.querySelectorAll(query)).forEach((elm) => {
+      f(elm);
+    });
+  };
+  var closeModal = () => {
+    applyElmList('[data-id="modal"], #modalBackground', (elm) => {
+      elm.classList.add("hidden");
+    });
+  };
+  var showModal = (modalElm, cancelButtonIsVisible = false) => {
+    return new Promise((resolve) => {
+      if (modalElm.id === "modalTemplate") {
+        modalElm.id = "";
+      }
+      document.body.appendChild(modalElm);
+      closeModal();
+      setTimeout(() => {
+        applyElmList('[data-id="modalClose"], [data-id="modalCancelButton"]', (elm) => {
+          elm.onclick = () => {
+            closeModal();
+            return resolve(false);
+          };
+        }, document);
+        if (cancelButtonIsVisible) {
+          modalElm.querySelector('[data-id="modalCancelButton"]').classList.remove("hidden");
+        } else {
+          modalElm.querySelector('[data-id="modalCancelButton"]').classList.add("hidden");
+        }
+        modalElm.querySelector('[data-id="modalConfirmButton"]').onclick = () => {
+          closeModal();
+          return resolve(true);
+        };
+        modalElm.classList.remove("hidden");
+        document.querySelector("#modalBackground").classList.remove("hidden");
+        modalElm.querySelector('[data-id="modalContent"]').scrollTop = 0;
+        modalElm.querySelector('[data-id="modalCard"]').onclick = (e) => {
+          e.stopPropagation();
+        };
+        modalElm.onclick = (e) => {
+          e.stopPropagation();
+          closeModal();
+          return resolve(false);
+        };
+      }, 100);
+    });
+  };
+  var getErrorModalElmAndSetter = () => {
+    const modalTemplateElm = document.querySelector("#modalTemplate");
+    const modalElm = modalTemplateElm.cloneNode(true);
+    const modalTitleElm = modalElm.querySelector('[data-id="modalTitle"]');
+    modalTitleElm.innerText = "\u30A8\u30E9\u30FC";
+    const labelP = document.createElement("p");
+    labelP.innerText = "\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002";
+    modalElm.querySelector('[data-id="modalContent"]').appendChild(labelP);
+    const setContent = (textStr, errorLabelList = null, title = "\u30A8\u30E9\u30FC") => {
+      if (errorLabelList) {
+        labelP.innerText = errorLabelList[textStr] || textStr;
+      } else {
+        labelP.innerText = textStr;
+      }
+      modalTitleElm.innerText = title;
+    };
+    return { modalElm, setContent };
+  };
+  var getModalElmAndSetter = () => {
+    const modalTemplateElm = document.querySelector("#modalTemplate");
+    const modalElm = modalTemplateElm.cloneNode(true);
+    const modalTitleElm = modalElm.querySelector('[data-id="modalTitle"]');
+    const modalContentElm = modalElm.querySelector('[data-id="modalContent"]');
+    const setContentElm = (title, contentElm) => {
+      modalTitleElm.innerText = title;
+      modalContentElm.clearChildren();
+      modalContentElm.appendChild(contentElm);
+    };
+    return { modalElm, setContentElm };
+  };
+  var switchLoading = (isVisible) => {
+    const loadingElm = document.querySelector("#loading");
+    if (!loadingElm) {
+      return;
+    }
+    if (isVisible) {
+      loadingElm.classList.remove("hidden");
+    } else {
+      loadingElm.classList.add("hidden");
+    }
+  };
+  var setOnClickNavManu = () => {
+    const toggleElm = document.querySelector("#commonNavToggle");
+    const navContentElm = document.querySelector("#commonNavContent");
+    toggleElm.onclick = () => {
+      if ([...navContentElm.classList.values()].indexOf("hidden") >= 0) {
+        navContentElm.classList.remove("hidden");
+      } else {
+        navContentElm.classList.add("hidden");
+      }
+    };
+  };
+  var notificationIsVisible = false;
+  var showGlobalNotification = async (apiEndpoint2) => {
+    const durationShow = 0.5;
+    const durationHide = 0.2;
+    const resultFetchGlobalNotification = await getRequest(`${apiEndpoint2}/notification/global/list`);
+    const notificationContainerElm = document.querySelector("#notificationContainer");
+    notificationContainerElm.clearChildren();
+    const notificationTemplateElm = document.querySelector("#notificationTemplate");
+    const notificationList = Object.values(resultFetchGlobalNotification?.result?.globalNotificationList || {}).reverse();
+    notificationList.forEach((row, i) => {
+      const notificationElm = notificationTemplateElm.cloneNode(true);
+      notificationElm.classList.remove("hidden");
+      notificationElm.querySelector('[data-id="subject"]').innerText = row.subject;
+      notificationElm.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const modalTemplateElm = document.querySelector("#modalTemplate");
+        const modalElm = modalTemplateElm.cloneNode(true);
+        modalElm.classList.remove("hidden");
+        modalElm.querySelector('[data-id="modalTitle"]').innerText = row.subject;
+        modalElm.querySelector('[data-id="modalContent"]').appendChild(document.createTextNode(row.detail));
+        showModal(modalElm);
+      };
+      setTimeout(() => {
+        notificationElm.style.transitionDuration = `${durationShow}s`;
+        notificationElm.style.opacity = 0;
+        notificationContainerElm.appendChild(notificationElm);
+        setTimeout(() => {
+          notificationElm.style.opacity = 1;
+        }, 100);
+      }, durationShow * i * 1e3);
+      setTimeout(() => {
+        notificationElm.style.transitionDuration = `${durationHide}s`;
+        notificationElm.style.opacity = 0;
+      }, durationShow * notificationList.length * 1e3 + 3 * 1e3 + durationHide * i * 1e3);
+    });
+    setTimeout(() => {
+      notificationContainerElm.clearChildren();
+      notificationIsVisible = false;
+    }, (durationShow + durationHide) * notificationList.length * 1e3 + 3 * 1e3);
+  };
+  var setOnClickNotification = (apiEndpoint2) => {
+    applyElmList('[data-id="notificationBtn"]', (notificationBtn) => {
+      notificationBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (notificationIsVisible) {
+          return;
+        }
+        notificationIsVisible = true;
+        showGlobalNotification(apiEndpoint2);
+      };
+    });
+  };
+  var monkeyPatch = () => {
+    if (typeof Element.prototype.clearChildren === "undefined") {
+      Object.defineProperty(Element.prototype, "clearChildren", {
+        configurable: true,
+        enumerable: false,
+        value() {
+          while (this.firstChild) {
+            this.removeChild(this.lastChild);
+          }
+        }
+      });
+    }
+    if (typeof window.argNamed === "undefined") {
+      window.argNamed = (obj) => {
+        const flattened = {};
+        Object.keys(obj).forEach((key) => {
+          if (Array.isArray(obj[key])) {
+            Object.assign(flattened, obj[key].reduce((prev, curr) => {
+              if (typeof curr === "undefined") {
+                throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}
+===== maybe you need make func exported like  module.exports = { func, } =====`);
+              } else if (typeof curr === "function") {
+                prev[curr.name] = curr;
+              } else {
+                throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}`);
+              }
+              return prev;
+            }, {}));
+          } else if (typeof obj[key] === "object" && obj[key] !== null) {
+            Object.assign(flattened, obj[key]);
+          } else {
+            flattened[key] = obj[key];
+          }
+        });
+        return flattened;
+      };
+    }
+  };
+  var getRandomStr = (len) => {
+    return btoa(crypto.getRandomValues(new Uint8Array(len))).slice(0, len);
+  };
+  var buf2Hex = (buf) => {
+    return Array.prototype.map.call(new Uint8Array(buf), (x) => {
+      return `00${x.toString(16)}`.slice(-2);
+    }).join("");
+  };
+  var calcHmac512 = (data, secret) => {
+    return new Promise((resolve) => {
+      const enc = new TextEncoder("utf-8");
+      window.crypto.subtle.importKey("raw", enc.encode(secret), {
+        name: "HMAC",
+        hash: { name: "SHA-512" }
+      }, false, ["sign", "verify"]).then((key) => {
+        window.crypto.subtle.sign("HMAC", key, enc.encode(data)).then((hash) => {
+          const buf = new Uint8Array(hash);
+          resolve(buf2Hex(buf));
+        });
+      });
+    });
+  };
+  var genSalt = () => {
+    return window.crypto.getRandomValues(new Uint8Array(64));
+  };
+  var calcPbkdf2 = (str, salt) => {
+    return new Promise((resolve) => {
+      const byteList = new Uint8Array(Array.prototype.map.call(str, (c) => {
+        return c.charCodeAt(0);
+      }));
+      window.crypto.subtle.importKey("raw", byteList, { name: "PBKDF2" }, false, ["deriveBits"]).then((key) => {
+        const opt = {
+          name: "PBKDF2",
+          salt,
+          iterations: 1e3 * 1e3,
+          hash: { name: "SHA-512" }
+        };
+        return window.crypto.subtle.deriveBits(opt, key, 512).then((buf) => {
+          resolve(buf2Hex(buf));
+        });
+      });
+    });
+  };
+  var redirect = (response) => {
+    if (response && response.redirect) {
+      window.location.href = response.redirect;
+    }
+  };
+  var getSearchQuery = () => {
+    const searchQuery = {};
+    window.location.search.replace(/^\?/, "").split("&").forEach((row) => {
+      const kv = row.split("=");
+      const [key, value] = kv;
+      searchQuery[key] = value;
+    });
+    return searchQuery;
+  };
+  var slideUp = (elm, duration = 300) => {
+    elm.style.height = `${elm.offsetHeight}px`;
+    if (elm.offsetHeight === null) {
+      return;
+    }
+    elm.style.transitionProperty = "height, margin, padding";
+    elm.style.transitionDuration = `${duration}ms`;
+    elm.style.transitionTimingFunction = "ease";
+    elm.style.overflow = "hidden";
+    elm.style.height = 0;
+    elm.style.paddingTop = 0;
+    elm.style.paddingBottom = 0;
+    elm.style.marginTop = 0;
+    elm.style.marginBottom = 0;
+    setTimeout(() => {
+      elm.style.display = "none";
+      elm.style.removeProperty("height");
+      elm.style.removeProperty("padding-top");
+      elm.style.removeProperty("padding-bottom");
+      elm.style.removeProperty("margin-top");
+      elm.style.removeProperty("margin-bottom");
+      elm.style.removeProperty("overflow");
+      elm.style.removeProperty("transition-duration");
+      elm.style.removeProperty("transition-property");
+      elm.style.removeProperty("transition-timing-function");
+    }, duration);
+  };
+  var slideDown = (elm, duration = 300) => {
+    elm.style.removeProperty("display");
+    let { display } = window.getComputedStyle(elm);
+    if (display === "none") {
+      display = "block";
+    }
+    elm.style.display = display;
+    const height = elm.offsetHeight;
+    elm.style.overflow = "hidden";
+    elm.style.height = 0;
+    elm.style.paddingTop = 0;
+    elm.style.paddingBottom = 0;
+    elm.style.marginTop = 0;
+    elm.style.marginBottom = 0;
+    if (elm.offsetHeight === null) {
+      return;
+    }
+    elm.style.transitionProperty = "height, margin, padding";
+    elm.style.transitionDuration = `${duration}ms`;
+    elm.style.transitionTimingFunction = "ease";
+    elm.style.height = `${height}px`;
+    elm.style.removeProperty("padding-top");
+    elm.style.removeProperty("padding-bottom");
+    elm.style.removeProperty("margin-top");
+    elm.style.removeProperty("margin-bottom");
+    setTimeout(() => {
+      elm.style.removeProperty("height");
+      elm.style.removeProperty("overflow");
+      elm.style.removeProperty("transition-duration");
+      elm.style.removeProperty("transition-property");
+      elm.style.removeProperty("transition-timing-function");
+    }, duration);
+  };
+  var slideToggle = (elm, duration = 300, ignoreIfOpen = false) => {
+    if (window.getComputedStyle(elm).display === "none") {
+      slideDown(elm, duration);
+    } else if (!ignoreIfOpen) {
+      slideUp(elm, duration);
+    }
+  };
+
+  // view/src/js/login/action.js
+  var action_exports = {};
+  __export(action_exports, {
+    default: () => action_default,
+    getOnSubmitLogin: () => getOnSubmitLogin
+  });
+  var getOnSubmitLogin = ({
+    calcHmac512: calcHmac5122,
+    userHmacSecret: userHmacSecret2,
+    labelList: labelList2,
+    emailAddressInputElm,
+    passInputElm,
+    postLogin,
+    redirect: redirect2,
+    switchLoading: switchLoading2,
+    showModal: showModal2,
+    getErrorModalElmAndSetter: getErrorModalElmAndSetter2
+  }) => {
+    const { modalElm, setContent } = getErrorModalElmAndSetter2();
+    return async () => {
+      switchLoading2(true);
+      const emailAddress = emailAddressInputElm.value;
+      const pass = passInputElm.value;
+      const passHmac1 = await calcHmac5122(pass, userHmacSecret2);
+      const passHmac2 = await calcHmac5122(passHmac1, userHmacSecret2);
+      postLogin({ emailAddress, passHmac2 }).then((result) => {
+        switchLoading2(false);
+        if (result.error) {
+          setContent(result.error, labelList2.error);
+          showModal2(modalElm, false);
+        } else {
+          redirect2(result);
+        }
+      });
+      return false;
+    };
+  };
+  var action_default = {};
+
+  // view/src/js/login/output.js
+  var output_exports = {};
+  __export(output_exports, {
+    getLoginFormElm: () => getLoginFormElm,
+    getPostLogin: () => getPostLogin,
+    setLoginFormSubmit: () => setLoginFormSubmit
+  });
+  var getPostLogin = ({ apiEndpoint: apiEndpoint2, postRequest: postRequest2 }) => {
+    const url = `${apiEndpoint2}/login/credential/check`;
+    return ({ emailAddress, passHmac2 }) => {
+      const param = { emailAddress, passHmac2 };
+      return postRequest2(url, param);
+    };
+  };
+  var getLoginFormElm = () => {
+    const emailAddressInputElm = document.querySelector("#emailAddressInput");
+    const passInputElm = document.querySelector("#passInput");
+    return { emailAddressInputElm, passInputElm };
+  };
+  var setLoginFormSubmit = ({ onSubmitLogin }) => {
+    const loginFormElm = document.querySelector("#loginForm");
+    loginFormElm.onsubmit = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSubmitLogin();
+    };
+  };
+
+  // view/src/js/login/app.js
+  var asocial = {};
+  asocial.setting = setting_exports;
+  asocial.lib = lib_exports;
+  asocial.action = action_exports;
+  asocial.output = output_exports;
+  var a = asocial;
+  var loadLoginForm = () => {
+    const postLogin = a.output.getPostLogin(argNamed({
+      browserServerSetting: a.setting.bsc.get("apiEndpoint"),
+      lib: [a.lib.postRequest]
+    }));
+    const { emailAddressInputElm, passInputElm } = a.output.getLoginFormElm();
+    const onSubmitLogin = a.action.getOnSubmitLogin(argNamed({
+      browserServerSetting: a.setting.bsc.get("labelList"),
+      setting: a.setting.get("userHmacSecret"),
+      lib: [a.lib.calcHmac512, a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter],
+      other: { emailAddressInputElm, passInputElm, postLogin }
+    }));
+    a.output.setLoginFormSubmit(argNamed({
+      onSubmit: { onSubmitLogin }
+    }));
+  };
+  var main = async () => {
+    a.lib.switchLoading(true);
+    a.lib.setOnClickNavManu();
+    a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint);
+    a.lib.monkeyPatch();
+    a.app.loadLoginForm();
+    setTimeout(() => {
+      a.lib.switchLoading(false);
+    }, 300);
+  };
+  a.app = {
+    main,
+    loadLoginForm
+  };
+  a.app.main();
+})();
+
+</script>
