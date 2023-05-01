@@ -1,6 +1,6 @@
 /* confirm/app.js */
 import * as setting from '../_setting/index.js'
-import * as lib from '../lib.js'
+import * as lib from '../_lib/index.js'
 
 import * as input from './input.js'
 import * as action from './action.js'
@@ -20,7 +20,7 @@ const a = asocial
 const loadAllPermissionList = async () => {
   const resultFetchScope = await a.input.fetchScope(argNamed({
     setting: a.setting.bsc.get('apiEndpoint'),
-    lib: [a.lib.getRequest],
+    lib: [a.lib.common.input.getRequest],
   }))
 
   const permissionLabelList = a.core.convertPermissionList(argNamed({
@@ -29,20 +29,20 @@ const loadAllPermissionList = async () => {
   }))
 
   const onClickScopeDetailBtn = a.action.getOnClickScopeDetailBtn(argNamed({
-    lib: [a.lib.showModal, a.lib.getModalElmAndSetter],
+    lib: [a.lib.xdevkit.output.showModal, a.lib.common.output.getModalElmAndSetter],
   }))
 
   a.output.showPermissionLabelList(argNamed({
     setting: a.setting.get('scopeExtraConfigList'),
     setting2: a.setting.bsc.get('labelList'),
-    lib: [a.lib.getRandomStr],
+    lib: [a.lib.xdevkit.lib.getRandomStr],
     other: { permissionLabelList, onClickScopeDetailBtn },
   }))
 }
 
 const loadConfirmForm = ({ resultCheckTrough }) => {
   const postConfirm = a.output.getPostConfirm(argNamed({
-    lib: [a.lib.postRequest],
+    lib: [a.lib.common.output.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
   }))
 
@@ -51,7 +51,7 @@ const loadConfirmForm = ({ resultCheckTrough }) => {
     core: [a.core.checkImportantPermissionWithModal],
     setting: a.setting.get('scopeExtraConfigList'),
     setting2: a.setting.bsc.get('labelList'),
-    lib: [a.lib.switchLoading, a.lib.redirect, a.lib.showModal, a.lib.getErrorModalElmAndSetter],
+    lib: [a.lib.xdevkit.output.switchLoading, a.lib.redirect, a.lib.xdevkit.output.showModal, a.lib.xdevkit.output.getErrorModalElmAndSetter],
     other: { postConfirm, resultCheckTrough },
   }))
 
@@ -74,7 +74,7 @@ const loadCheckAllScopeButton = () => {
 
 const startThroughCheck = async () => {
   const postThrough = a.output.getPostThrough(argNamed({
-    lib: [a.lib.postRequest],
+    lib: [a.lib.common.output.postRequest],
     setting: a.setting.bsc.get('apiEndpoint'),
   }))
 
@@ -82,7 +82,7 @@ const startThroughCheck = async () => {
   const resultCheckTrough = a.core.checkThrough(argNamed({
     param: { postThrough, notRequiredPermissionListElm, flipSvgElm },
     output: [a.output.updateRequestScope, a.output.updateScopeAlreadyChecked],
-    lib: [a.lib.switchLoading, a.lib.redirect, a.lib.slideToggle],
+    lib: [a.lib.xdevkit.output.switchLoading, a.lib.redirect, a.lib.common.output.slideToggle],
   }))
 
   return resultCheckTrough
@@ -93,7 +93,7 @@ const loadNotRequiredPermissionListAccordion = async () => {
 
   const onClickShowOptionPermissionBtn = a.action.getOnClickShowOptionPermissionBtn(argNamed({
     elm: { notRequiredPermissionListElm, flipSvgElm },
-    lib: [a.lib.slideToggle],
+    lib: [a.lib.common.output.slideToggle],
   }))
 
   a.output.setOnClickShowOptionPermissionBtn(argNamed({
@@ -103,9 +103,9 @@ const loadNotRequiredPermissionListAccordion = async () => {
 }
 
 const main = async () => {
-  a.lib.switchLoading(true)
-  a.lib.setOnClickNavManu()
-  a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
+  a.lib.xdevkit.output.switchLoading(true)
+  a.lib.common.output.setOnClickNavManu()
+  a.lib.common.output.setOnClickNotification(a.setting.bsc.apiEndpoint, a.lib.xdevkit.output.applyElmList)
   a.lib.monkeyPatch()
 
   await a.app.loadAllPermissionList()

@@ -24,6 +24,13 @@
         "clientId": "sample_localhost",
         "content": "d"
       }
+    },
+    "sample_localhost_2": {
+      "/message.txt": {
+        "dateUpdated": 1682869065022,
+        "clientId": "sample_localhost_2",
+        "content": "yes"
+      }
     }
   }
 }
