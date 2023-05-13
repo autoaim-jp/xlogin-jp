@@ -66,7 +66,7 @@ setting.notification.ALL_NOTIFICATION = 'global'
  */
 setting.browserServerSetting = browserServerSetting
 
-export const getList = (...keyList) => {
+const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */
   const constantList = keyList.reduce((prev, key) => {
     let value = setting
@@ -85,7 +85,7 @@ export const getList = (...keyList) => {
 }
 
 
-export const getValue = (key) => {
+const getValue = (key) => {
   let value = setting
   for (const keySplit of key.split('.')) {
     value = value[keySplit]
