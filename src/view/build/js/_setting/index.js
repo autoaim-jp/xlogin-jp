@@ -1,36 +1,49 @@
 /* _setting/index.js */
-import * as browserServerSetting from './browserServerSetting.js'
+import browserServerSetting from './browserServerSetting.js'
 
-export const userHmacSecret = 'xlogin20220630'
-export const scopeExtraConfigList = {
+const userHmacSecret = 'xlogin20220630'
+const scopeExtraConfigList = {
   'auth:backupEmailAddress': {
     templateId: '#permissionCheckBlackTemplate',
     dialogConfirm: true,
   },
 }
 
-export const bsc = browserServerSetting
-
-const settingList = {
+const setting = {
   userHmacSecret,
   scopeExtraConfigList,
 }
 
-export const getBrowserServerSetting = () => {
-  return browserServerSetting
-}
-
-export const get = (...keyList) => {
+export const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */
-  const constantList = keyList.reduce((prev, curr) => {
-    prev[curr] = settingList[curr]
+  const constantList = keyList.reduce((prev, key) => {
+    let value = setting
+    for (const keySplit of key.split('.')) {
+      value = value[keySplit]
+    }
+    prev[key.slice(key.lastIndexOf('.') + 1)] = value
     return prev
   }, {})
   for (const key of keyList) {
-    if (!constantList[key]) {
+    if (constantList[key.slice(key.lastIndexOf('.') + 1)] === undefined) {
       throw new Error(`[error] undefined setting constant: ${key}`)
     }
   }
   return constantList
+}
+
+
+export const getValue = (key) => {
+  let value = setting
+  for (const keySplit of key.split('.')) {
+    value = value[keySplit]
+  }
+  return value
+}
+
+export default {
+  getList,
+  getValue,
+  browserServerSetting,
 }
 

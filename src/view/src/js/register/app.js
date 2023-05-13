@@ -1,5 +1,5 @@
 /* register/app.js */
-import * as setting from '../_setting/index.js'
+import setting from '../_setting/index.js'
 import * as lib from '../_lib/index.js'
 
 import * as action from './action.js'
@@ -16,7 +16,7 @@ const a = asocial
 
 const loadRegisterForm = () => {
   const postRegister = a.output.getPostRegister(argNamed({
-    browserServerSetting: a.setting.bsc.get('apiEndpoint'),
+    browserServerSetting: a.setting.browserServerSetting.getList('apiEndpoint'),
     lib: [a.lib.common.output.postRequest],
   }))
 
@@ -25,8 +25,8 @@ const loadRegisterForm = () => {
   } = a.output.getRegisterFormElm()
 
   const onSubmitRegister = a.action.getOnSubmitRegister(argNamed({
-    browserServerSetting: a.setting.bsc.get('labelList'),
-    setting: a.setting.get('userHmacSecret'),
+    browserServerSetting: a.setting.browserServerSetting.getList('labelList'),
+    setting: a.setting.getList('userHmacSecret'),
     elm: {
       emailAddressInputElm, passInputElm, tosCheckElm, privacyPolicyCheckElm,
     },
@@ -42,7 +42,7 @@ const loadRegisterForm = () => {
 const main = async () => {
   a.lib.xdevkit.output.switchLoading(true)
   a.lib.common.output.setOnClickNavManu()
-  a.lib.common.output.setOnClickNotification(a.setting.bsc.apiEndpoint, a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest)
+  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest)
   a.lib.monkeyPatch()
 
   a.app.loadRegisterForm()

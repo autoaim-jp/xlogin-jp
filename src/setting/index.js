@@ -61,8 +61,8 @@ setting.notification.ALL_NOTIFICATION = 'global'
 
 /**
  * xdevkitからコピーしたbrowserServerSettingをここから呼び出す。
- * @param setting.bsc
+ * @param setting.browserServerSetting
  * @memberof parameter
  */
-setting.bsc = browserServerSetting
+setting.browserServerSetting = browserServerSetting
 

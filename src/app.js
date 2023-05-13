@@ -193,20 +193,20 @@ const _getFileRouter = (checkSignature) => {
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
     const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, async (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/through/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const resultHandleThrough = await action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
     output.endResponse(req, res, resultHandleThrough)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, async (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
@@ -214,7 +214,7 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleConfirm)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, async (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/user/add`, async (req, res) => {
     const {
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
     } = req.body
@@ -222,12 +222,12 @@ const _getFunctionRouter = () => {
     output.endResponse(req, res, resultHandleUserAdd)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, async (req, res) => {
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, async (req, res) => {
     const resultHandleScope = await action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, async (req, res) => {
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, async (req, res) => {
     const resultHandleNotification = await action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })

@@ -1,5 +1,5 @@
 /* error/app.js */
-import * as setting from '../_setting/index.js'
+import setting from '../_setting/index.js'
 import * as lib from '../_lib/index.js'
 
 import * as output from './output.js'
@@ -15,14 +15,14 @@ const a = asocial
 const loadErrorMessage = () => {
   a.output.showErrorModal(argNamed({
     lib: [a.lib.xdevkit.lib.getSearchQuery, a.lib.xdevkit.output.getErrorModalElmAndSetter, a.lib.xdevkit.output.showModal],
-    setting: a.setting.bsc.get('labelList'),
+    setting: a.setting.browserServerSetting.getList('labelList'),
   }))
 }
 
 const main = async () => {
   a.lib.xdevkit.output.switchLoading(true)
   a.lib.common.output.setOnClickNavManu()
-  a.lib.common.output.setOnClickNotification(a.setting.bsc.apiEndpoint, a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest)
+  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest)
   a.lib.monkeyPatch()
 
   a.app.loadErrorMessage()

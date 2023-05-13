@@ -127,7 +127,7 @@ const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
 /* notification */
 const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddress) => {
   let detail = 'Login'
-  detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
+  detail += ` at ${mod.lib.formatDate(mod.setting.browserServerSetting.getValue('userReadableDateFormat.full'))}`
   const subject = detail
   detail += ` with ${useragent.browser}(${useragent.platform})`
   detail += ` by ${clientId}`
