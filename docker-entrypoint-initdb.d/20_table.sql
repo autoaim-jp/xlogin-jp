@@ -2,10 +2,13 @@
 
 -- user
 create table user_info.user_list (
+  user_serial_id serial not null,
   email_address varchar(256),
-  user_name varchar(256)
+  user_name varchar(256),
+  primary key(user_serial_id)
 );
 grant all privileges on user_info.user_list to xl_admin;
+grant usage on sequence user_info.user_list_user_serial_id_seq to xl_admin;
 
 create table user_info.credential_list (
   email_address varchar(256),
@@ -29,12 +32,12 @@ create table user_info.service_user_list (
 );
 grant all privileges on user_info.service_user_list to xl_admin;
 
-
 -- access
 create table access_info.client_list (
   client_id varchar(256),
   service_name varchar(128),
-  redirect_uri varchar(512)
+  redirect_uri varchar(512),
+  user_serial_id int not null references user_info.user_list(user_serial_id)
 );
 grant all privileges on access_info.client_list to xl_admin;
 

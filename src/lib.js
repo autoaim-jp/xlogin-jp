@@ -124,8 +124,8 @@ const execQuery = async (query, paramList = []) => {
 const waitForPsql = async (maxRetryCnt) => {
   console.log('[info] waitForPsql')
   for await (const retryCnt of [...Array(maxRetryCnt).keys()]) {
-    awaitSleep(1 * 1000)
-    const { err, result } = execQuery('select 1')
+    await awaitSleep(1 * 1000)
+    const { err, result } = await execQuery('select 1')
     if (!err && result) {
       return result.rows[0]
     }

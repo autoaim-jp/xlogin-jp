@@ -13,7 +13,7 @@ export const init = (env) => {
 }
 
 setting.startup = {}
-setting.startup.MAX_RETRY_PSQL_CONNECT_N = 5
+setting.startup.MAX_RETRY_PSQL_CONNECT_N = 30
 setting.server = {}
 setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.server.PUBLIC_BUILD_DIR = 'view/build'
