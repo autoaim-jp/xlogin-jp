@@ -18,7 +18,7 @@ import path from 'path'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
 
-import { setting, init as settingInit } from './setting/index.js'
+import setting from './setting/index.js'
 import output from './output.js'
 import core from './core.js'
 import input from './input.js'
@@ -33,21 +33,21 @@ import lib from './lib.js'
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
   const redis = new Redis({
-    port: setting.session.REDIS_PORT,
-    host: setting.session.REDIS_HOST,
-    db: setting.session.REDIS_DB,
+    port: setting.getValue('session.REDIS_PORT'),
+    host: setting.getValue('session.REDIS_HOST'),
+    db: setting.getValue('session.REDIS_DB'),
   })
 
   expressRouter.use(session({
-    secret: setting.env.SESSION_SECRET,
+    secret: setting.getValue('env.SESSION_SECRET'),
     resave: true,
     saveUninitialized: true,
     rolling: true,
-    name: setting.session.SESSION_ID,
+    name: setting.getValue('session.SESSION_ID'),
     cookie: {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 30,
-      secure: setting.session.SESSION_COOKIE_SECURE,
+      secure: setting.getValue('session.SESSION_COOKIE_SECURE'),
       httpOnly: true,
       sameSite: 'lax',
     },
@@ -72,7 +72,7 @@ const _getOidcRouter = (checkSignature) => {
    * @name connect API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/connect`, async (req, res) => {
     const user = req.session.auth?.user
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
@@ -86,7 +86,7 @@ const _getOidcRouter = (checkSignature) => {
    * @name authCode API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, checkSignature, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/code`, checkSignature, async (req, res) => {
     const {
       clientId, state, code, codeVerifier,
     } = lib.paramSnakeToCamel(req.query)
@@ -98,7 +98,7 @@ const _getOidcRouter = (checkSignature) => {
 
 const _getUserApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, checkSignature, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/user/info`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
@@ -106,7 +106,7 @@ const _getUserApiRouter = (checkSignature) => {
     const resultHandleUserInfo = await action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
   })
-  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, checkSignature, async (req, res) => {
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/user/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
@@ -120,7 +120,7 @@ const _getUserApiRouter = (checkSignature) => {
 const _getNotificationApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, checkSignature, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
@@ -129,7 +129,7 @@ const _getNotificationApiRouter = (checkSignature) => {
     output.endResponse(req, res, resultHandleNotification)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, checkSignature, async (req, res) => {
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/append`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
@@ -138,7 +138,7 @@ const _getNotificationApiRouter = (checkSignature) => {
     output.endResponse(req, res, resultHandleNotificationAppend)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, checkSignature, async (req, res) => {
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/open`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
@@ -152,7 +152,7 @@ const _getNotificationApiRouter = (checkSignature) => {
 
 const _getFileRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, checkSignature, async (req, res) => {
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath, content } = lib.paramSnakeToCamel(req.body)
@@ -161,7 +161,7 @@ const _getFileRouter = (checkSignature) => {
     output.endResponse(req, res, resultHandleFileUpdate)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, checkSignature, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/content`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -170,7 +170,7 @@ const _getFileRouter = (checkSignature) => {
     output.endResponse(req, res, resultHandleFileContent)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, checkSignature, async (req, res) => {
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/delete`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.body)
@@ -179,7 +179,7 @@ const _getFileRouter = (checkSignature) => {
     output.endResponse(req, res, resultHandleFileDelete)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, checkSignature, async (req, res) => {
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -244,8 +244,8 @@ const _getOtherRouter = () => {
   })
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + setting.server.PUBLIC_BUILD_DIR, { index: 'index.html', extensions: ['html'] }))
-  expressRouter.use(express.static(appPath + setting.server.PUBLIC_STATIC_DIR, { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
 
   return expressRouter
 }
@@ -262,18 +262,18 @@ const _getErrorRouter = () => {
 }
 
 const startServer = (expressApp) => {
-  if (setting.env.SERVER_ORIGIN.indexOf('https') >= 0) {
+  if (setting.getValue('env.SERVER_ORIGIN').indexOf('https') >= 0) {
     const tlsConfig = {
-      key: fs.readFileSync(setting.env.TLS_KEY_PATH),
-      cert: fs.readFileSync(setting.env.TLS_CERT_PATH),
+      key: fs.readFileSync(setting.getValue('env.TLS_KEY_PATH')),
+      cert: fs.readFileSync(setting.getValue('env.TLS_CERT_PATH')),
     }
     const server = https.createServer(tlsConfig, expressApp)
-    server.listen(setting.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
+    server.listen(setting.getValue('env.SERVER_PORT'), () => {
+      console.log(`xlogin.jp listen to port: ${setting.getValue('env.SERVER_PORT')}, origin: ${setting.getValue('env.SERVER_ORIGIN')}`)
     })
   } else {
-    expressApp.listen(setting.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
+    expressApp.listen(setting.getValue('env.SERVER_PORT'), () => {
+      console.log(`xlogin.jp listen to port: ${setting.getValue('env.SERVER_PORT')}, origin: ${setting.getValue('env.SERVER_ORIGIN')}`)
     })
   }
 }
@@ -281,7 +281,7 @@ const startServer = (expressApp) => {
 const main = async () => {
   dotenv.config()
   lib.init(crypto, ulid)
-  settingInit(process.env)
+  setting.init(process.env)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
   input.init(setting, fs)
@@ -289,7 +289,7 @@ const main = async () => {
   const pgPool = core.createPgPool(pg)
   lib.setPgPool(pgPool)
 
-  await lib.waitForPsql(setting.startup.MAX_RETRY_PSQL_CONNECT_N)
+  await lib.waitForPsql(setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
 
   const checkSignature = action.getCheckSignature(core.isValidSignature, output.endResponse)
 
@@ -309,7 +309,7 @@ const main = async () => {
 
   startServer(expressApp)
 
-  console.log(`open: http://${setting.env.SERVER_ORIGIN}/`)
+  console.log(`open: http://${setting.getValue('env.SERVER_ORIGIN')}/`)
 }
 
 main()

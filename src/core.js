@@ -30,7 +30,7 @@ const createPgPool = (pg) => {
 }
 
 const _generageServiceUserId = () => {
-  return mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
+  return mod.lib.getRandomB64UrlSafe(mod.setting.getValue('user.SERVICE_USER_ID_L'))
 }
 
 /* client */
@@ -79,7 +79,7 @@ const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
 }
 
 const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -118,7 +118,7 @@ const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
     return { registerResult: false }
   }
 
-  const userName = mod.setting.user.DEFAULT_USER_NAME
+  const userName = mod.setting.getValue('user.DEFAULT_USER_NAME')
   await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
 
   return { registerResult: true }
@@ -134,7 +134,7 @@ const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddr
   detail += ` from ${ipAddress}`
 
   const notificationId = mod.lib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery)
+  await mod.output.appendNotification(notificationId, mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), emailAddress, subject, detail, mod.lib.execQuery)
 }
 
 const appendNotificationByAccessToken = async (clientId, accessToken, notificationRange, subject, detail) => {

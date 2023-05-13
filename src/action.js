@@ -18,7 +18,7 @@ const init = (setting, lib) => {
  * @memberof function
  */
 const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.setting.url.ERROR_PAGE}?error=${encodeURIComponent(error)}`
+  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
   if (isServerRedirect) {
     return {
       status, session, response, redirect, error,
@@ -71,16 +71,16 @@ const handleConnect = async (user, clientId, redirectUri, state, scope, response
 
   if (user) {
     newUserSession.user = user
-    newUserSession.oidc.condition = mod.setting.condition.CONFIRM
-    const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
+    newUserSession.oidc.condition = mod.setting.getValue('condition.CONFIRM')
+    const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
     const status = mod.setting.browserServerSetting.getValue('statusList.OK')
     return {
       status, session: newUserSession, response: null, redirect,
     }
   }
 
-  newUserSession.oidc.condition = mod.setting.condition.LOGIN
-  const redirect = mod.setting.url.AFTER_CONNECT
+  newUserSession.oidc.condition = mod.setting.getValue('condition.LOGIN')
+  const redirect = mod.setting.getValue('url.AFTER_CONNECT')
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
     status, session: newUserSession, response: null, redirect,
@@ -104,8 +104,8 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession, crede
 
   const user = await getUserByEmailAddress(emailAddress)
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
-  const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
+  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return { status, session: newUserSession, response: { redirect } }
@@ -116,13 +116,13 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, register
   await appendLoginNotification(authSession.oidc.clientId, ipAddress, useragent, authSession.user.emailAddress)
   await registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId)
 
-  const code = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.CODE_L)
+  const code = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.CODE_L'))
 
-  const iss = mod.setting.env.SERVER_ORIGIN
+  const iss = mod.setting.getValue('env.SERVER_ORIGIN')
   const { redirectUri, state } = authSession.oidc
   const redirect = mod.lib.addQueryStr(decodeURIComponent(redirectUri), mod.lib.objToQuery({ state, code, iss }))
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CODE, code, splitPermissionList }) })
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CODE'), code, splitPermissionList }) })
 
   await registerAuthSession(newUserSession)
 
@@ -132,7 +132,7 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, register
 
 /* POST /f/confirm/permission/check */
 const handleConfirm = async (ipAddress, useragent, permissionList, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId) => {
-  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.condition.CONFIRM) {
+  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
@@ -166,7 +166,7 @@ const handleConfirm = async (ipAddress, useragent, permissionList, authSession, 
 
 /* POST /f/confirm/through/check */
 const handleThrough = async (ipAddress, useragent, authSession, registerAuthSession, appendLoginNotification, registerServiceUserId, getCheckedRequiredPermissionList) => {
-  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.condition.CONFIRM) {
+  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
@@ -219,7 +219,7 @@ const handleThrough = async (ipAddress, useragent, authSession, registerAuthSess
 /* GET /api/$apiVersion/auth/code */
 const handleCode = async (clientId, state, code, codeVerifier, registerAccessToken, getAuthSessionByCode) => {
   const authSession = await getAuthSessionByCode(code)
-  if (!authSession || authSession.condition !== mod.setting.condition.CODE) {
+  if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_code_session'
     return _getErrorResponse(status, error, true)
@@ -238,9 +238,9 @@ const handleCode = async (clientId, state, code, codeVerifier, registerAccessTok
     return _getErrorResponse(status, error, true)
   }
 
-  const accessToken = mod.lib.getRandomB64UrlSafe(mod.setting.oidc.ACCESS_TOKEN_L)
+  const accessToken = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.ACCESS_TOKEN_L'))
 
-  const newUserSession = { condition: mod.setting.condition.USER_INFO }
+  const newUserSession = { condition: mod.setting.getValue('condition.USER_INFO') }
 
   const splitPermissionList = JSON.parse(authSession.splitPermissionList)
   const resultRegisterAccessToken = await registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList)
@@ -364,8 +364,8 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
 
   const user = await getUserByEmailAddress(emailAddress)
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.condition.CONFIRM }) }, { user })
-  const redirect = mod.setting.url.AFTER_CHECK_CREDENTIAL
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
+  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return { status, session: newUserSession, response: { redirect } }
@@ -395,7 +395,7 @@ const handleGlobalNotification = async (authSession, getNotification) => {
     return _getErrorResponse(status, error, false)
   }
 
-  const globalNotificationList = await getNotification(authSession.user.emailAddress, mod.setting.notification.ALL_NOTIFICATION)
+  const globalNotificationList = await getNotification(authSession.user.emailAddress, mod.setting.getValue('notification.ALL_NOTIFICATION'))
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
 
   return {

@@ -42,7 +42,7 @@ const main = async () => {
   const clientId = await inputLine('clientId(Open ID Connect): ', false)
   const redirectUri = await inputLine('redirectUri(Open ID Connect): ', false)
 
-  const clientList = JSON.parse(fs.readFileSync(setting.server.CLIENT_LIST_JSON))
+  const clientList = JSON.parse(fs.readFileSync(setting.getValue('server.CLIENT_LIST_JSON')))
   if (clientList[clientId]) {
     console.log('client already exists:', { clientId, client: clientList[clientId] })
     process.exit(1)
@@ -52,8 +52,8 @@ const main = async () => {
     redirectUri,
   }
 
-  fs.writeFileSync(setting.server.CLIENT_LIST_JSON, JSON.stringify(clientList, null, 2))
-  console.log('saved client in:', setting.server.CLIENT_LIST_JSON)
+  fs.writeFileSync(setting.getValue('server.CLIENT_LIST_JSON'), JSON.stringify(clientList, null, 2))
+  console.log('saved client in:', setting.getValue('server.CLIENT_LIST_JSON'))
   console.log('done.')
 }
 

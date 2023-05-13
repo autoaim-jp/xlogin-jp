@@ -146,7 +146,7 @@ const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQu
       return null
     }
     if (_checkPermission(splitPermissionList, 'r', keySplit[0], keySplit[1])) {
-      if (keySplit[0] === mod.setting.server.AUTH_SERVER_CLIENT_ID && keySplit[1] === 'userName') {
+      if (keySplit[0] === mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID') && keySplit[1] === 'userName') {
         const queryGetUserInfo = 'select * from user_info.user_list where email_address = $1'
         const paramListGetUserInfo = [emailAddress]
 
@@ -158,7 +158,7 @@ const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQu
           const { userName } = paramSnakeToCamel(resultGetUserInfo.rows[0])
           publicData[key] = userName
         }
-      } else if (keySplit[0] === mod.setting.server.AUTH_SERVER_CLIENT_ID && keySplit[1] === 'backupEmailAddress') {
+      } else if (keySplit[0] === mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID') && keySplit[1] === 'backupEmailAddress') {
         const queryGetUserPersonalInfo = 'select * from user_info.personal_data_list where email_address = $1'
         const paramListGetUserPersonalInfo = [emailAddress]
 
@@ -245,7 +245,7 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
 
   let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1 and notification_id > $2'
   const paramListGetNotification = [emailAddress, lastOpendNoticationId]
-  if (notificationRange !== mod.setting.notification.ALL_NOTIFICATION) {
+  if (notificationRange !== mod.setting.getValue('notification.ALL_NOTIFICATION')) {
     queryGetNotification += ' and notification_range = $3'
     paramListGetNotification.push(notificationRange)
   }
@@ -267,7 +267,7 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
 
 /* from fileList */
 const getFileContent = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
     return null
   }
@@ -276,7 +276,7 @@ const getFileContent = async (emailAddress, clientId, owner, filePath) => {
 }
 
 const getFileList = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
     return null
   }

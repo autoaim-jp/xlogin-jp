@@ -99,7 +99,7 @@ const openNotification = async (notificationIdList, clientId, emailAddress, exec
 
 /* to fileList */
 const updateFile = async (emailAddress, clientId, owner, filePath, content) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress]) {
     fileList[emailAddress] = {}
   }
@@ -111,19 +111,19 @@ const updateFile = async (emailAddress, clientId, owner, filePath, content) => {
   const dateUpdated = Date.now()
   fileList[emailAddress][owner][filePath] = { dateUpdated, clientId, content }
 
-  mod.fs.writeFileSync(mod.setting.server.FILE_LIST_JSON, JSON.stringify(fileList, null, 2))
+  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
   return true
 }
 
 const deleteFile = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.server.FILE_LIST_JSON))
+  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
     return false
   }
 
   delete fileList[emailAddress][owner][filePath]
 
-  mod.fs.writeFileSync(mod.setting.server.FILE_LIST_JSON, JSON.stringify(fileList, null, 2))
+  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
   return true
 }
 
@@ -140,12 +140,12 @@ const endResponse = (req, res, handleResult) => {
     if (handleResult.redirect) {
       return res.redirect(handleResult.redirect)
     }
-    return res.redirect(mod.setting.url.ERROR_PAGE)
+    return res.redirect(mod.setting.getValue('url.ERROR_PAGE'))
   }
   if (handleResult.redirect) {
     return res.json({ redirect: handleResult.redirect })
   }
-  return res.json({ redirect: mod.setting.url.ERROR_PAGE })
+  return res.json({ redirect: mod.setting.getValue('url.ERROR_PAGE') })
 }
 
 export default {
