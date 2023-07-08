@@ -134,6 +134,48 @@ const waitForPsql = async (maxRetryCnt) => {
   return null
 }
 
+/**
+ * 引数に名前をつける。
+ *
+ * @memberof lib
+ * @param {Object} obj
+ */
+const _argNamed = (obj) => {
+  const flattened = {}
+
+  Object.keys(obj).forEach((key) => {
+    if (Array.isArray(obj[key])) {
+      Object.assign(flattened, obj[key].reduce((prev, curr) => {
+        if (typeof curr === 'undefined') {
+          throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}\n===== maybe you need make func exported like  module.exports = { func, } =====`)
+        } else if (typeof curr === 'function') {
+          prev[curr.name] = curr
+        } else {
+          throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}`)
+        }
+        return prev
+      }, {}))
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      Object.assign(flattened, obj[key])
+    } else {
+      flattened[key] = obj[key]
+    }
+  })
+
+  return flattened
+}
+
+/**
+ * グローバルの関数をセットする。
+ */
+const monkeyPatch = () => {
+  if (typeof global.argNamed === 'undefined') {
+    global.argNamed = _argNamed
+  } else {
+    console.log('[warn] global.argNamed is already set.')
+  }
+}
+
 
 export default {
   init,
@@ -156,5 +198,7 @@ export default {
 
   execQuery,
   waitForPsql,
+
+  monkeyPatch,
 }
 

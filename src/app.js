@@ -25,6 +25,12 @@ import input from './input.js'
 import action from './action.js'
 import lib from './lib.js'
 
+const asocial = {
+  setting, output, core, input, action, lib, 
+}
+const a = asocial
+
+
 /**
  * 全リクエストのセッションを初期化するExpressのルーター
  * リクエストの前、つまり最初に呼び出す
@@ -65,172 +71,178 @@ const _getExpressMiddlewareRouter = () => {
   return expressRouter
 }
 
-const _getOidcRouter = (checkSignature) => {
+const _getOidcRouter = () => {
   const expressRouter = express.Router()
+
+  const checkSignature = action.getHandlerCheckSignature(argNamed({
+    core: [a.core.isValidSignature],
+    output: [a.output.endResponse],
+  }))
+
   /**
    * サービスでログインボタンがクリックされたときに、最初に来るAPI
    * @name connect API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/connect`, async (req, res) => {
-    const user = req.session.auth?.user
-    const {
-      clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
-    } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = await action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
-    output.endResponse(req, res, resultHandleConnect)
-  })
+  const connectHandler = action.getHandlerConnect(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleConnect],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/connect`, connectHandler)
 
   /**
    * 認可コードを発行するAPI
    * @name authCode API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/code`, checkSignature, async (req, res) => {
-    const {
-      clientId, state, code, codeVerifier,
-    } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = await action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
-    output.endResponse(req, res, resultHandleCode)
-  })
+  const codeHandler = action.getHandlerCode(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleCode],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/auth/code`, checkSignature, codeHandler)
   return expressRouter
 }
 
-const _getUserApiRouter = (checkSignature) => {
-  const expressRouter = express.Router()
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/user/info`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
-
-    const resultHandleUserInfo = await action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
-    output.endResponse(req, res, resultHandleUserInfo)
-  })
-  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/user/update`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
-
-    const resultHandleUserInfoUpdate = await action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
-    output.endResponse(req, res, resultHandleUserInfoUpdate)
-  })
-  return expressRouter
-}
-
-const _getNotificationApiRouter = (checkSignature) => {
+const _getUserApiRouter = () => {
   const expressRouter = express.Router()
 
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange } = lib.paramSnakeToCamel(req.query)
+  const checkSignature = action.getHandlerCheckSignature(argNamed({
+    core: [a.core.isValidSignature],
+    output: [a.output.endResponse],
+  }))
 
-    const resultHandleNotification = await action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotification)
-  })
+  const userInfoHandler = action.getHandlerUserInfo(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleUserInfo],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/user/info`, checkSignature, userInfoHandler)
 
-  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/append`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
-
-    const resultHandleNotificationAppend = await action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotificationAppend)
-  })
-
-  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/open`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
-
-    const resultHandleNotificationOpen = await action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
-    output.endResponse(req, res, resultHandleNotificationOpen)
-  })
+  const userInfoUpdateHandler = action.getHandlerUserInfoUpdate(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleUserInfoUpdate],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/user/update`, checkSignature, userInfoUpdateHandler)
 
   return expressRouter
 }
 
-const _getFileRouter = (checkSignature) => {
+const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/update`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath, content } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleFileUpdate = await action.handleFileUpdate(clientId, accessToken, owner, filePath, content, core.updateFileByAccessToken)
-    output.endResponse(req, res, resultHandleFileUpdate)
-  })
+  const checkSignature = action.getHandlerCheckSignature(argNamed({
+    core: [a.core.isValidSignature],
+    output: [a.output.endResponse],
+  }))
 
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/content`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+  const notificationListHandler = action.getHandlerNotificationList(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleNotificationList],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, notificationListHandler)
 
-    const resultHandleFileContent = await action.handleFileContent(clientId, accessToken, owner, filePath, core.getFileContentByAccessToken)
-    output.endResponse(req, res, resultHandleFileContent)
-  })
+  const notificationAppendHandler = action.getHandlerNotificationAppend(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleNotificationAppend],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/append`, checkSignature, notificationAppendHandler)
 
-  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/delete`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = lib.paramSnakeToCamel(req.body)
+  const notificationOpenHandler = action.getHandlerNotificationOpen(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleNotificationOpen],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/notification/open`, checkSignature, notificationOpenHandler)
 
-    const resultHandleFileDelete = await action.handleFileDelete(clientId, accessToken, owner, filePath, core.updateFileByAccessToken)
-    output.endResponse(req, res, resultHandleFileDelete)
-  })
+  return expressRouter
+}
 
-  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/list`, checkSignature, async (req, res) => {
-    const accessToken = req.headers.authorization.slice('Bearer '.length)
-    const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = lib.paramSnakeToCamel(req.query)
+const _getFileRouter = () => {
+  const expressRouter = express.Router()
 
-    const resultHandleFileList = await action.handleFileList(clientId, accessToken, owner, filePath, core.getFileListByAccessToken)
-    output.endResponse(req, res, resultHandleFileList)
-  })
+  const checkSignature = action.getHandlerCheckSignature(argNamed({
+    core: [a.core.isValidSignature],
+    output: [a.output.endResponse],
+  }))
+
+  const fileUpdateHandler = action.getHandlerFileUpdate(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFileUpdate],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/update`, checkSignature, fileUpdateHandler)
+
+  const fileContentHandler = action.getHandlerFileContent(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFileContent],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
+
+  const fileDeleteHandler = action.getHandlerFileDelete(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFileDelete],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`/api/${setting.getValue('url.API_VERSION')}/file/delete`, checkSignature, fileDeleteHandler)
+
+  const fileListHandler = action.getHandlerFileList(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFileList],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
   return expressRouter
 }
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, async (req, res) => {
-    const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
-    output.endResponse(req, res, resultHandleCredentialCheck)
-  })
 
-  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/through/check`, async (req, res) => {
-    const { useragent } = req
-    const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const resultHandleThrough = await action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
-    output.endResponse(req, res, resultHandleThrough)
-  })
+  const credentialCheckHandler = action.getHandlerCredentialCheck(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleCredentialCheck],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, credentialCheckHandler)
 
-  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, async (req, res) => {
-    const { useragent } = req
-    const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = await action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
-    output.endResponse(req, res, resultHandleConfirm)
-  })
+  const throughCheckHandler = action.getHandlerThroughCheck(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleThrough],
+  }))
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/through/check`, throughCheckHandler)
 
-  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/user/add`, async (req, res) => {
-    const {
-      emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
-    } = req.body
-    const resultHandleUserAdd = await action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
-    output.endResponse(req, res, resultHandleUserAdd)
-  })
+  const permissionCheckHandler = action.getHandlerPermissionCheck(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleConfirm],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, permissionCheckHandler)
 
-  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, async (req, res) => {
-    const resultHandleScope = await action.handleScope(req.session.auth)
-    output.endResponse(req, res, resultHandleScope)
-  })
+  const userAddHandler = action.getHandlerUserAdd(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleUserAdd],
+  }))
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/user/add`, userAddHandler)
 
-  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, async (req, res) => {
-    const resultHandleNotification = await action.handleGlobalNotification(req.session.auth, core.getNotification)
-    output.endResponse(req, res, resultHandleNotification)
-  })
+  const scopeListHandler = action.getHandlerScopeList(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleScope],
+  }))
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, scopeListHandler) 
+
+  /* TODO checkSignatureで検証しなくてよいのか？ */
+  const globalNotificationHandler = action.getHandlerGlobalNotification(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleGlobalNotification],
+  }))
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, globalNotificationHandler)
+
 
   return expressRouter
 }
@@ -238,10 +250,11 @@ const _getFunctionRouter = () => {
 const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
-  expressRouter.get('/logout', async (req, res) => {
-    const resultHandleLogout = await action.handleLogout()
-    output.endResponse(req, res, resultHandleLogout)
-  })
+  const handleLogoutHandler = action.getHandlerHandleLogout(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleLogout],
+  }))
+  expressRouter.get('/logout', handleLogoutHandler)
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
   expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
@@ -280,28 +293,26 @@ const startServer = (expressApp) => {
 
 const main = async () => {
   dotenv.config()
+  lib.monkeyPatch()
   lib.init(crypto, ulid)
   setting.init(process.env)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
   input.init(setting, fs)
-  action.init(setting, lib)
   const pgPool = core.createPgPool(pg)
   lib.setPgPool(pgPool)
 
   await lib.waitForPsql(setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
-
-  const checkSignature = action.getCheckSignature(core.isValidSignature, output.endResponse)
 
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
   expressApp.use(_getExpressMiddlewareRouter())
 
-  expressApp.use(_getOidcRouter(checkSignature))
-  expressApp.use(_getUserApiRouter(checkSignature))
-  expressApp.use(_getNotificationApiRouter(checkSignature))
-  expressApp.use(_getFileRouter(checkSignature))
+  expressApp.use(_getOidcRouter())
+  expressApp.use(_getUserApiRouter())
+  expressApp.use(_getNotificationApiRouter())
+  expressApp.use(_getFileRouter())
   expressApp.use(_getFunctionRouter())
   expressApp.use(_getOtherRouter())
 
