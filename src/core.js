@@ -199,7 +199,7 @@ const handleNotificationList = async (clientId, accessToken, notificationRange) 
     const error = 'handle_notification_list_access_token'
     return _getErrorResponse(status, error, null)
   }
-  
+
   const notificationList = await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -236,7 +236,7 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
     const error = 'handle_notification_open_access_token'
     return _getErrorResponse(status, error, null)
   }
-  
+
   const notificationOpenResult = await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -272,7 +272,7 @@ const handleFileContent = async (clientId, accessToken, owner, filePath) => {
     const error = 'handle_file_content_access_token'
     return _getErrorResponse(status, error, null)
   }
-  
+
   const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -470,7 +470,6 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
     return _getErrorResponse(status, error, false, null, authSession)
   }
 
-  const { clientId } = authSession.oidc
   const userExists = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (userExists) {
@@ -508,14 +507,14 @@ const handleScope = async (authSession) => {
 }
 
 /* GET /f/notification/global/list */
-const handleGlobalNotification = async (authSession) => {
+const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
   if (!authSession) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_notification_list_session'
     return _getErrorResponse(status, error, false)
   }
 
-  const globalNotificationList = await mod.input.getNotification(authSession.user.emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const globalNotificationList = await mod.input.getNotification(authSession.user.emailAddress, ALL_NOTIFICATION, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
 
   return {

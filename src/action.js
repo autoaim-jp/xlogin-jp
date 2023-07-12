@@ -1,25 +1,4 @@
-/**
- * _getErrorResponse.
- * エラーを返したいときに呼び出す。
- * パラメータを渡すと、エラーレスポンスを作成する。
- * @memberof function
- */
-const _getErrorResponse = ({ status, error, isServerRedirect, response = null, session = {} }) => {
-  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return {
-      status, session, response, redirect, error,
-    }
-  }
-  if (response) {
-    return {
-      status, session, response, error,
-    }
-  }
-  return {
-    status, session, response: { status, error, redirect }, error,
-  }
-}
+/* /action.js */
 
 const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) => {
   return async (req, res) => {
@@ -54,7 +33,7 @@ const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) 
   }
 }
 
-const getHandlerUserInfoUpdate =  ({ paramSnakeToCamel, handleUserInfoUpdate, endResponse }) => {
+const getHandlerUserInfoUpdate = ({ paramSnakeToCamel, handleUserInfoUpdate, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
@@ -191,9 +170,9 @@ const getHandlerScopeList = ({ handleScope, endResponse }) => {
   }
 }
 
-const getHandlerGlobalNotification = ({ handleGlobalNotification, endResponse }) => {
+const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATION, endResponse }) => {
   return async (req, res) => {
-    const resultHandleNotification = await handleGlobalNotification(req.session.auth)
+    const resultHandleNotification = await handleGlobalNotification(req.session.auth, ALL_NOTIFICATION)
     endResponse(req, res, resultHandleNotification)
   }
 }
@@ -207,19 +186,21 @@ const getHandlerHandleLogout = ({ handleLogout, endResponse }) => {
 
 
 /* common */
-const getHandlerCheckSignature = ({ isValidSignature, endResponse }) => {
+const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endResponse }) => {
   return async (req, res, next) => {
     const clientId = req.headers['x-xlogin-client-id']
     const timestamp = req.headers['x-xlogin-timestamp']
     const path = req.originalUrl
     const requestBody = req.body
     const signature = req.headers['x-xlogin-signature']
-    const authSession = req.session.auth
+
     const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, requestBody, signature)
     if (isValidSignatureResult.signatureCheckResult !== true) {
-      const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CREDENTIAL')
+      const status = INVALID_CREDENTIAL
       const error = 'check_signature'
-      const resultGetCheckSignature = _getErrorResponse({ status, error, response: false, session: null, authSession })
+      const resultGetCheckSignature = {
+        status, error, response: false, session: null,
+      }
       return endResponse(req, res, resultGetCheckSignature)
     }
     return next()

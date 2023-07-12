@@ -26,7 +26,7 @@ import action from './action.js'
 import lib from './lib.js'
 
 const asocial = {
-  setting, output, core, input, action, lib, 
+  setting, output, core, input, action, lib,
 }
 const a = asocial
 
@@ -75,8 +75,9 @@ const _getOidcRouter = () => {
   const expressRouter = express.Router()
 
   const checkSignature = action.getHandlerCheckSignature(argNamed({
-    core: [a.core.isValidSignature],
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
   }))
 
   /**
@@ -109,8 +110,9 @@ const _getUserApiRouter = () => {
   const expressRouter = express.Router()
 
   const checkSignature = action.getHandlerCheckSignature(argNamed({
-    core: [a.core.isValidSignature],
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
   }))
 
   const userInfoHandler = action.getHandlerUserInfo(argNamed({
@@ -134,9 +136,11 @@ const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
 
   const checkSignature = action.getHandlerCheckSignature(argNamed({
-    core: [a.core.isValidSignature],
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
   }))
+
 
   const notificationListHandler = action.getHandlerNotificationList(argNamed({
     output: [a.output.endResponse],
@@ -166,9 +170,11 @@ const _getFileRouter = () => {
   const expressRouter = express.Router()
 
   const checkSignature = action.getHandlerCheckSignature(argNamed({
-    core: [a.core.isValidSignature],
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
   }))
+
 
   const fileUpdateHandler = action.getHandlerFileUpdate(argNamed({
     output: [a.output.endResponse],
@@ -234,10 +240,10 @@ const _getFunctionRouter = () => {
     output: [a.output.endResponse],
     core: [a.core.handleScope],
   }))
-  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, scopeListHandler) 
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, scopeListHandler)
 
-  /* TODO checkSignatureで検証しなくてよいのか？ */
   const globalNotificationHandler = action.getHandlerGlobalNotification(argNamed({
+    setting: a.setting.getList('notification.ALL_NOTIFICATION'),
     output: [a.output.endResponse],
     core: [a.core.handleGlobalNotification],
   }))
