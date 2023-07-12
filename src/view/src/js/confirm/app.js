@@ -105,7 +105,7 @@ const loadNotRequiredPermissionListAccordion = async () => {
 const main = async () => {
   a.lib.xdevkit.output.switchLoading(true)
   a.lib.common.output.setOnClickNavManu()
-  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest)
+  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest, a.lib.xdevkit.output.showModal)
   a.lib.monkeyPatch()
 
   await a.app.loadAllPermissionList()
