@@ -44,8 +44,9 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import path from 'path'
 import expressUseragent from 'express-useragent'
+import pg from 'pg'
 
-import setting from './setting/index.js'
+import { setting, init as settingInit } from './setting/index.js'
 import output from './output.js'
 import core from './core.js'
 import input from './input.js'
@@ -66,7 +67,7 @@ const _getSessionRouter = () => {
   })
 
   expressRouter.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: setting.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
     rolling: true,
@@ -92,19 +93,19 @@ const _getExpressMiddlewareRouter = () => {
   return expressRouter
 }
 
-const _getOidcRouter = () => {
+const _getOidcRouter = (checkSignature) => {
   const expressRouter = express.Router()
   /**
    * サービスでログインボタンがクリックされたときに、最初に来るAPI
    * @name connect API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/connect`, async (req, res) => {
     const user = req.session.auth?.user
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     } = lib.paramSnakeToCamel(req.query)
-    const resultHandleConnect = action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
+    const resultHandleConnect = await action.handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope, core.isValidClient)
     output.endResponse(req, res, resultHandleConnect)
   })
 
@@ -113,73 +114,73 @@ const _getOidcRouter = () => {
    * @name authCode API
    * @memberof feature
    */
-  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/auth/code`, checkSignature, async (req, res) => {
     const {
       clientId, state, code, codeVerifier,
     } = lib.paramSnakeToCamel(req.query)
-    const resultHandleCode = action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
+    const resultHandleCode = await action.handleCode(clientId, state, code, codeVerifier, core.registerAccessToken, core.getAuthSessionByCode)
     output.endResponse(req, res, resultHandleCode)
   })
   return expressRouter
 }
 
-const _getUserApiRouter = () => {
+const _getUserApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/user/info`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
+    const resultHandleUserInfo = await action.handleUserInfo(clientId, accessToken, filterKeyListStr, core.getUserByAccessToken)
     output.endResponse(req, res, resultHandleUserInfo)
   })
-  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/user/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { backupEmailAddress } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleUserInfoUpdate = action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
+    const resultHandleUserInfoUpdate = await action.handleUserInfoUpdate(clientId, accessToken, backupEmailAddress, core.updateBackupEmailAddressByAccessToken)
     output.endResponse(req, res, resultHandleUserInfoUpdate)
   })
   return expressRouter
 }
 
-const _getNotificationApiRouter = () => {
+const _getNotificationApiRouter = (checkSignature) => {
   const expressRouter = express.Router()
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/notification/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange } = lib.paramSnakeToCamel(req.query)
 
-    const resultHandleNotification = action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
+    const resultHandleNotification = await action.handleNotification(clientId, accessToken, notificationRange, core.getNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotification)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/append`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, subject, detail } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationAppend = action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
+    const resultHandleNotificationAppend = await action.handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail, core.appendNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationAppend)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/notification/open`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { notificationRange, notificationIdList } = lib.paramSnakeToCamel(req.body)
 
-    const resultHandleNotificationOpen = action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
+    const resultHandleNotificationOpen = await action.handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList, core.openNotificationByAccessToken)
     output.endResponse(req, res, resultHandleNotificationOpen)
   })
 
   return expressRouter
 }
 
-const _getFileRouter = () => {
+const _getFileRouter = (checkSignature) => {
   const expressRouter = express.Router()
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/update`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath, content } = lib.paramSnakeToCamel(req.body)
@@ -188,7 +189,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileUpdate)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/content`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -197,7 +198,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileContent)
   })
 
-  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, async (req, res) => {
+  expressRouter.post(`/api/${setting.url.API_VERSION}/file/delete`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.body)
@@ -206,7 +207,7 @@ const _getFileRouter = () => {
     output.endResponse(req, res, resultHandleFileDelete)
   })
 
-  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, async (req, res) => {
+  expressRouter.get(`/api/${setting.url.API_VERSION}/file/list`, checkSignature, async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, filePath } = lib.paramSnakeToCamel(req.query)
@@ -220,42 +221,42 @@ const _getFileRouter = () => {
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
-  expressRouter.post(`${setting.bsc.apiEndpoint}/login/credential/check`, async (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, async (req, res) => {
     const { emailAddress, passHmac2 } = lib.paramSnakeToCamel(req.body)
     const resultHandleCredentialCheck = await action.handleCredentialCheck(emailAddress, passHmac2, req.session.auth, core.credentialCheck, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleCredentialCheck)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/through/check`, (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/through/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const resultHandleThrough = action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
+    const resultHandleThrough = await action.handleThrough(ipAddress, useragent, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId, core.getCheckedRequiredPermissionList)
     output.endResponse(req, res, resultHandleThrough)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/confirm/permission/check`, (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = lib.paramSnakeToCamel(req.body)
-    const resultHandleConfirm = action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
+    const resultHandleConfirm = await action.handleConfirm(ipAddress, useragent, permissionList, req.session.auth, core.registerAuthSession, core.appendLoginNotification, core.registerServiceUserId)
     output.endResponse(req, res, resultHandleConfirm)
   })
 
-  expressRouter.post(`${setting.bsc.apiEndpoint}/login/user/add`, (req, res) => {
+  expressRouter.post(`${setting.browserServerSetting.getValue('apiEndpoint')}/login/user/add`, async (req, res) => {
     const {
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
     } = req.body
-    const resultHandleUserAdd = action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
+    const resultHandleUserAdd = await action.handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth, core.addUser, core.getUserByEmailAddress)
     output.endResponse(req, res, resultHandleUserAdd)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/confirm/scope/list`, (req, res) => {
-    const resultHandleScope = action.handleScope(req.session.auth)
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, async (req, res) => {
+    const resultHandleScope = await action.handleScope(req.session.auth)
     output.endResponse(req, res, resultHandleScope)
   })
 
-  expressRouter.get(`${setting.bsc.apiEndpoint}/notification/global/list`, (req, res) => {
-    const resultHandleNotification = action.handleGlobalNotification(req.session.auth, core.getNotification)
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, async (req, res) => {
+    const resultHandleNotification = await action.handleGlobalNotification(req.session.auth, core.getNotification)
     output.endResponse(req, res, resultHandleNotification)
   })
 
@@ -265,8 +266,8 @@ const _getFunctionRouter = () => {
 const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
-  expressRouter.get('/logout', (req, res) => {
-    const resultHandleLogout = action.handleLogout()
+  expressRouter.get('/logout', async (req, res) => {
+    const resultHandleLogout = await action.handleLogout()
     output.endResponse(req, res, resultHandleLogout)
   })
 
@@ -280,6 +281,7 @@ const _getOtherRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
+    console.log('debug:', req.path, req.query, req.body)
     res.status(500)
     res.end('Internal Server Error')
     return next()
@@ -288,47 +290,54 @@ const _getErrorRouter = () => {
 }
 
 const startServer = (expressApp) => {
-  if (process.env.SERVER_ORIGIN.indexOf('https') >= 0) {
+  if (setting.env.SERVER_ORIGIN.indexOf('https') >= 0) {
     const tlsConfig = {
-      key: fs.readFileSync(process.env.TLS_KEY_PATH),
-      cert: fs.readFileSync(process.env.TLS_CERT_PATH),
+      key: fs.readFileSync(setting.env.TLS_KEY_PATH),
+      cert: fs.readFileSync(setting.env.TLS_CERT_PATH),
     }
     const server = https.createServer(tlsConfig, expressApp)
-    server.listen(process.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    server.listen(setting.env.SERVER_PORT, () => {
+      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
     })
   } else {
-    expressApp.listen(process.env.SERVER_PORT, () => {
-      console.log(`xlogin.jp listen to port: ${process.env.SERVER_PORT}, origin: ${process.env.SERVER_ORIGIN}`)
+    expressApp.listen(setting.env.SERVER_PORT, () => {
+      console.log(`xlogin.jp listen to port: ${setting.env.SERVER_PORT}, origin: ${setting.env.SERVER_ORIGIN}`)
     })
   }
 }
 
-const main = () => {
+const main = async () => {
   dotenv.config()
   lib.init(crypto, ulid)
+  settingInit(process.env)
   output.init(setting, fs)
   core.init(setting, output, input, lib)
   input.init(setting, fs)
   action.init(setting, lib)
+  const pgPool = core.createPgPool(pg)
+  lib.setPgPool(pgPool)
+
+  await lib.waitForPsql(setting.startup.MAX_RETRY_PSQL_CONNECT_N)
+
+  const checkSignature = action.getCheckSignature(core.isValidSignature, output.endResponse)
 
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
   expressApp.use(_getExpressMiddlewareRouter())
 
-  expressApp.use(_getOidcRouter())
-  expressApp.use(_getUserApiRouter())
-  expressApp.use(_getNotificationApiRouter())
+  expressApp.use(_getOidcRouter(checkSignature))
+  expressApp.use(_getUserApiRouter(checkSignature))
+  expressApp.use(_getNotificationApiRouter(checkSignature))
+  expressApp.use(_getFileRouter(checkSignature))
   expressApp.use(_getFunctionRouter())
-  expressApp.use(_getFileRouter())
   expressApp.use(_getOtherRouter())
 
   expressApp.use(_getErrorRouter())
 
   startServer(expressApp)
 
-  console.log(`open: http://${process.env.SERVER_ORIGIN}/`)
+  console.log(`open: http://${setting.env.SERVER_ORIGIN}/`)
 }
 
 main()
@@ -349,7 +358,7 @@ main()
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sun Dec 04 2022 23:35:12 GMT+0900 (日本標準時)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat May 13 2023 19:44:53 GMT+0900 (日本標準時)
 </footer>
 
 <script> prettyPrint(); </script>

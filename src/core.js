@@ -29,18 +29,27 @@ const createPgPool = (pg) => {
   return new pg.Pool(dbCredential)
 }
 
-const _generageServiceUserId = () => {
-  return mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
-}
-
-/* client */
-const isValidClient = async (clientId, redirectUri) => {
-  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
-  if (!isValidClientResult) {
-    return { clientCheckResult: false }
+/**
+ * _getErrorResponse.
+ * エラーを返したいときに呼び出す。
+ * パラメータを渡すと、エラーレスポンスを作成する。
+ * @memberof function
+ */
+const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
+  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
+  if (isServerRedirect) {
+    return {
+      status, session, response, redirect, error,
+    }
   }
-
-  return { clientCheckResult: true }
+  if (response) {
+    return {
+      status, session, response, error,
+    }
+  }
+  return {
+    status, session, response: { status, error, redirect }, error,
+  }
 }
 
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
@@ -55,50 +64,8 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 }
 
 
-/* authSession */
-const registerAuthSession = (authSession) => {
-  return mod.output.registerAuthSession(authSession, mod.lib.execQuery)
-}
-
-const getAuthSessionByCode = (code) => {
-  return mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-}
-
-
-/* accessToken */
-const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, mod.lib.execQuery)
-}
-
-const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-}
-
-const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
-  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-}
-
-const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    return null
-  }
-  return mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
-}
-
-
 /* user */
-const registerServiceUserId = (emailAddress, clientId) => {
-  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId(), mod.lib.execQuery)
-}
-
-const getUserByEmailAddress = async (emailAddress) => {
-  return mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-}
-
-
-const credentialCheck = async (emailAddress, passHmac2) => {
+const _credentialCheck = async (emailAddress, passHmac2) => {
   const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!user) {
     return { credentialCheckResult: false }
@@ -113,141 +80,483 @@ const credentialCheck = async (emailAddress, passHmac2) => {
   return { credentialCheckResult: true }
 }
 
-const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
-  if (await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)) {
-    return { registerResult: false }
+/* connect */
+/* GET /api/$apiVersion/auth/connect */
+const handleConnect = async (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope) => {
+  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
+  if (!isValidClientResult) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
+    const error = 'handle_connect_client'
+    return _getErrorResponse(status, error, true)
   }
 
-  const userName = mod.setting.user.DEFAULT_USER_NAME
-  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
+  const newUserSession = {
+    oidc: {
+      clientId, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri, requestScope,
+    },
+  }
 
-  return { registerResult: true }
+  if (user) {
+    newUserSession.user = user
+    newUserSession.oidc.condition = mod.setting.getValue('condition.CONFIRM')
+    const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
+    const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+    return {
+      status, session: newUserSession, response: null, redirect,
+    }
+  }
+
+  newUserSession.oidc.condition = mod.setting.getValue('condition.LOGIN')
+  const redirect = mod.setting.getValue('url.AFTER_CONNECT')
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: newUserSession, response: null, redirect,
+  }
 }
 
-/* notification */
-const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddress) => {
-  let detail = 'Login'
-  detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
-  const subject = detail
-  detail += ` with ${useragent.browser}(${useragent.platform})`
-  detail += ` by ${clientId}`
-  detail += ` from ${ipAddress}`
+/* GET /api/$apiVersion/auth/code */
+const handleCode = async (clientId, state, code, codeVerifier) => {
+  const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_code_session'
+    return _getErrorResponse(status, error, true)
+  }
 
-  const notificationId = mod.lib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery)
+  if (clientId !== authSession.clientId) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
+    const error = 'handle_code_client'
+    return _getErrorResponse(status, error, true)
+  }
+
+  const generatedCodeChallenge = mod.lib.convertToCodeChallenge(codeVerifier, authSession.codeChallengeMethod)
+  if (authSession.codeChallenge !== generatedCodeChallenge) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CODE_VERIFIER')
+    const error = 'handle_code_challenge'
+    return _getErrorResponse(status, error, true)
+  }
+
+  const accessToken = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.ACCESS_TOKEN_L'))
+
+  const newUserSession = { condition: mod.setting.getValue('condition.USER_INFO') }
+
+  const splitPermissionList = JSON.parse(authSession.splitPermissionList)
+  const resultRegisterAccessToken = await mod.output.registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList, mod.lib.execQuery)
+  if (!resultRegisterAccessToken) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_code_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: newUserSession, response: { result: { accessToken, splitPermissionList } }, redirect: null,
+  }
 }
 
-const appendNotificationByAccessToken = async (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+/* GET /api/$apiVersion/user/info */
+const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
+  const filterKeyList = filterKeyListStr.split(',')
+  const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (!userInfo) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_user_info_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { userInfo } }, redirect: null,
+  }
+}
+
+/* POST /api/$apiVersion/user/update */
+const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return false
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_user_update_backup_email_address'
+    return _getErrorResponse(status, error, null)
   }
+  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
 
-  const notificationId = mod.lib.getUlid()
-
-  await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.getMaxIdInList)
-  return true
-}
-
-const openNotificationByAccessToken = async (clientId, accessToken, notificationRange, notificationIdList) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    return false
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { userInfoUpdateResult } }, redirect: null,
   }
-
-  await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
-  return true
 }
 
 
-const getNotification = async (emailAddress, notificationRange) => {
-  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-}
-
-const getNotificationByAccessToken = async (clientId, accessToken, notificationRange) => {
+/* GET /api/$apiVersion/notification/list */
+const handleNotificationList = async (clientId, accessToken, notificationRange) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return null
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_notification_list_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const notificationList = await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { notificationList } }, redirect: null,
+  }
 }
 
+/* POST /api/$apiVersion/notification/append */
+const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
-/* file */
-const updateFileByAccessToken = async (clientId, accessToken, owner, filePath, content) => {
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_notification_append_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const notificationId = mod.lib.getUlid()
+  const notificationAppendResult = await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.getMaxIdInList)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { notificationAppendResult } }, redirect: null,
+  }
+}
+
+/* POST /api/$apiVersion/notification/open */
+const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_notification_open_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const notificationOpenResult = await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { notificationOpenResult } }, redirect: null,
+  }
+}
+
+/* POST /api/$apiVersion/file/update */
+const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return null
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_file_update_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+  const updateFileResult = await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { updateFileResult } }, redirect: null,
+  }
 }
 
-const getFileContentByAccessToken = async (clientId, accessToken, owner, filePath) => {
+/* GET /api/$apiVersion/file/content */
+const handleFileContent = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return null
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_file_content_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+  const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { fileContent } }, redirect: null,
+  }
 }
 
-const deleteFileByAccessToken = async (clientId, accessToken, owner, filePath) => {
+/* POST /api/$apiVersion/file/delete */
+const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return null
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_file_delete_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+  const deleteFileResult = await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
+  }
 }
 
-const getFileListByAccessToken = async (clientId, accessToken, owner, filePath) => {
+/* GET /api/$apiVersion/file/list */
+const handleFileList = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
-    return null
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_file_list_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  return mod.input.getFileList(emailAddress, clientId, owner, filePath)
+  const fileList = await mod.input.getFileList(emailAddress, clientId, owner, filePath)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { fileList } }, redirect: null,
+  }
 }
 
+/* POST /f/$condition/credential/check */
+const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
+  if (!authSession || !authSession.oidc) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_credential_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const resultCredentialCheck = await _credentialCheck(emailAddress, passHmac2)
+  if (resultCredentialCheck.credentialCheckResult !== true) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CREDENTIAL')
+    const error = 'handle_credential_credential'
+    return _getErrorResponse(status, error, false, null, authSession)
+  }
+
+  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
+  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return { status, session: newUserSession, response: { redirect } }
+}
+
+/* after /f/confirm/ */
+const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPermissionList) => {
+  let detail = 'Login'
+  detail += ` at ${mod.lib.formatDate(mod.setting.browserServerSetting.getValue('userReadableDateFormat.full'))}`
+  const subject = detail
+  detail += ` with ${useragent.browser}(${useragent.platform})`
+  detail += ` by ${authSession.oidc.clientId}`
+  detail += ` from ${ipAddress}`
+
+  const notificationId = mod.lib.getUlid()
+  await mod.output.appendNotification(notificationId, mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), authSession.user.emailAddress, subject, detail, mod.lib.execQuery)
+
+
+  const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('user.SERVICE_USER_ID_L'))
+  await mod.output.registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId, serviceUserId, mod.lib.execQuery)
+
+  const code = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.CODE_L'))
+
+  const iss = mod.setting.getValue('env.SERVER_ORIGIN')
+  const { redirectUri, state } = authSession.oidc
+  const redirect = mod.lib.addQueryStr(decodeURIComponent(redirectUri), mod.lib.objToQuery({ state, code, iss }))
+
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CODE'), code, splitPermissionList }) })
+
+  await mod.output.registerAuthSession(newUserSession, mod.lib.execQuery)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return { status, session: newUserSession, response: { redirect } }
+}
+
+/* POST /f/confirm/through/check */
+const handleThrough = async (ipAddress, useragent, authSession) => {
+  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_confirm_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const permissionList = mod.input.getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const { scope, requestScope } = authSession.oidc
+
+  if (!permissionList) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_FOUND')
+    const result = { oldPermissionList: null, requestScope }
+    return { status, session: authSession, response: { result } }
+  }
+
+  let uncheckedPermissionExists = false
+  const splitPermissionList = { required: {}, optional: {} }
+  scope.split(',').forEach((_key) => {
+    let key = _key
+    if (_key[0] === '*') {
+      key = _key.slice(1)
+      splitPermissionList.required[key] = permissionList[key]
+
+      if (!permissionList[key]) {
+        uncheckedPermissionExists = true
+      }
+    }
+  })
+  requestScope.split(',').forEach((key) => {
+    if (key === '') {
+      return
+    }
+    splitPermissionList.required[key] = permissionList[key]
+
+    if (!permissionList[key]) {
+      uncheckedPermissionExists = true
+    }
+  })
+
+  if (uncheckedPermissionExists) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
+    const result = { oldPermissionList: permissionList, requestScope }
+    return { status, session: authSession, response: { result } }
+  }
+
+  const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
+  return resultAfterCheckPermission
+}
+
+/* POST /f/confirm/permission/check */
+const handleConfirm = async (ipAddress, useragent, permissionList, authSession) => {
+  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_confirm_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const { scope } = authSession.oidc
+  let uncheckedRequiredPermissionExists = false
+  const splitPermissionList = { required: {}, optional: {} }
+  scope.split(',').forEach((_key) => {
+    let key = _key
+    if (_key[0] === '*') {
+      key = _key.slice(1)
+      splitPermissionList.required[key] = permissionList[key]
+      if (!permissionList[key]) {
+        uncheckedRequiredPermissionExists = true
+      }
+    } else {
+      splitPermissionList.optional[key] = permissionList[key]
+    }
+  })
+
+  if (uncheckedRequiredPermissionExists) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
+    const result = { isRequiredScopeChecked: false }
+    return { status, session: authSession, response: { result } }
+  }
+
+  const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
+  return resultAfterCheckPermission
+}
+
+/* POST /f/login/user/add */
+const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
+  if (!authSession || !authSession.oidc) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_user_add_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CHECK')
+    const error = 'handle_user_add_checkbox'
+    return _getErrorResponse(status, error, false, null, authSession)
+  }
+
+  const userExists = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (userExists) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.REGISTER_FAIL')
+    const error = 'handle_user_add_register'
+    return _getErrorResponse(status, error, false, null, authSession)
+  }
+
+  const userName = mod.setting.getValue('user.DEFAULT_USER_NAME')
+  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
+
+  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
+  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return { status, session: newUserSession, response: { redirect } }
+}
+
+/* GET /f/confirm/scope/list */
+const handleScope = async (authSession) => {
+  if (!authSession || !authSession.oidc) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_permission_list_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const { scope } = authSession.oidc
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+
+  return {
+    status, session: authSession, response: { result: { scope } },
+  }
+}
+
+/* GET /f/notification/global/list */
+const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
+  if (!authSession) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
+    const error = 'handle_notification_list_session'
+    return _getErrorResponse(status, error, false)
+  }
+
+  const globalNotificationList = await mod.input.getNotification(authSession.user.emailAddress, ALL_NOTIFICATION, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+
+  return {
+    status, session: authSession, response: { result: { globalNotificationList } },
+  }
+}
+
+/* GET /logout */
+const handleLogout = async () => {
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: {}, response: null, redirect: '/',
+  }
+}
 
 export default {
   init,
   createPgPool,
 
-  isValidClient,
   isValidSignature,
 
-  registerAuthSession,
-  getAuthSessionByCode,
+  handleConnect,
+  handleCode,
+  handleUserInfo,
+  handleUserInfoUpdate,
 
-  registerAccessToken,
-  getUserByAccessToken,
-  getCheckedRequiredPermissionList,
-  updateBackupEmailAddressByAccessToken,
+  handleNotificationList,
+  handleNotificationAppend,
+  handleNotificationOpen,
 
-  registerServiceUserId,
-  getUserByEmailAddress,
-  credentialCheck,
-  addUser,
+  handleFileUpdate,
+  handleFileContent,
+  handleFileDelete,
+  handleFileList,
 
-  appendLoginNotification,
-  appendNotificationByAccessToken,
-  openNotificationByAccessToken,
-  getNotification,
-  getNotificationByAccessToken,
+  handleCredentialCheck,
+  handleThrough,
+  handleConfirm,
+  handleUserAdd,
+  handleScope,
+  handleGlobalNotification,
 
-  updateFileByAccessToken,
-  getFileContentByAccessToken,
-  deleteFileByAccessToken,
-  getFileListByAccessToken,
+  handleLogout,
 }
 

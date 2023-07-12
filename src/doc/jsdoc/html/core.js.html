@@ -42,110 +42,131 @@ const init = (setting, output, input, lib) => {
   mod.lib = lib
 }
 
+const createPgPool = (pg) => {
+  const dbCredential = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    max: 5,
+    idleTimeoutMillis: 5 * 1000,
+    connectionTimeoutMillis: 5 * 1000,
+  }
+
+  return new pg.Pool(dbCredential)
+}
 
 const _generageServiceUserId = () => {
   return mod.lib.getRandomB64UrlSafe(mod.setting.user.SERVICE_USER_ID_L)
 }
 
 /* client */
-const isValidClient = (clientId, redirectUri) => {
-  return mod.input.isValidClient(clientId, redirectUri)
+const isValidClient = async (clientId, redirectUri) => {
+  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
+  if (!isValidClientResult) {
+    return { clientCheckResult: false }
+  }
+
+  return { clientCheckResult: true }
+}
+
+const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
+  const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
+  const dataToSign = `${timestamp}:${path}:${contentHash}`
+  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcSha256HmacAsB64)
+  if (!isValidSignatureResult) {
+    return { signatureCheckResult: false }
+  }
+
+  return { signatureCheckResult: true }
 }
 
 
 /* authSession */
-const registerAuthSession = (code, authSession) => {
-  return mod.output.registerAuthSession(code, authSession)
+const registerAuthSession = (authSession) => {
+  return mod.output.registerAuthSession(authSession, mod.lib.execQuery)
 }
 
 const getAuthSessionByCode = (code) => {
-  return mod.input.getAuthSessionByCode(code)
+  return mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 /* accessToken */
 const registerAccessToken = (clientId, accessToken, emailAddress, splitPermissionList) => {
-  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList)
+  return mod.output.registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, mod.lib.execQuery)
 }
 
 const getUserByAccessToken = (clientId, accessToken, filterKeyList) => {
-  return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList)
+  return mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 const getCheckedRequiredPermissionList = (clientId, emailAddress) => {
-  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress)
+  return mod.input.getCheckedRequiredPermissionList(clientId, emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const updateBackupEmailAddressByAccessToken = (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress')
+const updateBackupEmailAddressByAccessToken = async (clientId, accessToken, backupEmailAddress) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.server.AUTH_SERVER_CLIENT_ID, 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
-  return mod.output.updateBackupEmailAddressByAccessToken(clientId, accessToken, emailAddress, backupEmailAddress)
+  return mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
 }
 
 
 /* user */
 const registerServiceUserId = (emailAddress, clientId) => {
-  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId())
+  return mod.output.registerServiceUserId(emailAddress, clientId, _generageServiceUserId(), mod.lib.execQuery)
 }
 
-const getUserByEmailAddress = (emailAddress) => {
-  return mod.input.getUserByEmailAddress(emailAddress)
+const getUserByEmailAddress = async (emailAddress) => {
+  return mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 const credentialCheck = async (emailAddress, passHmac2) => {
-  const user = mod.input.getUserByEmailAddress(emailAddress)
+  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!user) {
     return { credentialCheckResult: false }
   }
 
-  const { saltHex } = user[mod.setting.server.AUTH_SERVER_CLIENT_ID]
+  const isValidCredential = await mod.input.isValidCredential(emailAddress, passHmac2, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcPbkdf2)
 
-  const passPbkdf2 = await mod.lib.calcPbkdf2(passHmac2, saltHex)
-  if (user[mod.setting.server.AUTH_SERVER_CLIENT_ID].passPbkdf2 !== passPbkdf2) {
+  if (!isValidCredential) {
     return { credentialCheckResult: false }
   }
 
   return { credentialCheckResult: true }
 }
 
-const addUser = (clientId, emailAddress, passPbkdf2, saltHex) => {
-  if (mod.input.getUserByEmailAddress(emailAddress)) {
+const addUser = async (clientId, emailAddress, passPbkdf2, saltHex) => {
+  if (await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)) {
     return { registerResult: false }
   }
 
-  const user = {
-    auth: {
-      emailAddress,
-      passPbkdf2,
-      saltHex,
-      userName: 'no name',
-    },
-  }
-
-  mod.output.registerUserByEmailAddress(emailAddress, user)
+  const userName = mod.setting.user.DEFAULT_USER_NAME
+  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
 
   return { registerResult: true }
 }
 
 /* notification */
-const appendLoginNotification = (clientId, ipAddress, useragent, emailAddress) => {
+const appendLoginNotification = async (clientId, ipAddress, useragent, emailAddress) => {
   let detail = 'Login'
-  detail += ` at ${mod.lib.formatDate(mod.setting.bsc.userReadableDateFormat.full)}`
+  detail += ` at ${mod.lib.formatDate(mod.setting.browserServerSetting.getValue('userReadableDateFormat.full'))}`
   const subject = detail
   detail += ` with ${useragent.browser}(${useragent.platform})`
   detail += ` by ${clientId}`
   detail += ` from ${ipAddress}`
 
   const notificationId = mod.lib.getUlid()
-  mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail)
+  await mod.output.appendNotification(notificationId, mod.setting.server.AUTH_SERVER_CLIENT_ID, emailAddress, subject, detail, mod.lib.execQuery)
 }
 
-const appendNotificationByAccessToken = (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+const appendNotificationByAccessToken = async (clientId, accessToken, notificationRange, subject, detail) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return false
@@ -153,38 +174,40 @@ const appendNotificationByAccessToken = (clientId, accessToken, notificationRang
 
   const notificationId = mod.lib.getUlid()
 
-  return mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail)
+  await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.getMaxIdInList)
+  return true
 }
 
-const openNotificationByAccessToken = (clientId, accessToken, notificationRange, notificationIdList) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification')
+const openNotificationByAccessToken = async (clientId, accessToken, notificationRange, notificationIdList) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return false
   }
 
-  return mod.output.openNotification(notificationIdList, notificationRange, emailAddress)
+  await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
+  return true
 }
 
 
-const getNotification = (emailAddress, notificationRange) => {
-  return mod.input.getNotification(emailAddress, notificationRange)
+const getNotification = async (emailAddress, notificationRange) => {
+  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
-const getNotificationByAccessToken = (clientId, accessToken, notificationRange) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification')
+const getNotificationByAccessToken = async (clientId, accessToken, notificationRange) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
   }
 
-  return mod.input.getNotification(emailAddress, notificationRange)
+  return mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 }
 
 
 /* file */
-const updateFileByAccessToken = (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+const updateFileByAccessToken = async (clientId, accessToken, owner, filePath, content) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -193,8 +216,8 @@ const updateFileByAccessToken = (clientId, accessToken, owner, filePath, content
   return mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
 }
 
-const getFileContentByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+const getFileContentByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -203,8 +226,8 @@ const getFileContentByAccessToken = (clientId, accessToken, owner, filePath) => 
   return mod.input.getFileContent(emailAddress, clientId, owner, filePath)
 }
 
-const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file')
+const deleteFileByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -213,8 +236,8 @@ const deleteFileByAccessToken = (clientId, accessToken, owner, filePath) => {
   return mod.output.deleteFile(emailAddress, clientId, owner, filePath)
 }
 
-const getFileListByAccessToken = (clientId, accessToken, owner, filePath) => {
-  const emailAddress = mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file')
+const getFileListByAccessToken = async (clientId, accessToken, owner, filePath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     return null
@@ -224,11 +247,12 @@ const getFileListByAccessToken = (clientId, accessToken, owner, filePath) => {
 }
 
 
-
 export default {
   init,
+  createPgPool,
 
   isValidClient,
+  isValidSignature,
 
   registerAuthSession,
   getAuthSessionByCode,
@@ -271,7 +295,7 @@ export default {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sun Dec 04 2022 23:35:12 GMT+0900 (日本標準時)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat May 13 2023 19:44:53 GMT+0900 (日本標準時)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,6 +1,6 @@
 /* error/app.js */
-import * as setting from '../_setting/index.js'
-import * as lib from '../lib.js'
+import setting from '../_setting/index.js'
+import * as lib from '../_lib/index.js'
 
 import * as output from './output.js'
 
@@ -14,21 +14,21 @@ const a = asocial
 
 const loadErrorMessage = () => {
   a.output.showErrorModal(argNamed({
-    lib: [a.lib.getSearchQuery, a.lib.getErrorModalElmAndSetter, a.lib.showModal],
-    setting: a.setting.bsc.get('labelList'),
+    lib: [a.lib.xdevkit.lib.getSearchQuery, a.lib.xdevkit.output.getErrorModalElmAndSetter, a.lib.xdevkit.output.showModal],
+    setting: a.setting.browserServerSetting.getList('labelList'),
   }))
 }
 
 const main = async () => {
-  a.lib.switchLoading(true)
-  a.lib.setOnClickNavManu()
-  a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
+  a.lib.xdevkit.output.switchLoading(true)
+  a.lib.common.output.setOnClickNavManu()
+  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest, a.lib.xdevkit.output.showModal)
   a.lib.monkeyPatch()
 
   a.app.loadErrorMessage()
 
   setTimeout(() => {
-    a.lib.switchLoading(false)
+    a.lib.xdevkit.output.switchLoading(false)
   }, 300)
 }
 

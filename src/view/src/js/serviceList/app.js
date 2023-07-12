@@ -1,6 +1,6 @@
 /* serviceList/app.js */
-import * as setting from '../_setting/index.js'
-import * as lib from '../lib.js'
+import setting from '../_setting/index.js'
+import * as lib from '../_lib/index.js'
 
 const asocial = {}
 asocial.setting = setting
@@ -9,12 +9,12 @@ asocial.lib = lib
 const a = asocial
 
 const main = async () => {
-  a.lib.switchLoading(true)
-  a.lib.setOnClickNavManu()
-  a.lib.setOnClickNotification(a.setting.bsc.apiEndpoint)
+  a.lib.xdevkit.output.switchLoading(true)
+  a.lib.common.output.setOnClickNavManu()
+  a.lib.common.output.setOnClickNotification(a.setting.browserServerSetting.getValue('apiEndpoint'), a.lib.xdevkit.output.applyElmList, a.lib.common.input.getRequest, a.lib.xdevkit.output.showModal)
   a.lib.monkeyPatch()
   setTimeout(() => {
-    a.lib.switchLoading(false)
+    a.lib.xdevkit.output.switchLoading(false)
   }, 300)
 }
 

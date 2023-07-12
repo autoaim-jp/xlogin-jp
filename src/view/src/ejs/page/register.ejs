@@ -1,24 +1,24 @@
-<%- await include(`${xdevkitComponentPath}head.ejs`, { title, description, author, })  %>
-  <%- await include(`${xdevkitComponentPath}includeCss.ejs`, { inlineCssList, externalCssList, isProduction, })  %>
+<%- include(`${xdevkitComponentPath}head.ejs`, { title, description, author, })  %>
+  <%- include(`${xdevkitComponentPath}includeCss.ejs`, { inlineCssList, externalCssList, isProduction, })  %>
   <body class='flex flex-col'>
 
-    <%- await include(`${componentPath}nav.ejs`)  %>
-    <%- await include(`${xdevkitComponentPath}notification.ejs`)  %>
-    <%- await include(`${xdevkitComponentPath}breadcrumb.ejs`, { breadcrumbList })  %>
+    <%- include(`${componentPath}nav.ejs`)  %>
+    <%- include(`${xdevkitComponentPath}notification.ejs`)  %>
+    <%- include(`${xdevkitComponentPath}breadcrumb.ejs`, { breadcrumbList })  %>
     <div class='section1 min-h-80 flex flex-col text-center text-black md:flex items-center justify-center flex-grow p-2'>
      <div class='max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full'>
         <div id='memoContentWrap' class='w-full'>
         </div>
-        <%- await include(`${componentPath}registerForm.ejs`) %>
+        <%- include(`${componentPath}registerForm.ejs`) %>
      </div>
 
     </div><!-- section1 -->
 
-    <%- await include(`${xdevkitComponentPath}loading.ejs`)  %>
-    <%- await include(`${xdevkitComponentPath}modal.ejs`)  %>
+    <%- include(`${xdevkitComponentPath}loading.ejs`)  %>
+    <%- include(`${xdevkitComponentPath}modal.ejs`)  %>
     <div id='hiddenForTailwindByJs' class='hidden w-full h-96 p-1'></div>
   </body>
-  <%- await include(`${xdevkitComponentPath}includeJs.ejs`, { inlineScriptList, externalScriptList, isProduction, })  %>
+  <%- include(`${xdevkitComponentPath}includeJs.ejs`, { inlineScriptList, externalScriptList, isProduction, })  %>
 
 
 

@@ -1,9 +1,9 @@
 /* /setting/index.js */
 import browserServerSetting from './browserServerSetting.js'
 
-export const setting = {}
+const setting = {}
 
-export const init = (env) => {
+const init = (env) => {
   setting.env = {}
   setting.env.SERVER_ORIGIN = env.SERVER_ORIGIN
   setting.env.SESSION_SECRET = env.SESSION_SECRET
@@ -13,7 +13,7 @@ export const init = (env) => {
 }
 
 setting.startup = {}
-setting.startup.MAX_RETRY_PSQL_CONNECT_N = 5
+setting.startup.MAX_RETRY_PSQL_CONNECT_N = 30
 setting.server = {}
 setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
 setting.server.PUBLIC_BUILD_DIR = 'view/build'
@@ -61,8 +61,42 @@ setting.notification.ALL_NOTIFICATION = 'global'
 
 /**
  * xdevkitからコピーしたbrowserServerSettingをここから呼び出す。
- * @param setting.bsc
+ * @param setting.browserServerSetting
  * @memberof parameter
  */
-setting.bsc = browserServerSetting
+setting.browserServerSetting = browserServerSetting
+
+const getList = (...keyList) => {
+  /* eslint-disable no-param-reassign */
+  const constantList = keyList.reduce((prev, key) => {
+    let value = setting
+    for (const keySplit of key.split('.')) {
+      value = value[keySplit]
+    }
+    prev[key.slice(key.lastIndexOf('.') + 1)] = value
+    return prev
+  }, {})
+  for (const key of keyList) {
+    if (constantList[key.slice(key.lastIndexOf('.') + 1)] === undefined) {
+      throw new Error(`[error] undefined setting constant: ${key}`)
+    }
+  }
+  return constantList
+}
+
+
+const getValue = (key) => {
+  let value = setting
+  for (const keySplit of key.split('.')) {
+    value = value[keySplit]
+  }
+  return value
+}
+
+export default {
+  init,
+  getList,
+  getValue,
+  browserServerSetting,
+}
 
