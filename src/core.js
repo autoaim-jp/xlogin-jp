@@ -82,7 +82,7 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
 
 /* connect */
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = async (user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope) => {
+const handleConnect = async ({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope }) => {
   const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
   if (!isValidClientResult) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')

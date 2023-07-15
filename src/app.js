@@ -297,19 +297,22 @@ const startServer = (expressApp) => {
   }
 }
 
-const main = async () => {
+const init = async () => {
   dotenv.config()
-  lib.monkeyPatch()
-  lib.init(crypto, ulid)
-  setting.init(process.env)
-  output.init(setting, fs)
-  core.init(setting, output, input, lib)
-  input.init(setting, fs)
-  const pgPool = core.createPgPool(pg)
-  lib.setPgPool(pgPool)
+  a.lib.monkeyPatch()
+  a.lib.init(crypto, ulid)
+  a.setting.init(process.env)
+  a.output.init(setting, fs)
+  a.core.init(setting, output, input, lib)
+  a.input.init(setting, fs)
+  const pgPool = a.core.createPgPool(pg)
+  a.lib.setPgPool(pgPool)
 
-  await lib.waitForPsql(setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
+  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
+}
 
+const main = async () => {
+  await a.app.init()
   const expressApp = express()
 
   expressApp.use(_getSessionRouter())
@@ -329,5 +332,13 @@ const main = async () => {
   console.log(`open: http://${setting.getValue('env.SERVER_ORIGIN')}/`)
 }
 
+const app = {
+  init,
+  main
+}
+asocial.app = app
+
 main()
+
+export default app
 
