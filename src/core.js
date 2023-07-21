@@ -115,7 +115,7 @@ const handleConnect = async ({ user, clientId, redirectUri, state, scope, respon
 }
 
 /* GET /api/$apiVersion/auth/code */
-const handleCode = async (clientId, state, code, codeVerifier) => {
+const handleCode = async ({ clientId, state, code, codeVerifier }) => {
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -372,14 +372,14 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
 }
 
 /* POST /f/confirm/through/check */
-const handleThrough = async (ipAddress, useragent, authSession) => {
+const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
     return _getErrorResponse(status, error, false)
   }
 
-  const permissionList = mod.input.getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const permissionList = await mod.input.getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   const { scope, requestScope } = authSession.oidc
 
   if (!permissionList) {

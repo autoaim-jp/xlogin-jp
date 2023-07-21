@@ -24,14 +24,19 @@ fi
 # docker compose up
 # docker compose down
 
-if [ ! $op = "clean" ] && [ ! $op = "xdevkit" ]; then
-  docker compose -p ${projectName} -f ${dockerComposeFile} $op
-fi
 
-if [ $op = "clean" ] ; then
+if [ $fileId = "test" ] && [ $op = "up" ] ; then
+  docker compose -p ${projectName} -f ${dockerComposeFile} up > test.log &
+  sleep 30
+  docker compose -p ${projectName} -f ${dockerComposeFile} down >> test.log &
+elif [ $op = "clean" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} down
   docker volume rm ${projectName}_xl-rc-redis
   docker volume rm ${projectName}_xl-pc-psql
   docker volume rm ${projectName}_xl-wc-nm
+elif [ ! $op = "clean" ] && [ ! $op = "xdevkit" ]; then
+  docker compose -p ${projectName} -f ${dockerComposeFile} $op
 fi
+
+
 

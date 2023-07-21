@@ -1,6 +1,21 @@
 import init from './init.js'
 import core from '../core.js'
 
+const SESSION_OBJ = {
+  oidc: {
+    clientId: 'sample_localhost',
+    state: 'VeCTGA3M3O1KEWl4xtEKTuPKH8FrGmDlpowa0ZQ86scPneoqlgZVaTg5ZFGu3eO6',
+    scope: 'r:auth:emailAddress,rw:auth:backupEmailAddress,*r:auth:userName,*r:sample_localhost:serviceUserId,*rw:sample_localhost:notification,rw:sample_localhost:file',
+    responseType: 'code',
+    codeChallenge: 'nwLPNMJjIHImHr86HS9HSL_RA-Rr49s-Ii9YSeKKRLc',
+    codeChallengeMethod: 'S256',
+    redirectUri: 'http://127.0.0.1:3001/f/xlogin/callback',
+    requestScope: '',
+    condition: 'confirm'
+  },
+  user: { emailAddress: 'user@example.com', userName: 'no name' }
+}
+
 beforeAll(async () => {
   jest.spyOn(console, 'error').mockImplementation()
   await init.init()
@@ -23,20 +38,7 @@ describe('handleConnect', () => {
     // console.log(handleResult)
     const expected = {
       status: 1,
-      session: {
-        oidc: {
-          clientId: 'sample_localhost',
-          state: 'VeCTGA3M3O1KEWl4xtEKTuPKH8FrGmDlpowa0ZQ86scPneoqlgZVaTg5ZFGu3eO6',
-          scope: 'r:auth:emailAddress,rw:auth:backupEmailAddress,*r:auth:userName,*r:sample_localhost:serviceUserId,*rw:sample_localhost:notification,rw:sample_localhost:file',
-          responseType: 'code',
-          codeChallenge: 'nwLPNMJjIHImHr86HS9HSL_RA-Rr49s-Ii9YSeKKRLc',
-          codeChallengeMethod: 'S256',
-          redirectUri: 'http://127.0.0.1:3001/f/xlogin/callback',
-          requestScope: '',
-          condition: 'confirm'
-        },
-        user: { emailAddress: 'user@example.com', userName: 'no name' }
-      },
+      session: SESSION_OBJ,
       response: null,
       redirect: '/confirm'
     }
@@ -54,7 +56,7 @@ describe('handleConnect', () => {
     expect(handleResult).toHaveProperty('session.oidc.redirectUri', argList.redirectUri)
     expect(handleResult).toHaveProperty('session.oidc.requestScope', argList.requestScope)
     expect(handleResult).toHaveProperty('session.oidc.condition', 'confirm')
-    
+
     expect(handleResult).toHaveProperty('session.user')
     expect(handleResult.session.user).toEqual(argList.user)
 
@@ -65,7 +67,38 @@ describe('handleConnect', () => {
 
 describe('handleThrough', () => {
   it('expect: success', async() => {
-    const handleResult = await handleThrough(ipAddress, useragent, authSession)
+    const argList = {
+      ipAddress: '::ffff:172.26.0.1',
+      useragent: { browser: 'Godzilla', platform: 'xlogin' },
+      authSession: SESSION_OBJ,
+    }
+    const handleResult = await core.handleThrough(argList)
+
+    const expectedPart = {
+      status: 1,
+      session: {
+        code: 'giuQxKxMNwojfA4zPbAZgHAigA_kA-FmlIoBtU8ur7Sqcrv6e5FDdPL7IG1jqPyf',
+        splitPermissionList:{
+          required: {
+            'r:auth:userName': true,
+            'r:sample_localhost:serviceUserId': true,
+            'rw:sample_localhost:notification': true
+          },
+          optional: {}
+        }
+      },
+      response: {
+        result: {
+          oldPermissionList: null,
+          requestScope: '',
+        },
+      },
+    }
+    const expected = Object.assign({}, { session: SESSION_OBJ }, expectedPart)
+
+    console.log({ handleResult, expected })
+
+    expect(handleResult.response).toEqual(expected.response)
   })
 })
 
