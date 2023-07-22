@@ -29,6 +29,8 @@ if [ $fileId = "test" ] && [ $op = "up" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} up > test.log &
   sleep 30
   docker compose -p ${projectName} -f ${dockerComposeFile} down >> test.log &
+  # grepでログファイルを検索した結果、successという文字列がなければ終了コード1で終了
+  cat test.log | grep "success"
 elif [ $op = "clean" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} down
   docker volume rm ${projectName}_xl-rc-redis
