@@ -298,7 +298,11 @@ const startServer = (expressApp) => {
 }
 
 const init = async () => {
-  dotenv.config()
+  if (process.env.IS_TEST) {
+    dotenv.config('.env.test')
+  } else {
+    dotenv.config()
+  }
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)
   a.setting.init(process.env)

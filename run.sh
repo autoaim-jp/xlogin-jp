@@ -32,8 +32,6 @@ if [ $fileId = "test" ] && [ $op = "up" ] ; then
 
   cat test.log
   cat test.log | grep "success"
-elif [ $fileId = "test" ] && [ $op = "github" ] ; then
-  docker compose -p ${projectName} -f ${dockerComposeFile} up | grep "success"
 elif [ $op = "clean" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} down
   docker volume rm ${projectName}_xl-rc-redis

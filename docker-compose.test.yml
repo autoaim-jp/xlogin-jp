@@ -31,7 +31,7 @@ services:
       - ./src:/app
       - xltest-wc-nm:/app/node_modules
     environment:
-     - IS_TEST=false
+     - IS_TEST=true
     command: sh -c "npm run test"
     depends_on:
       - rediscontainer

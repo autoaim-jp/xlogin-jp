@@ -10,7 +10,7 @@ jobs:
         with:
           node-version: '16'
       - name: Run test
-        run: ./run.sh test github 
+        run: ./run.sh test up 
 
   slack-notification:
     if: always()
