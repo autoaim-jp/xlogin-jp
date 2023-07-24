@@ -13,6 +13,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/psqlcontainer/Dockerfile
+    ports:
+      - 5432:5432
     volumes:
       - xltest-pc-psql:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
