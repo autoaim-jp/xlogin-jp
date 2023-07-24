@@ -82,7 +82,9 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
 
 /* connect */
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = async ({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope }) => {
+const handleConnect = async ({
+  user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
+}) => {
   const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
   if (!isValidClientResult) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
@@ -115,7 +117,9 @@ const handleConnect = async ({ user, clientId, redirectUri, state, scope, respon
 }
 
 /* GET /api/$apiVersion/auth/code */
-const handleCode = async ({ clientId, state, code, codeVerifier }) => {
+const handleCode = async ({
+  clientId, state, code, codeVerifier,
+}) => {
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')

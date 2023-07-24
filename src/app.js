@@ -334,7 +334,7 @@ const main = async () => {
 
 const app = {
   init,
-  main
+  main,
 }
 asocial.app = app
 

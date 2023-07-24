@@ -6,7 +6,9 @@ const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) =>
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     } = paramSnakeToCamel(req.query)
-    const resultHandleConnect = await handleConnect({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope })
+    const resultHandleConnect = await handleConnect({
+      user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
+    })
     endResponse(req, res, resultHandleConnect)
   }
 }
@@ -16,7 +18,9 @@ const getHandlerCode = ({ paramSnakeToCamel, handleCode, endResponse }) => {
     const {
       clientId, state, code, codeVerifier,
     } = paramSnakeToCamel(req.query)
-    const resultHandleCode = await handleCode({ clientId, state, code, codeVerifier })
+    const resultHandleCode = await handleCode({
+      clientId, state, code, codeVerifier,
+    })
     endResponse(req, res, resultHandleCode)
   }
 }
@@ -140,7 +144,6 @@ const getHandlerThroughCheck = ({ handleThrough, endResponse }) => {
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const authSession = req.session.auth
     const resultHandleThrough = await handleThrough({ ipAddress, useragent, authSession })
-    console.dir(resultHandleThrough.response)
     endResponse(req, res, resultHandleThrough)
   }
 }
