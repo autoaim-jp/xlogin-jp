@@ -299,7 +299,7 @@ const startServer = (expressApp) => {
 
 const init = async () => {
   if (process.env.IS_TEST) {
-    dotenv.config('.env.test')
+    dotenv.config('.testenv')
   } else {
     dotenv.config()
   }
