@@ -18,8 +18,6 @@ const a = asocial
 
 const init = async () => {
   dotenv.config({ path: './.testenv' })
-  console.log(process.env)
-  console.log('DB_HOST:', process.env.DB_HOST)
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)
   a.setting.init(process.env)
