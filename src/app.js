@@ -303,6 +303,7 @@ const init = async () => {
   } else {
     dotenv.config()
   }
+  console.log(process.env)
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)
   a.setting.init(process.env)
