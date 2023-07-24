@@ -17,12 +17,9 @@ const asocial = {
 const a = asocial
 
 const init = async () => {
-  if (process.env.IS_TEST) {
-    dotenv.config('./.testenv')
-  } else {
-    dotenv.config()
-  }
+  dotenv.config({ path: '../.testenv' })
   console.log(process.env)
+  console.log(process.env.DB_HOST)
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)
   a.setting.init(process.env)
