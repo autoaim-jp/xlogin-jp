@@ -1,12 +1,8 @@
-/**
- * @namespace file
+/** 
+ * @namespace core
  */
-/**
- * @namespace function
+
+/** 
+ * @namespace action
  */
-/**
- * @namespace feature
- */
-/**
- * @namespace parameter
- */
+

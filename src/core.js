@@ -7,6 +7,14 @@
 /* local setting */
 const mod = {}
 
+/**
+ * init.
+ *
+ * @param {} setting
+ * @param {} output
+ * @param {} input
+ * @param {} lib
+ */
 const init = (setting, output, input, lib) => {
   mod.setting = setting
   mod.output = output
@@ -14,6 +22,12 @@ const init = (setting, output, input, lib) => {
   mod.lib = lib
 }
 
+/**
+ * createPgPool.
+ *
+ * @param {} pg
+ * @return {pg.Pool} DBの接続プール
+ */
 const createPgPool = (pg) => {
   const dbCredential = {
     host: process.env.DB_HOST,
@@ -52,6 +66,15 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
   }
 }
 
+/**
+ * isValidSignature.
+ *
+ * @param {} clientId
+ * @param {} timestamp
+ * @param {} path
+ * @param {} requestBody
+ * @param {} signature
+ */
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
   const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
   const dataToSign = `${timestamp}:${path}:${contentHash}`
@@ -65,6 +88,12 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 
 
 /* user */
+/**
+ * _credentialCheck.
+ *
+ * @param {} emailAddress
+ * @param {} passHmac2
+ */
 const _credentialCheck = async (emailAddress, passHmac2) => {
   const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!user) {
@@ -82,9 +111,21 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
 
 /* connect */
 /* GET /api/$apiVersion/auth/connect */
-const handleConnect = async ({
-  user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
-}) => {
+/**
+ * handleConnect.
+ *
+ * @param {} user
+ * @param {} clientId
+ * @param {} redirectUri
+ * @param {} state
+ * @param {} scope
+ * @param {} responseType
+ * @param {} codeChallenge
+ * @param {} codeChallengeMethod
+ * @param {} requestScope
+ * @return {HandleResult} Connectした結果
+ */
+const handleConnect = async ({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope }) => {
   const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
   if (!isValidClientResult) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
@@ -117,9 +158,15 @@ const handleConnect = async ({
 }
 
 /* GET /api/$apiVersion/auth/code */
-const handleCode = async ({
-  clientId, state, code, codeVerifier,
-}) => {
+/**
+ * handleCode.
+ *
+ * @param {} clientId
+ * @param {} state
+ * @param {} code
+ * @param {} codeVerifier
+ */
+const handleCode = async ({ clientId, state, code, codeVerifier }) => {
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -159,6 +206,13 @@ const handleCode = async ({
 }
 
 /* GET /api/$apiVersion/user/info */
+/**
+ * handleUserInfo.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} filterKeyListStr
+ */
 const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -177,6 +231,13 @@ const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
 }
 
 /* POST /api/$apiVersion/user/update */
+/**
+ * handleUserInfoUpdate.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} backupEmailAddress
+ */
 const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -195,6 +256,13 @@ const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) =
 
 
 /* GET /api/$apiVersion/notification/list */
+/**
+ * handleNotificationList.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} notificationRange
+ */
 const handleNotificationList = async (clientId, accessToken, notificationRange) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -213,6 +281,15 @@ const handleNotificationList = async (clientId, accessToken, notificationRange) 
 }
 
 /* POST /api/$apiVersion/notification/append */
+/**
+ * handleNotificationAppend.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} notificationRange
+ * @param {} subject
+ * @param {} detail
+ */
 const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -232,6 +309,14 @@ const handleNotificationAppend = async (clientId, accessToken, notificationRange
 }
 
 /* POST /api/$apiVersion/notification/open */
+/**
+ * handleNotificationOpen.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} notificationRange
+ * @param {} notificationIdList
+ */
 const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -250,6 +335,15 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
 }
 
 /* POST /api/$apiVersion/file/update */
+/**
+ * handleFileUpdate.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} filePath
+ * @param {} content
+ */
 const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -268,6 +362,14 @@ const handleFileUpdate = async (clientId, accessToken, owner, filePath, content)
 }
 
 /* GET /api/$apiVersion/file/content */
+/**
+ * handleFileContent.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} filePath
+ */
 const handleFileContent = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -286,6 +388,14 @@ const handleFileContent = async (clientId, accessToken, owner, filePath) => {
 }
 
 /* POST /api/$apiVersion/file/delete */
+/**
+ * handleFileDelete.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} filePath
+ */
 const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -304,6 +414,14 @@ const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
 }
 
 /* GET /api/$apiVersion/file/list */
+/**
+ * handleFileList.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} filePath
+ */
 const handleFileList = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -322,6 +440,13 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
 }
 
 /* POST /f/$condition/credential/check */
+/**
+ * handleCredentialCheck.
+ *
+ * @param {} emailAddress
+ * @param {} passHmac2
+ * @param {} authSession
+ */
 const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -346,6 +471,14 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
 }
 
 /* after /f/confirm/ */
+/**
+ * _afterCheckPermission.
+ *
+ * @param {} ipAddress
+ * @param {} useragent
+ * @param {} authSession
+ * @param {} splitPermissionList
+ */
 const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPermissionList) => {
   let detail = 'Login'
   detail += ` at ${mod.lib.formatDate(mod.setting.browserServerSetting.getValue('userReadableDateFormat.full'))}`
@@ -376,6 +509,13 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
 }
 
 /* POST /f/confirm/through/check */
+/**
+ * handleThrough.
+ *
+ * @param {} ipAddress
+ * @param {} useragent
+ * @param {} authSession
+ */
 const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -427,6 +567,14 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
 }
 
 /* POST /f/confirm/permission/check */
+/**
+ * handleConfirm.
+ *
+ * @param {} ipAddress
+ * @param {} useragent
+ * @param {} permissionList
+ * @param {} authSession
+ */
 const handleConfirm = async (ipAddress, useragent, permissionList, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -461,6 +609,16 @@ const handleConfirm = async (ipAddress, useragent, permissionList, authSession) 
 }
 
 /* POST /f/login/user/add */
+/**
+ * handleUserAdd.
+ *
+ * @param {} emailAddress
+ * @param {} passPbkdf2
+ * @param {} saltHex
+ * @param {} isTosChecked
+ * @param {} isPrivacyPolicyChecked
+ * @param {} authSession
+ */
 const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -495,6 +653,11 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
 }
 
 /* GET /f/confirm/scope/list */
+/**
+ * handleScope.
+ *
+ * @param {} authSession
+ */
 const handleScope = async (authSession) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -511,6 +674,12 @@ const handleScope = async (authSession) => {
 }
 
 /* GET /f/notification/global/list */
+/**
+ * handleGlobalNotification.
+ *
+ * @param {} authSession
+ * @param {} ALL_NOTIFICATION
+ */
 const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
   if (!authSession) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -527,6 +696,9 @@ const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
 }
 
 /* GET /logout */
+/**
+ * handleLogout.
+ */
 const handleLogout = async () => {
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
