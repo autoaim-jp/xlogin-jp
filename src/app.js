@@ -2,7 +2,7 @@
 /**
  * @file
  * @name エントリポイントのファイル
- * @memberof file
+ * @memberof app
  */
 import fs from 'fs'
 import https from 'https'
