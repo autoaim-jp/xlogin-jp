@@ -16,10 +16,10 @@ const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) =>
 const getHandlerCode = ({ paramSnakeToCamel, handleCode, endResponse }) => {
   return async (req, res) => {
     const {
-      clientId, state, code, codeVerifier,
+      clientId, code, codeVerifier,
     } = paramSnakeToCamel(req.query)
     const resultHandleCode = await handleCode({
-      clientId, state, code, codeVerifier,
+      clientId, code, codeVerifier,
     })
     endResponse(req, res, resultHandleCode)
   }

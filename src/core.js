@@ -138,7 +138,9 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
  * @return {HandleResult} Connectした結果
  * @memberof core
  */
-const handleConnect = async ({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope }) => {
+const handleConnect = async ({
+  user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
+}) => {
   const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
   if (!isValidClientResult) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
@@ -175,13 +177,14 @@ const handleConnect = async ({ user, clientId, redirectUri, state, scope, respon
  * handleCode.
  *
  * @param {} clientId
- * @param {} state
  * @param {} code
  * @param {} codeVerifier
  * @return {HandleResult} codeが正しいかどうか処理した結果
  * @memberof core
  */
-const handleCode = async ({ clientId, state, code, codeVerifier }) => {
+const handleCode = async ({
+  clientId, code, codeVerifier,
+}) => {
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
