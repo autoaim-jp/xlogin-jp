@@ -1,5 +1,6 @@
 /* /app.js */
 /**
+ * @file
  * @name エントリポイントのファイル
  * @memberof file
  */
@@ -34,7 +35,9 @@ const a = asocial
 /**
  * 全リクエストのセッションを初期化するExpressのルーター
  * リクエストの前、つまり最初に呼び出す
- * @memberof function
+ *
+ * @return {Express.Router()} セッション処理を含むルーター
+ * @memberof app
  */
 const _getSessionRouter = () => {
   const expressRouter = express.Router()
@@ -62,6 +65,12 @@ const _getSessionRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getExpressMiddlewareRouter.
+ *
+ * @return {Express.Router()} 基本のミドルウェアを含むルーター
+ * @memberof app
+ */
 const _getExpressMiddlewareRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use(bodyParser.urlencoded({ extended: true }))
@@ -71,6 +80,12 @@ const _getExpressMiddlewareRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getOidcRouter.
+ * 
+ * @return {Express.Router()} OIDC認証に関する処理を含むルーター
+ * @memberof app
+ */
 const _getOidcRouter = () => {
   const expressRouter = express.Router()
 
@@ -106,6 +121,12 @@ const _getOidcRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getUserApiRouter.
+ *
+ * @return {Express.Router()} ユーザーAPIに関する処理を含むルーター
+ * @memberof app
+ */
 const _getUserApiRouter = () => {
   const expressRouter = express.Router()
 
@@ -132,6 +153,12 @@ const _getUserApiRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getNotificationApiRouter.
+ *
+ * @return {Express.Router()} 通知に関する処理を含むルーター
+ * @memberof app
+ */
 const _getNotificationApiRouter = () => {
   const expressRouter = express.Router()
 
@@ -166,6 +193,12 @@ const _getNotificationApiRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getFileRouter.
+ *
+ * @return {Express.Router()} ファイルに関する処理を含むルーター
+ * @memberof app
+ */
 const _getFileRouter = () => {
   const expressRouter = express.Router()
 
@@ -207,6 +240,12 @@ const _getFileRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getFunctionRouter.
+ *
+ * @return {Express.Router()} 認証に関する処理を含むルーター
+ * @memberof app
+ */
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
 
@@ -253,6 +292,12 @@ const _getFunctionRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getOtherRouter.
+ *
+ * @return {Express.Router()} その他の処理を含むルーター
+ * @memberof app
+ */
 const _getOtherRouter = () => {
   const expressRouter = express.Router()
 
@@ -269,6 +314,12 @@ const _getOtherRouter = () => {
   return expressRouter
 }
 
+/**
+ * _getErrorRouter.
+ *
+ * @return {Express.Router()} エラー処理を含むルーター
+ * @memberof app
+ */
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
@@ -280,6 +331,14 @@ const _getErrorRouter = () => {
   return expressRouter
 }
 
+/**
+ * startServer.
+ *
+ * @param {} expressApp
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof app
+ */
 const startServer = (expressApp) => {
   if (setting.getValue('env.SERVER_ORIGIN').indexOf('https') >= 0) {
     const tlsConfig = {
@@ -297,6 +356,12 @@ const startServer = (expressApp) => {
   }
 }
 
+/**
+ * init.
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof app
+ */
 const init = async () => {
   dotenv.config()
   a.lib.monkeyPatch()
@@ -311,6 +376,12 @@ const init = async () => {
   await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
 }
 
+/**
+ * main.
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof app
+ */
 const main = async () => {
   await a.app.init()
   const expressApp = express()

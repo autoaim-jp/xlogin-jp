@@ -11,7 +11,7 @@ const mod = {}
  *
  * @param {} crypto
  * @param {} ulid
- * @return {undefined} 引数不要
+ * @return {undefined} 戻り値なし
  * @memberof lib
  */
 const init = (crypto, ulid) => {
@@ -23,7 +23,7 @@ const init = (crypto, ulid) => {
  * setPgPool.
  *
  * @param {} pgPool
- * @return {undefined} 引数不要
+ * @return {undefined} 戻り値なし
  * @memberof lib
  */
 const setPgPool = (pgPool) => {
@@ -105,6 +105,8 @@ const getRandomB64UrlSafe = (len) => {
  * calcSha256AsB64.
  *
  * @param {} str
+ * @return {string} SHA-256ハッシュ
+ * @memberof lib
  */
 const calcSha256AsB64 = (str) => {
   const sha256 = mod.crypto.createHash('sha256')
@@ -116,6 +118,8 @@ const calcSha256AsB64 = (str) => {
  *
  * @param {} secret
  * @param {} str
+ * @return {string} SHA-256のHMAC
+ * @memberof lib
  */
 const calcSha256HmacAsB64 = (secret, str) => {
   const sha256Hmac = mod.crypto.createHmac('sha256', secret)
@@ -128,6 +132,8 @@ const calcSha256HmacAsB64 = (secret, str) => {
  *
  * @param {} codeVerifier
  * @param {} codeChallengeMethod
+ * @return {string} 作成したcodeChallenge
+ * @memberof lib
  */
 const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
   /**
@@ -152,6 +158,8 @@ const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
  *
  * @param {} data
  * @param {} saltHex
+ * @return {Promise(string)} 計算したPBKDF2
+ * @memberof lib
  */
 const calcPbkdf2 = (data, saltHex) => {
   return new Promise((resolve) => {
@@ -168,6 +176,8 @@ const calcPbkdf2 = (data, saltHex) => {
  * getMaxIdInList.
  *
  * @param {} list
+ * @return {string} リストの最大値
+ * @memberof lib
  */
 const getMaxIdInList = (list) => {
   return list.reduce((p, c) => {
@@ -181,6 +191,8 @@ const getMaxIdInList = (list) => {
  *
  * @param {} format
  * @param {} date
+ * @return {string} フォーマットした時刻
+ * @memberof lib
  */
 const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
   return format.replace(/YYYY/g, date.getFullYear())
@@ -195,6 +207,8 @@ const formatDate = (format = 'YYYY-MM-DD hh:mm:ss', date = new Date()) => {
  * awaitSleep.
  *
  * @param {} ms
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof lib
  */
 const awaitSleep = (ms) => {
   return new Promise((resolve) => {
@@ -211,6 +225,8 @@ const awaitSleep = (ms) => {
  *
  * @param {} query
  * @param {} paramList
+ * @return {Promise(object)} DBアクセスの結果とエラー
+ * @memberof lib
  */
 const execQuery = async (query, paramList = []) => {
   return new Promise((resolve) => {
@@ -230,6 +246,8 @@ const execQuery = async (query, paramList = []) => {
  * waitForPsql.
  *
  * @param {} maxRetryCnt
+ * @return {undefined} 戻り値なし
+ * @memberof lib
  */
 const waitForPsql = async (maxRetryCnt) => {
   console.log('[info] waitForPsql')
@@ -246,10 +264,11 @@ const waitForPsql = async (maxRetryCnt) => {
 }
 
 /**
- * 引数に名前をつける。
+ * 名前付きの引数を展開する
  *
- * @memberof lib
  * @param {Object} obj
+ * @return {object} 名前がついている引数を展開したもの
+ * @memberof lib
  */
 const _argNamed = (obj) => {
   const flattened = {}
@@ -278,6 +297,9 @@ const _argNamed = (obj) => {
 
 /**
  * グローバルの関数をセットする。
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof lib
  */
 const monkeyPatch = () => {
   if (typeof global.argNamed === 'undefined') {

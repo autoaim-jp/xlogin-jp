@@ -15,7 +15,7 @@ const mod = {}
  * @param {} output
  * @param {} input
  * @param {} lib
- * @return {undefined} 引数不要
+ * @return {undefined} 戻り値なし
  * @memberof core
  */
 const init = (setting, output, input, lib) => {

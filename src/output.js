@@ -12,7 +12,7 @@ const mod = {}
  *
  * @param {} setting
  * @param {} fs
- * @return {undefined} 引数不要
+ * @return {undefined} 戻り値なし
  * @memberof input
  */
 const init = (setting, fs) => {
