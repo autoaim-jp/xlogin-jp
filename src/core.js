@@ -1,7 +1,8 @@
 /* /core.js */
 /**
+ * @file
  * @name コア機能を集約したファイル
- * @memberof file
+ * @memberof core
  */
 
 /* local setting */
@@ -14,6 +15,8 @@ const mod = {}
  * @param {} output
  * @param {} input
  * @param {} lib
+ * @return {undefined} 引数不要
+ * @memberof core
  */
 const init = (setting, output, input, lib) => {
   mod.setting = setting
@@ -27,6 +30,7 @@ const init = (setting, output, input, lib) => {
  *
  * @param {} pg
  * @return {pg.Pool} DBの接続プール
+ * @memberof core
  */
 const createPgPool = (pg) => {
   const dbCredential = {
@@ -44,10 +48,14 @@ const createPgPool = (pg) => {
 }
 
 /**
+ * <pre>
  * _getErrorResponse.
  * エラーを返したいときに呼び出す。
  * パラメータを渡すと、エラーレスポンスを作成する。
- * @memberof function
+ * </pre>
+ *
+ * @return {HandleResult} エラー処理された結果
+ * @memberof core
  */
 const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
   const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
@@ -74,6 +82,8 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
  * @param {} path
  * @param {} requestBody
  * @param {} signature
+ * @return {signatureCheckResult} クライアントの署名が正しいかどうか
+ * @memberof core
  */
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
   const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
@@ -93,6 +103,8 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
  *
  * @param {} emailAddress
  * @param {} passHmac2
+ * @return {credentialCheckResult} メールアドレスとパスワードの組み合わせが正しいかどうか
+ * @memberof core
  */
 const _credentialCheck = async (emailAddress, passHmac2) => {
   const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -124,6 +136,7 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
  * @param {} codeChallengeMethod
  * @param {} requestScope
  * @return {HandleResult} Connectした結果
+ * @memberof core
  */
 const handleConnect = async ({ user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope }) => {
   const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
@@ -165,6 +178,8 @@ const handleConnect = async ({ user, clientId, redirectUri, state, scope, respon
  * @param {} state
  * @param {} code
  * @param {} codeVerifier
+ * @return {HandleResult} codeが正しいかどうか処理した結果
+ * @memberof core
  */
 const handleCode = async ({ clientId, state, code, codeVerifier }) => {
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -212,6 +227,8 @@ const handleCode = async ({ clientId, state, code, codeVerifier }) => {
  * @param {} clientId
  * @param {} accessToken
  * @param {} filterKeyListStr
+ * @return {HandleResult} ユーザ情報を取得した結果
+ * @memberof core
  */
 const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
   const filterKeyList = filterKeyListStr.split(',')
@@ -237,6 +254,8 @@ const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
  * @param {} clientId
  * @param {} accessToken
  * @param {} backupEmailAddress
+ * @return {HandleResult} ユーザ情報を更新した結果
+ * @memberof core
  */
 const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -262,6 +281,8 @@ const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) =
  * @param {} clientId
  * @param {} accessToken
  * @param {} notificationRange
+ * @return {HandleResult} 取得した通知一覧
+ * @memberof core
  */
 const handleNotificationList = async (clientId, accessToken, notificationRange) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -289,6 +310,8 @@ const handleNotificationList = async (clientId, accessToken, notificationRange) 
  * @param {} notificationRange
  * @param {} subject
  * @param {} detail
+ * @return {HandleResult} 通知を追加した結果
+ * @memberof core
  */
 const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -316,6 +339,8 @@ const handleNotificationAppend = async (clientId, accessToken, notificationRange
  * @param {} accessToken
  * @param {} notificationRange
  * @param {} notificationIdList
+ * @return {HandleResult} 通知をオープンした結果
+ * @memberof core
  */
 const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -343,6 +368,8 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
  * @param {} owner
  * @param {} filePath
  * @param {} content
+ * @return {HandleResult} ファイルを更新した結果
+ * @memberof core
  */
 const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -369,6 +396,7 @@ const handleFileUpdate = async (clientId, accessToken, owner, filePath, content)
  * @param {} accessToken
  * @param {} owner
  * @param {} filePath
+ * @memberof core
  */
 const handleFileContent = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -395,6 +423,8 @@ const handleFileContent = async (clientId, accessToken, owner, filePath) => {
  * @param {} accessToken
  * @param {} owner
  * @param {} filePath
+ * @return {HandleResult} ファイルを削除した結果
+ * @memberof core
  */
 const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -421,6 +451,8 @@ const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
  * @param {} accessToken
  * @param {} owner
  * @param {} filePath
+ * @return {HandleResult} 取得したファイル一覧
+ * @memberof core
  */
 const handleFileList = async (clientId, accessToken, owner, filePath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
@@ -446,6 +478,8 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
  * @param {} emailAddress
  * @param {} passHmac2
  * @param {} authSession
+ * @return {HandleResult} メールアドレスとパスワードを確認した結果
+ * @memberof core
  */
 const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
   if (!authSession || !authSession.oidc) {
@@ -478,6 +512,8 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
  * @param {} useragent
  * @param {} authSession
  * @param {} splitPermissionList
+ * @return {HandleResult} パーミッションをチェックした後の結果
+ * @memberof core
  */
 const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPermissionList) => {
   let detail = 'Login'
@@ -515,6 +551,8 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
  * @param {} ipAddress
  * @param {} useragent
  * @param {} authSession
+ * @return {HandleResult} 既に認証ができているかどうか確認した結果
+ * @memberof core
  */
 const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
@@ -574,6 +612,8 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
  * @param {} useragent
  * @param {} permissionList
  * @param {} authSession
+ * @return {HandleResult} 権限を登録した結果
+ * @memberof core
  */
 const handleConfirm = async (ipAddress, useragent, permissionList, authSession) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
@@ -618,6 +658,8 @@ const handleConfirm = async (ipAddress, useragent, permissionList, authSession) 
  * @param {} isTosChecked
  * @param {} isPrivacyPolicyChecked
  * @param {} authSession
+ * @return {HandleResult} ユーザを追加した結果
+ * @memberof core
  */
 const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
   if (!authSession || !authSession.oidc) {
@@ -657,6 +699,8 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
  * handleScope.
  *
  * @param {} authSession
+ * @return {HandleResult} スコープ一覧
+ * @memberof core
  */
 const handleScope = async (authSession) => {
   if (!authSession || !authSession.oidc) {
@@ -679,6 +723,8 @@ const handleScope = async (authSession) => {
  *
  * @param {} authSession
  * @param {} ALL_NOTIFICATION
+ * @return {HandleResult} 全サービスの通知一覧
+ * @memberof core
  */
 const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
   if (!authSession) {
@@ -698,6 +744,8 @@ const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
 /* GET /logout */
 /**
  * handleLogout.
+ * @return {HandleResult} ログアウト処理した結果
+ * @memberof core
  */
 const handleLogout = async () => {
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')

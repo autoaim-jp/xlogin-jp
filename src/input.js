@@ -1,6 +1,20 @@
 /* /input.js */
+/**
+ * @file
+ * @name アプリケーションへのデータ入力に関するファイル
+ * @memberof input
+ */
+
 const mod = {}
 
+/**
+ * init.
+ *
+ * @param {} setting
+ * @param {} fs
+ * @return {undefined} 引数不要
+ * @memberof input
+ */
 const init = (setting, fs) => {
   mod.setting = setting
 
@@ -8,6 +22,15 @@ const init = (setting, fs) => {
 }
 
 /* from clientList */
+/**
+ * isValidClient.
+ *
+ * @param {} clientId
+ * @param {} redirectUri
+ * @param {} execQuery
+ * @return {boolean} クライアントが正しいかどうかDBを確認した結果
+ * @memberof input
+ */
 const isValidClient = async (clientId, redirectUri, execQuery) => {
   const query = 'select * from access_info.client_list where client_id = $1 and redirect_uri = $2'
   const paramList = [clientId, decodeURIComponent(redirectUri)]
@@ -21,6 +44,18 @@ const isValidClient = async (clientId, redirectUri, execQuery) => {
   return true
 }
 
+/**
+ * isValidSignature.
+ *
+ * @param {} clientId
+ * @param {} dataToSign
+ * @param {} signature
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @param {} calcSha256HmacAsB64
+ * @return {boolean} クライアントの署名が正しいかどうかDBを確認した結果
+ * @memberof input
+ */
 const isValidSignature = async (clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64) => {
   const query = 'select * from access_info.secret_list where client_id = $1'
   const paramList = [clientId]
@@ -39,6 +74,15 @@ const isValidSignature = async (clientId, dataToSign, signature, execQuery, para
 
 
 /* from userList */
+/**
+ * getUserByEmailAddress.
+ *
+ * @param {} emailAddress
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {User} メールアドレスでDBから取得したユーザ
+ * @memberof input
+ */
 const getUserByEmailAddress = async (emailAddress, execQuery, paramSnakeToCamel) => {
   const query = 'select * from user_info.user_list where email_address = $1'
   const paramList = [emailAddress]
@@ -54,6 +98,17 @@ const getUserByEmailAddress = async (emailAddress, execQuery, paramSnakeToCamel)
   return user
 }
 
+/**
+ * isValidCredential.
+ *
+ * @param {} emailAddress
+ * @param {} passHmac2
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @param {} calcPbkdf2
+ * @return {boolean} ユーザ名とパスワードが正しいかどうか
+ * @memberof input
+ */
 const isValidCredential = async (emailAddress, passHmac2, execQuery, paramSnakeToCamel, calcPbkdf2) => {
   const query = 'select * from user_info.credential_list where email_address = $1'
   const paramList = [emailAddress]
@@ -75,6 +130,15 @@ const isValidCredential = async (emailAddress, passHmac2, execQuery, paramSnakeT
 }
 
 /* from authSessionList */
+/**
+ * getAuthSessionByCode.
+ *
+ * @param {} code
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {Session} DBから取得したセッション情報
+ * @memberof input
+ */
 const getAuthSessionByCode = async (code, execQuery, paramSnakeToCamel) => {
   const query = 'select * from access_info.auth_session_list where code = $1'
   const paramList = [code]
@@ -91,6 +155,16 @@ const getAuthSessionByCode = async (code, execQuery, paramSnakeToCamel) => {
 }
 
 /* from accessTokenList */
+/**
+ * _checkPermission.
+ *
+ * @param {} splitPermissionList
+ * @param {} operationKey
+ * @param {} range
+ * @param {} dataType
+ * @return {boolean} 権限があるかどうか
+ * @memberof input
+ */
 const _checkPermission = (splitPermissionList, operationKey, range, dataType) => {
   const { required, optional } = splitPermissionList
   const permissionList = { ...required, ...optional }
@@ -123,6 +197,17 @@ const _checkPermission = (splitPermissionList, operationKey, range, dataType) =>
 }
 
 /* from accessTokenList, userList */
+/**
+ * getUserByAccessToken.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} filterKeyList
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {User} アクセストークンでDBから取得したユーザ情報
+ * @memberof input
+ */
 const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel) => {
   /* clientId, accessToken => emailAddress */
   const queryGetEmailAddress = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
@@ -192,6 +277,16 @@ const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQu
   return { public: publicData }
 }
 
+/**
+ * getCheckedRequiredPermissionList.
+ *
+ * @param {} clientId
+ * @param {} emailAddress
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {Array} 必須の権限をDBから取得した結果
+ * @memberof input
+ */
 const getCheckedRequiredPermissionList = async (clientId, emailAddress, execQuery, paramSnakeToCamel) => {
   const query = 'select * from access_info.access_token_list where client_id = $1 and email_address = $2'
   const paramList = [clientId, emailAddress]
@@ -209,6 +304,19 @@ const getCheckedRequiredPermissionList = async (clientId, emailAddress, execQuer
   return permissionList
 }
 
+/**
+ * checkPermissionAndGetEmailAddress.
+ *
+ * @param {} accessToken
+ * @param {} clientId
+ * @param {} operationKey
+ * @param {} range
+ * @param {} dataType
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {String} アクセストークンでDBから取得したメールアドレス
+ * @memberof input
+ */
 const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel) => {
   const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
   const paramList = [clientId, accessToken]
@@ -230,6 +338,16 @@ const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operatio
 
 
 /* from notificationList */
+/**
+ * getNotification.
+ *
+ * @param {} emailAddress
+ * @param {} notificationRange
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {Array} メールアドレスでDBから取得した通知一覧
+ * @memberof input
+ */
 const getNotification = async (emailAddress, notificationRange, execQuery, paramSnakeToCamel) => {
   const queryGetLastOpenedNotificationId = 'select * from notification_info.opened_notification_list where email_address = $1 and notification_range = $2'
   const paramListGetLastOpenedNotificationId = [emailAddress, notificationRange]
@@ -266,6 +384,16 @@ const getNotification = async (emailAddress, notificationRange, execQuery, param
 }
 
 /* from fileList */
+/**
+ * getFileContent.
+ *
+ * @param {} emailAddress
+ * @param {} clientId
+ * @param {} owner
+ * @param {} filePath
+ * @return {Array} メールアドレスとファイルパスで取得したファイル
+ * @memberof input
+ */
 const getFileContent = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
@@ -275,6 +403,16 @@ const getFileContent = async (emailAddress, clientId, owner, filePath) => {
   return fileList[emailAddress][owner][filePath].content
 }
 
+/**
+ * getFileList.
+ *
+ * @param {} emailAddress
+ * @param {} clientId
+ * @param {} owner
+ * @param {} filePath
+ * @return {Array} メールアドレスとファイルパスで取得したファイル内容
+ * @memberof input
+ */
 const getFileList = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {

@@ -1,8 +1,28 @@
 /** 
+ * @namespace action
+ */
+
+/** 
+ * @namespace setting
+ */
+
+/** 
+ * @namespace output
+ */
+
+/** 
  * @namespace core
  */
 
 /** 
- * @namespace action
+ * @namespace input
+ */
+
+/** 
+ * @namespace app
+ */
+
+/** 
+ * @namespace lib
  */
 
