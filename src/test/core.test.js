@@ -1,6 +1,7 @@
 import init from './init.js'
 import core from '../core.js'
 import ulid from 'ulid'
+import pg from 'pg'
 
 const SESSION_OBJ = {
   oidc: {

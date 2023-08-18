@@ -1,7 +1,8 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
 import crypto from 'crypto'
-import ulid from 'ulid'
+// undefined?
+// import ulid from 'ulid'
 import pg from 'pg'
 
 import setting from '../setting/index.js'
@@ -17,6 +18,7 @@ const asocial = {
 const a = asocial
 
 const init = async () => {
+  const ulid = { ulid: () => { return '01ARZ3NDEKTSV4RRFFQ69G5FAV' } }
   dotenv.config({ path: './.testenv' })
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)
