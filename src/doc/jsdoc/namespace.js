@@ -1,12 +1,28 @@
-/**
- * @namespace file
+/** 
+ * @namespace action
  */
-/**
- * @namespace function
+
+/** 
+ * @namespace setting
  */
-/**
- * @namespace feature
+
+/** 
+ * @namespace output
  */
-/**
- * @namespace parameter
+
+/** 
+ * @namespace core
  */
+
+/** 
+ * @namespace input
+ */
+
+/** 
+ * @namespace app
+ */
+
+/** 
+ * @namespace lib
+ */
+

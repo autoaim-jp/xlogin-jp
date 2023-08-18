@@ -1,27 +1,63 @@
 /* /action.js */
+/**
+ * @file
+ * @name イベントが発生したら動くアクションをまとめたファイル
+ * @memberof action
+ */
 
+/**
+ * getHandlerConnect.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleConnect
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) => {
   return async (req, res) => {
     const user = req.session.auth?.user
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     } = paramSnakeToCamel(req.query)
-    const resultHandleConnect = await handleConnect(user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope)
+    const resultHandleConnect = await handleConnect({
+      user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
+    })
     endResponse(req, res, resultHandleConnect)
   }
 }
 
+/**
+ * getHandlerCode.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleCode
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerCode = ({ paramSnakeToCamel, handleCode, endResponse }) => {
   return async (req, res) => {
     const {
-      clientId, state, code, codeVerifier,
+      clientId, code, codeVerifier,
     } = paramSnakeToCamel(req.query)
-    const resultHandleCode = await handleCode(clientId, state, code, codeVerifier)
+    const resultHandleCode = await handleCode({
+      clientId, code, codeVerifier,
+    })
     endResponse(req, res, resultHandleCode)
   }
 }
 
 /* user */
+/**
+ * getHandlerUserInfo.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleUserInfo
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -33,6 +69,15 @@ const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) 
   }
 }
 
+/**
+ * getHandlerUserInfoUpdate.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleUserInfoUpdate
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerUserInfoUpdate = ({ paramSnakeToCamel, handleUserInfoUpdate, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -46,6 +91,15 @@ const getHandlerUserInfoUpdate = ({ paramSnakeToCamel, handleUserInfoUpdate, end
 
 
 /* notification */
+/**
+ * getHandlerNotificationList.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleNotificationList
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerNotificationList = ({ paramSnakeToCamel, handleNotificationList, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -57,6 +111,15 @@ const getHandlerNotificationList = ({ paramSnakeToCamel, handleNotificationList,
   }
 }
 
+/**
+ * getHandlerNotificationAppend.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleNotificationAppend
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerNotificationAppend = ({ paramSnakeToCamel, handleNotificationAppend, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -68,6 +131,15 @@ const getHandlerNotificationAppend = ({ paramSnakeToCamel, handleNotificationApp
   }
 }
 
+/**
+ * getHandlerNotificationOpen.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleNotificationOpen
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerNotificationOpen = ({ paramSnakeToCamel, handleNotificationOpen, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -81,6 +153,15 @@ const getHandlerNotificationOpen = ({ paramSnakeToCamel, handleNotificationOpen,
 
 
 /* file */
+/**
+ * getHandlerFileUpdate.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFileUpdate
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerFileUpdate = ({ paramSnakeToCamel, handleFileUpdate, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -92,6 +173,15 @@ const getHandlerFileUpdate = ({ paramSnakeToCamel, handleFileUpdate, endResponse
   }
 }
 
+/**
+ * getHandlerFileContent.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFileContent
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -103,6 +193,15 @@ const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent, endRespon
   }
 }
 
+/**
+ * getHandlerFileDelete.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFileDelete
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerFileDelete = ({ paramSnakeToCamel, handleFileDelete, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -114,6 +213,15 @@ const getHandlerFileDelete = ({ paramSnakeToCamel, handleFileDelete, endResponse
   }
 }
 
+/**
+ * getHandlerFileList.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFileList
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -126,6 +234,15 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
 }
 
 /* auth */
+/**
+ * getHandlerCredentialCheck.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleCredentialCheck
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerCredentialCheck = ({ paramSnakeToCamel, handleCredentialCheck, endResponse }) => {
   return async (req, res) => {
     const { emailAddress, passHmac2 } = paramSnakeToCamel(req.body)
@@ -134,15 +251,33 @@ const getHandlerCredentialCheck = ({ paramSnakeToCamel, handleCredentialCheck, e
   }
 }
 
+/**
+ * getHandlerThroughCheck.
+ *
+ * @param {} handleThrough
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerThroughCheck = ({ handleThrough, endResponse }) => {
   return async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const resultHandleThrough = await handleThrough(ipAddress, useragent, req.session.auth)
+    const authSession = req.session.auth
+    const resultHandleThrough = await handleThrough({ ipAddress, useragent, authSession })
     endResponse(req, res, resultHandleThrough)
   }
 }
 
+/**
+ * getHandlerPermissionCheck.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleConfirm
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerPermissionCheck = ({ paramSnakeToCamel, handleConfirm, endResponse }) => {
   return async (req, res) => {
     const { useragent } = req
@@ -153,6 +288,14 @@ const getHandlerPermissionCheck = ({ paramSnakeToCamel, handleConfirm, endRespon
   }
 }
 
+/**
+ * getHandlerUserAdd.
+ *
+ * @param {} handleUserAdd
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
   return async (req, res) => {
     const {
@@ -163,6 +306,14 @@ const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
   }
 }
 
+/**
+ * getHandlerScopeList.
+ *
+ * @param {} handleScope
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerScopeList = ({ handleScope, endResponse }) => {
   return async (req, res) => {
     const resultHandleScope = await handleScope(req.session.auth)
@@ -170,6 +321,15 @@ const getHandlerScopeList = ({ handleScope, endResponse }) => {
   }
 }
 
+/**
+ * getHandlerGlobalNotification.
+ *
+ * @param {} handleGlobalNotification
+ * @param {} ALL_NOTIFICATION
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATION, endResponse }) => {
   return async (req, res) => {
     const resultHandleNotification = await handleGlobalNotification(req.session.auth, ALL_NOTIFICATION)
@@ -177,6 +337,14 @@ const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATI
   }
 }
 
+/**
+ * getHandlerHandleLogout.
+ *
+ * @param {} handleLogout
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
 const getHandlerHandleLogout = ({ handleLogout, endResponse }) => {
   return async (req, res) => {
     const resultHandleLogout = await handleLogout()
@@ -186,6 +354,15 @@ const getHandlerHandleLogout = ({ handleLogout, endResponse }) => {
 
 
 /* common */
+/**
+ * getHandlerCheckSignature.
+ *
+ * @param {} isValidSignature
+ * @param {} INVALID_CREDENTIAL
+ * @param {} endResponse
+ * @return {Promise(Express.next())} 署名が正しかった場合はnext()が呼び出される
+ * @memberof action
+ */
 const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endResponse }) => {
   return async (req, res, next) => {
     const clientId = req.headers['x-xlogin-client-id']

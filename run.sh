@@ -2,15 +2,27 @@
 
 # using docker, git, yarn
 
-XDEVKIT_VERSION=v0.17
-
-if [ $# != 2 ]; then
-  echo "run.sh (app | test) (build | config | up | down)"
+if [ ! $# = 0 ] && [ $1 = "help" ]; then
+  echo "./run.sh (app | test) (build | config | up | down)"
+  echo "example:"
+  echo "  ./run.sh app up #start server"
+  echo "  ./run.sh app down #stop server"
+  echo "  ./run.sh app build #recreate image"
+  echo "  ./run.sh app xdevkit #update xdevkit"
   exit 1
 fi
+echo "./run.sh help #show help"
 
-fileId=${1:-test}
-op=${2:-config}
+set -euxo pipefail
+
+XDEVKIT_VERSION=v0.17
+
+fileId=${1:-app}
+op=${2:-up}
+projectName=xlogin-jp-${fileId}
+dockerComposeFile=./docker-compose.${fileId}.yml
+
+echo "===== ./run.sh ${fileId} ${op} ====="
 
 
 if [ $op = "build" ] || [ $op = "xdevkit" ]; then
@@ -18,14 +30,22 @@ if [ $op = "build" ] || [ $op = "xdevkit" ]; then
   git submodule update -i && pushd src/xdevkit/ && git checkout master && git pull && git checkout $XDEVKIT_VERSION && git pull origin $XDEVKIT_VERSION && yarn install && popd && cp ./src/xdevkit/server/browserServerSetting.js ./src/setting/browserServerSetting.js && cp ./src/xdevkit/server/browserServerSetting.js ./src/view/src/js/_setting/browserServerSetting.js && cp -r ./src/xdevkit/view/src/js/_xdevkit ./src/view/src/js/_lib/
 fi
 
-export COMPOSE_FILE=./docker-compose.${fileId}.yml
-
 # docker compose config
 # docker compose build
 # docker compose up
 # docker compose down
 
-if [ ! $op = "xdevkit" ]; then
-  docker compose $op
+
+if [ $fileId = "test" ] && [ $op = "up" ] ; then
+  docker compose -p ${projectName} -f ${dockerComposeFile} up --abort-on-container-exit
+elif [ $op = "clean" ] ; then
+  docker compose -p ${projectName} -f ${dockerComposeFile} down
+  docker volume rm ${projectName}_xl-rc-redis
+  docker volume rm ${projectName}_xl-pc-psql
+  docker volume rm ${projectName}_xl-wc-nm
+elif [ ! $op = "clean" ] && [ ! $op = "xdevkit" ]; then
+  docker compose -p ${projectName} -f ${dockerComposeFile} $op
 fi
+
+
 

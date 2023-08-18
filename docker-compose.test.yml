@@ -2,25 +2,46 @@ version: '3'
 
 services:
   rediscontainer:
+    container_name: xltest-rediscontainer
     build:
       context: .
       dockerfile: ./docker/rediscontainer/Dockerfile
+    volumes:
+      - xltest-rc-redis:/data
+  psqlcontainer:
+    container_name: xltest-psqlcontainer
+    build:
+      context: .
+      dockerfile: ./docker/psqlcontainer/Dockerfile
+    ports:
+      - 5432:5432
+    volumes:
+      - xltest-pc-psql:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=psqladmin
+      - POSTGRES_PASSWORD=psqlpass
   webcontainer:
+    container_name: xltest-webcontainer
     build:
       context: .
       dockerfile: ./docker/webcontainer/Dockerfile
-    tty: false
+    tty: true
+    ports:
+      - 4000:4000
+    volumes:
+      - ./src:/app
+      - xltest-wc-nm:/app/node_modules
     environment:
      - IS_TEST=true
-    command: sh -c "npm start"
+    command: sh -c "npm run test"
     depends_on:
       - rediscontainer
-  testclient:
-    build:
-      context: .
-      dockerfile: ./docker/testclient/Dockerfile
-    command: sh -c "npm test"
-    depends_on:
-      - webcontainer
+      - psqlcontainer
+
+volumes:
+  xltest-rc-redis:
+  xltest-pc-psql:
+  xltest-wc-nm:
 
 
