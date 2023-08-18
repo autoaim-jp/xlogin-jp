@@ -34,7 +34,7 @@
     "compile-minify": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile --minify",
     "watch": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command watch",
     "gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
-    "gendoc-deploy": "gendoc && gh-pages -d src/doc/jsdoc/html -m \"update: --skip-ci\""
+    "gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
   },
   "type": "module",
   "devDependencies": {
