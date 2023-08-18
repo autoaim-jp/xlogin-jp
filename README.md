@@ -1,7 +1,7 @@
 # xlogin-jp
 
-![test status]https://github.com/autoaim-jp/xlogin-jp/actions/workflows/test.yml/badge.svg
-![eslint status]https://github.com/autoaim-jp/xlogin-jp/actions/workflows/eslint.yml/badge.svg
+![test status](https://github.com/autoaim-jp/xlogin-jp/actions/workflows/test.yml/badge.svg)
+![eslint status](https://github.com/autoaim-jp/xlogin-jp/actions/workflows/eslint.yml/badge.svg)
 
 # tag
 マイクロサービスアーキテクチャ, docker, asocial
