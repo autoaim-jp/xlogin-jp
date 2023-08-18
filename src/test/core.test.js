@@ -62,8 +62,6 @@ describe('handleConnect', () => {
 
     expect(handleResult).toHaveProperty('response', null)
     expect(handleResult).toHaveProperty('redirect')
-    
-    expect(handleResult).toHaveProperty('test-fail-test')
   })
 }, 10 * 1000)
 
