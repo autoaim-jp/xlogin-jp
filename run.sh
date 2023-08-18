@@ -37,12 +37,7 @@ fi
 
 
 if [ $fileId = "test" ] && [ $op = "up" ] ; then
-  docker compose -p ${projectName} -f ${dockerComposeFile} up > test.log &
-  sleep 120
-  docker compose -p ${projectName} -f ${dockerComposeFile} down >> test.log &
-
-  cat test.log
-  cat test.log | grep "success"
+  docker compose -p ${projectName} -f ${dockerComposeFile} up --abort-on-container-exit
 elif [ $op = "clean" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} down
   docker volume rm ${projectName}_xl-rc-redis

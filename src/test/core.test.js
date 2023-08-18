@@ -116,3 +116,7 @@ describe('handleCode', () => {
   })
 })
 
+afterAll(async () => {
+  await init.end()
+})
+

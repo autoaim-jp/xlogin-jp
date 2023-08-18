@@ -30,6 +30,16 @@ const setPgPool = (pgPool) => {
   mod.pgPool = pgPool
 }
 
+/**
+ * closePgPool.
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof lib
+ */
+const closePgPool = async () => {
+  await mod.pgPool.end()
+}
+
 /* url */
 /**
  * objToQuery.
@@ -313,6 +323,7 @@ const monkeyPatch = () => {
 export default {
   init,
   setPgPool,
+  closePgPool,
 
   objToQuery,
   addQueryStr,

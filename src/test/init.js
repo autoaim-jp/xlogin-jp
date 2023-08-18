@@ -30,7 +30,12 @@ const init = async () => {
   await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
 }
 
+const end = async () => {
+  await a.lib.closePgPool()
+}
+
 export default {
   init,
+  end,
 }
 
