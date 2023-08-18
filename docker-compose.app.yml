@@ -7,14 +7,14 @@ services:
       context: .
       dockerfile: ./docker/rediscontainer/Dockerfile
     volumes:
-      - xl-rc-redis:/data
+      - app_xl-rc-redis:/data
   psqlcontainer:
     container_name: xlapp-psqlcontainer
     build:
       context: .
       dockerfile: ./docker/psqlcontainer/Dockerfile
     volumes:
-      - xl-pc-psql:/var/lib/postgresql/data
+      - app_xl-pc-psql:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=psqladmin
@@ -29,7 +29,7 @@ services:
       - 3000:3000
     volumes:
       - ./src:/app
-      - xl-wc-nm:/app/node_modules
+      - app_xl-wc-nm:/app/node_modules
     environment:
      - IS_TEST=false
     command: sh -c "npm run start-watch"
@@ -38,8 +38,8 @@ services:
       - psqlcontainer
 
 volumes:
-  xl-rc-redis:
-  xl-pc-psql:
-  xl-wc-nm:
+  app_xl-rc-redis:
+  app_xl-pc-psql:
+  app_xl-wc-nm:
 
 
