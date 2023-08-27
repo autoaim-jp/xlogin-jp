@@ -15,7 +15,7 @@ services:
       dockerfile: ./docker/psqlcontainer/Dockerfile
     volumes:
       - xltest-volume-pc-psql:/var/lib/postgresql/data
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
@@ -28,7 +28,7 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ./src:/app
+      - ../src:/app
       - xltest-volume-wc-nm:/app/node_modules
     environment:
      - IS_TEST=true
