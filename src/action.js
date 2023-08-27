@@ -64,7 +64,7 @@ const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) 
     const clientId = req.headers['x-xlogin-client-id']
     const { filterKeyListStr } = paramSnakeToCamel(req.query)
 
-    const resultHandleUserInfo = await handleUserInfo(clientId, accessToken, filterKeyListStr)
+    const resultHandleUserInfo = await handleUserInfo({ clientId, accessToken, filterKeyListStr })
     endResponse(req, res, resultHandleUserInfo)
   }
 }
@@ -246,7 +246,7 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
 const getHandlerCredentialCheck = ({ paramSnakeToCamel, handleCredentialCheck, endResponse }) => {
   return async (req, res) => {
     const { emailAddress, passHmac2 } = paramSnakeToCamel(req.body)
-    const resultHandleCredentialCheck = await handleCredentialCheck(emailAddress, passHmac2, req.session.auth)
+    const resultHandleCredentialCheck = await handleCredentialCheck({ emailAddress, passHmac2, authSession: req.session.auth })
     endResponse(req, res, resultHandleCredentialCheck)
   }
 }
@@ -283,7 +283,9 @@ const getHandlerPermissionCheck = ({ paramSnakeToCamel, handleConfirm, endRespon
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const { permissionList } = paramSnakeToCamel(req.body)
-    const resultHandleConfirm = await handleConfirm(ipAddress, useragent, permissionList, req.session.auth)
+    const resultHandleConfirm = await handleConfirm({
+      ipAddress, useragent, permissionList, authSession: req.session.auth,
+    })
     endResponse(req, res, resultHandleConfirm)
   }
 }

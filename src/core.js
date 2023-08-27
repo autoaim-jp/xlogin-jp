@@ -185,6 +185,7 @@ const handleConnect = async ({
 const handleCode = async ({
   clientId, code, codeVerifier,
 }) => {
+  console.log('handleCode', clientId, code, codeVerifier)
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -233,7 +234,8 @@ const handleCode = async ({
  * @return {HandleResult} ユーザ情報を取得した結果
  * @memberof core
  */
-const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
+const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
+  console.log(clientId, accessToken, filterKeyListStr)
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -245,6 +247,7 @@ const handleUserInfo = async (clientId, accessToken, filterKeyListStr) => {
 
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  console.log(userInfo)
   return {
     status, session: null, response: { result: { userInfo } }, redirect: null,
   }
@@ -484,7 +487,8 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
  * @return {HandleResult} メールアドレスとパスワードを確認した結果
  * @memberof core
  */
-const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
+const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) => {
+  console.log(emailAddress, passHmac2, authSession)
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_credential_session'
@@ -504,7 +508,9 @@ const handleCredentialCheck = async (emailAddress, passHmac2, authSession) => {
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* after /f/confirm/ */
@@ -544,7 +550,9 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
   await mod.output.registerAuthSession(newUserSession, mod.lib.execQuery)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* POST /f/confirm/through/check */
@@ -570,7 +578,9 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!permissionList) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_FOUND')
     const result = { oldPermissionList: null, requestScope }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   let uncheckedPermissionExists = false
@@ -600,7 +610,9 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (uncheckedPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { oldPermissionList: permissionList, requestScope }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
@@ -618,7 +630,10 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
  * @return {HandleResult} 権限を登録した結果
  * @memberof core
  */
-const handleConfirm = async (ipAddress, useragent, permissionList, authSession) => {
+const handleConfirm = async ({
+  ipAddress, useragent, permissionList, authSession,
+}) => {
+  console.log(ipAddress, useragent, permissionList, authSession)
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
@@ -644,7 +659,9 @@ const handleConfirm = async (ipAddress, useragent, permissionList, authSession) 
   if (uncheckedRequiredPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { isRequiredScopeChecked: false }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
@@ -694,7 +711,9 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* GET /f/confirm/scope/list */

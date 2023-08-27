@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/rediscontainer/Dockerfile
     volumes:
-      - xltest-rc-redis:/data
+      - test_xl-rc-redis:/data
   psqlcontainer:
     container_name: xltest-psqlcontainer
     build:
@@ -16,7 +16,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - xltest-pc-psql:/var/lib/postgresql/data
+      - test_xl-pc-psql:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=psqladmin
@@ -31,7 +31,7 @@ services:
       - 4000:4000
     volumes:
       - ./src:/app
-      - xltest-wc-nm:/app/node_modules
+      - test_xl-wc-nm:/app/node_modules
     environment:
      - IS_TEST=true
     command: sh -c "npm run test"
@@ -40,8 +40,8 @@ services:
       - psqlcontainer
 
 volumes:
-  xltest-rc-redis:
-  xltest-pc-psql:
-  xltest-wc-nm:
+  test_xl-rc-redis:
+  test_xl-pc-psql:
+  test_xl-wc-nm:
 
 
