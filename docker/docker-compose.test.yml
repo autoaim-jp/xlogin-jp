@@ -2,36 +2,34 @@ version: '3'
 
 services:
   rediscontainer:
-    container_name: xltest-rediscontainer
+    container_name: xltest-container-redis
     build:
-      context: .
+      context: ../
       dockerfile: ./docker/rediscontainer/Dockerfile
     volumes:
-      - test_xl-rc-redis:/data
+      - xltest-volume-rc-redis:/data
   psqlcontainer:
-    container_name: xltest-psqlcontainer
+    container_name: xltest-container-psql
     build:
-      context: .
+      context: ../
       dockerfile: ./docker/psqlcontainer/Dockerfile
-    ports:
-      - 5432:5432
     volumes:
-      - test_xl-pc-psql:/var/lib/postgresql/data
+      - xltest-volume-pc-psql:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
   webcontainer:
-    container_name: xltest-webcontainer
+    container_name: xltest-container-web
     build:
-      context: .
+      context: ../
       dockerfile: ./docker/webcontainer/Dockerfile
     tty: true
     ports:
       - 4000:4000
     volumes:
       - ./src:/app
-      - test_xl-wc-nm:/app/node_modules
+      - xltest-volume-wc-nm:/app/node_modules
     environment:
      - IS_TEST=true
     command: sh -c "npm run test"
@@ -40,8 +38,8 @@ services:
       - psqlcontainer
 
 volumes:
-  test_xl-rc-redis:
-  test_xl-pc-psql:
-  test_xl-wc-nm:
+  xltest-volume-rc-redis:
+  xltest-volume-pc-psql:
+  xltest-volume-wc-nm:
 
 

@@ -20,7 +20,7 @@ XDEVKIT_VERSION=v0.17
 fileId=${1:-app}
 op=${2:-up}
 projectName=xlogin-jp-${fileId}
-dockerComposeFile=./docker-compose.${fileId}.yml
+dockerComposeFile=./docker/docker-compose.${fileId}.yml
 
 echo "===== ./run.sh ${fileId} ${op} ====="
 
@@ -35,14 +35,10 @@ fi
 # docker compose up
 # docker compose down
 
-
 if [ $fileId = "test" ] && [ $op = "up" ] ; then
   docker compose -p ${projectName} -f ${dockerComposeFile} up --abort-on-container-exit
 elif [ $op = "clean" ] ; then
-  docker compose -p ${projectName} -f ${dockerComposeFile} down
-  docker volume rm ${projectName}_xl-rc-redis
-  docker volume rm ${projectName}_xl-pc-psql
-  docker volume rm ${projectName}_xl-wc-nm
+  docker compose -p ${projectName} -f ${dockerComposeFile} down --volumes
 elif [ ! $op = "clean" ] && [ ! $op = "xdevkit" ]; then
   docker compose -p ${projectName} -f ${dockerComposeFile} $op
 fi
