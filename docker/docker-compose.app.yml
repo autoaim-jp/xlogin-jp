@@ -5,14 +5,14 @@ services:
     container_name: xlapp-container-redis
     build:
       context: ../
-      dockerfile: ./docker/rediscontainer/Dockerfile
+      dockerfile: ./docker/redisContainer/Dockerfile
     volumes:
       - xlapp-volume-rc-redis:/data
   psql_container:
     container_name: xlapp-container-psql
     build:
       context: ../
-      dockerfile: ./docker/psqlcontainer/Dockerfile
+      dockerfile: ./docker/psqlContainer/Dockerfile
     volumes:
       - xlapp-volume-pc-psql:/var/lib/postgresql/data
       - ../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -23,7 +23,7 @@ services:
     container_name: xlapp-container-auth-web
     build:
       context: ../
-      dockerfile: ./docker/webcontainer/Dockerfile
+      dockerfile: ./docker/authWebContainer/Dockerfile
     tty: true
     ports:
       - 3000:3000

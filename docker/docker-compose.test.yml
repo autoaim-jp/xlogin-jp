@@ -5,14 +5,14 @@ services:
     container_name: xltest-container-redis
     build:
       context: ../
-      dockerfile: ./docker/rediscontainer/Dockerfile
+      dockerfile: ./docker/redisContainer/Dockerfile
     volumes:
       - xltest-volume-rc-redis:/data
   psql_container:
     container_name: xltest-container-psql
     build:
       context: ../
-      dockerfile: ./docker/psqlcontainer/Dockerfile
+      dockerfile: ./docker/psqlContainer/Dockerfile
     volumes:
       - xltest-volume-pc-psql:/var/lib/postgresql/data
       - ../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -23,7 +23,7 @@ services:
     container_name: xltest-container-auth-web
     build:
       context: ../
-      dockerfile: ./docker/webcontainer/Dockerfile
+      dockerfile: ./docker/authWebContainer/Dockerfile
     tty: true
     ports:
       - 4000:4000
