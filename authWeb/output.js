@@ -250,8 +250,14 @@ const endResponse = (req, res, handleResult) => {
   req.session.auth = handleResult.session
 
   if (handleResult.response) {
+    if (mod.setting.getValue('api.deprecated')[req.path]) {
+      handleResult.response.api = handleResult.response.api || {}
+      Object.assign(handleResult.response.api, mod.setting.getValue('api.deprecated')[req.path])
+    }
+
     return res.json(handleResult.response)
   }
+
   if (req.method === 'GET') {
     if (handleResult.redirect) {
       return res.redirect(handleResult.redirect)
