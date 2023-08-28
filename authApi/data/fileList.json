@@ -9,13 +9,7 @@
     }
   },
   "user@example.com": {
-    "sample_localhost": {
-      "/message.txt": {
-        "dateUpdated": 1693210041621,
-        "clientId": "sample_localhost",
-        "content": "75423"
-      }
-    }
+    "sample_localhost": {}
   },
   "user3@example.com": {
     "sample_localhost": {
