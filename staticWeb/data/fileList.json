@@ -1,0 +1,36 @@
+{
+  "user2@example.com": {
+    "sample_localhost7001": {
+      "/message.txt": {
+        "dateUpdated": 1662879456944,
+        "clientId": "sample_localhost7001",
+        "content": "ab"
+      }
+    }
+  },
+  "user@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1693159480183,
+        "clientId": "sample_localhost",
+        "content": "cccccccff"
+      }
+    }
+  },
+  "user3@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1682844104438,
+        "clientId": "sample_localhost",
+        "content": "d"
+      }
+    },
+    "sample_localhost_2": {
+      "/message.txt": {
+        "dateUpdated": 1682869065022,
+        "clientId": "sample_localhost_2",
+        "content": "yes"
+      }
+    }
+  }
+}

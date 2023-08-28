@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY ./authWeb /app
+COPY ./staticWeb /app
 
 RUN npm install
 

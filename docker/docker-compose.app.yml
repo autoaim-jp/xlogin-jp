@@ -8,6 +8,7 @@ services:
       dockerfile: ./docker/redisContainer/Dockerfile
     volumes:
       - xlapp-volume-rc-redis:/data
+
   psql_container:
     container_name: xlapp-container-psql
     build:
@@ -19,21 +20,39 @@ services:
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
-  auth_web_container:
-    container_name: xlapp-container-auth-web
+
+  auth_api_container:
+    container_name: xlapp-container-auth-api
     build:
       context: ../
-      dockerfile: ./docker/authWebContainer/Dockerfile
+      dockerfile: ./docker/authApiContainer/Dockerfile
     tty: true
     volumes:
-      - ../authWeb:/app
-      - xlapp-volume-awc-nm:/app/node_modules
+      - ../authApi:/app
+      - xlapp-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
     command: sh -c "npm run start-watch"
     depends_on:
       - redis_container
       - psql_container
+
+  static_web_container:
+    container_name: xlapp-container-static-web
+    build:
+      context: ../
+      dockerfile: ./docker/staticWebContainer/Dockerfile
+    tty: true
+    volumes:
+      - ../staticWeb:/app
+      - xlapp-volume-swc-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "npm run start-watch"
+    depends_on:
+      - redis_container
+      - psql_container
+
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
@@ -44,11 +63,13 @@ services:
     volumes:
       - ../reverseProxy/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - auth_web_container
+      - auth_api_container
+      - static_web_container
 
 volumes:
   xlapp-volume-rc-redis:
   xlapp-volume-pc-psql:
-  xlapp-volume-awc-nm:
+  xlapp-volume-aac-nm:
+  xlapp-volume-swc-nm:
 
 

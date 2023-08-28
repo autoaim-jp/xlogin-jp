@@ -1,0 +1,39 @@
+{
+  "accessTokenList": {
+    "5787w4x1Nh4f00f86YL1oVmaOsAU0rMLQNRGu6ZWvmQCzDKBhi6pS5dh0RwPJlxE": {
+      "clientId": "sample_localhost",
+      "emailAddress": "user@example.com",
+      "splitPermissionList": {
+        "required": {
+          "r:auth:userName": true,
+          "r:sample_localhost:serviceUserId": true,
+          "rw:sample_localhost:notification": true
+        },
+        "optional": {
+          "r:auth:emailAddress": false,
+          "rw:auth:backupEmailAddress": false,
+          "rw:sample_localhost:file": true
+        }
+      }
+    }
+  },
+  "clientList": {
+    "sample_localhost": {
+      "user@example.com": {
+        "accessToken": "5787w4x1Nh4f00f86YL1oVmaOsAU0rMLQNRGu6ZWvmQCzDKBhi6pS5dh0RwPJlxE",
+        "splitPermissionList": {
+          "required": {
+            "r:auth:userName": true,
+            "r:sample_localhost:serviceUserId": true,
+            "rw:sample_localhost:notification": true
+          },
+          "optional": {
+            "r:auth:emailAddress": false,
+            "rw:auth:backupEmailAddress": false,
+            "rw:sample_localhost:file": true
+          }
+        }
+      }
+    }
+  }
+}
