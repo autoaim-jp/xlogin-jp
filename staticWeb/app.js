@@ -7,12 +7,12 @@
 import fs from 'fs'
 import https from 'https'
 import crypto from 'crypto'
-import ulid from 'ulid'
 import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
 
 import setting from './setting/index.js'
+
 const asocial = {
   setting,
 }
