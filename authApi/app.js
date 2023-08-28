@@ -15,7 +15,6 @@ import cookieParser from 'cookie-parser'
 import Redis from 'ioredis'
 import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
-import path from 'path'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
 
