@@ -120,4 +120,3 @@ export const calcPbkdf2 = (str, salt) => {
   })
 }
 
-

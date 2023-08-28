@@ -21,6 +21,7 @@ export const ejsConfig = {
     componentPath: __dirname + '/../ejs/component/',
     xdevkitComponentPath: __dirname + '/../../../xdevkit/view/src/ejs/component/',
   },
+
   index: {
     title: 'xlogin.jp',
     description: 'simple login service',
@@ -32,6 +33,7 @@ export const ejsConfig = {
     inlineScriptList: ['/js/index/app.js'],
     externalScriptList: [],
   },
+  
   login: {
     title: 'login | xlogin.jp',
     description: 'login page',
@@ -43,6 +45,7 @@ export const ejsConfig = {
     inlineScriptList: ['/js/login/app.js'],
     externalScriptList: [],
   },
+
   confirm: {
     title: 'confirm | xlogin.jp',
     description: 'confirm permission',
@@ -55,6 +58,7 @@ export const ejsConfig = {
     externalScriptList: [],
 
   },
+
   register: {
     title: 'register | xlogin.jp',
     description: 'register page',
@@ -80,14 +84,38 @@ export const ejsConfig = {
   },
 
   error: {
-    title: 'register | xlogin.jp',
-    description: 'register page',
+    title: 'error | xlogin.jp',
+    description: 'error page',
     author: 'autoaim_jp',
     breadcrumbList: getBreadcrumbList(['/', '/error']),
 
     inlineCssList: [],
     externalCssList: ['/css/tailwind.css'],
     inlineScriptList: ['/js/error/app.js'],
+    externalScriptList: [],
+  },
+
+  tos: {
+    title: 'tos | xlogin.jp',
+    description: 'tos page',
+    author: 'autoaim_jp',
+    breadcrumbList: getBreadcrumbList(['/', '/tos']),
+
+    inlineCssList: [],
+    externalCssList: ['/css/tailwind.css'],
+    inlineScriptList: [],
+    externalScriptList: [],
+  },
+
+  privacyPolicy: {
+    title: 'privacy policy | xlogin.jp',
+    description: 'privacy policy page',
+    author: 'autoaim_jp',
+    breadcrumbList: getBreadcrumbList(['/', '/privacyPolicy']),
+
+    inlineCssList: [],
+    externalCssList: ['/css/tailwind.css'],
+    inlineScriptList: [],
     externalScriptList: [],
   },
 }

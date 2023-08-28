@@ -41,7 +41,7 @@ export const setOnClickNavManu = () => {
 
 /* notification */
 let notificationIsVisible = false
-export const showGlobalNotification = async (apiEndpoint, getRequest) => {
+export const showGlobalNotification = async (apiEndpoint, getRequest, showModal) => {
   const durationShow = 0.5
   const durationHide = 0.2
   const resultFetchGlobalNotification = await getRequest(`${apiEndpoint}/notification/global/list`)
@@ -84,7 +84,7 @@ export const showGlobalNotification = async (apiEndpoint, getRequest) => {
   }, (durationShow + durationHide) * notificationList.length * 1000 + 3 * 1000)
 }
 
-export const setOnClickNotification = (apiEndpoint, applyElmList, getRequest) => {
+export const setOnClickNotification = (apiEndpoint, applyElmList, getRequest, showModal) => {
   applyElmList('[data-id="notificationBtn"]', (notificationBtn) => {
     notificationBtn.onclick = (e) => {
       e.preventDefault()
@@ -93,7 +93,7 @@ export const setOnClickNotification = (apiEndpoint, applyElmList, getRequest) =>
         return
       }
       notificationIsVisible = true
-      showGlobalNotification(apiEndpoint, getRequest)
+      showGlobalNotification(apiEndpoint, getRequest, showModal)
     }
   })
 }
