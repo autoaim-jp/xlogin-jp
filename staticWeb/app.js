@@ -27,8 +27,8 @@ const _getStaticRouter = () => {
   const expressRouter = express.Router()
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
-  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.getValue('static.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + setting.getValue('static.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
 
   return expressRouter
 }

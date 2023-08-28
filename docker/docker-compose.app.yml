@@ -21,7 +21,7 @@ services:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
 
-static_web_container:
+  static_web_container:
     container_name: xlapp-container-static-web
     build:
       context: ../

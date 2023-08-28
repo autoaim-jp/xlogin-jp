@@ -16,8 +16,6 @@ setting.startup = {}
 setting.startup.MAX_RETRY_PSQL_CONNECT_N = 30
 setting.server = {}
 setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
-setting.server.PUBLIC_BUILD_DIR = 'view/build'
-setting.server.PUBLIC_STATIC_DIR = 'view/static'
 setting.server.PRIVATE_FILE_DIR = 'data/file'
 setting.server.FILE_LIST_JSON = 'data/fileList.json'
 

@@ -9,10 +9,9 @@ const init = (env) => {
   setting.env.SERVER_PORT = env.SERVER_PORT
 }
 
-setting.server = {}
-setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
-setting.server.PUBLIC_BUILD_DIR = 'view/build'
-setting.server.PUBLIC_STATIC_DIR = 'view/static'
+setting.static = {}
+setting.static.PUBLIC_BUILD_DIR = 'view/build'
+setting.static.PUBLIC_STATIC_DIR = 'view/static'
 
 const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */
