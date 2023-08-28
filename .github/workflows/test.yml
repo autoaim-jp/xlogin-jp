@@ -1,7 +1,7 @@
 name: test
 on: [push]
 jobs:
-  eslint:
+  test-authApi:
     name: GitHub Actions test 
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +14,7 @@ jobs:
 
   slack-notification:
     if: always()
-    needs:  eslint
+    needs: [test-authApi]
     runs-on: ubuntu-latest
     steps:
       - uses: technote-space/workflow-conclusion-action@v1
