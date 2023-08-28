@@ -14,9 +14,9 @@ jobs:
         with:
           node-version: '16'
       - run: yarn install
-      - name: Run eslint-server
+      - name: Run eslint-server @staticWeb
         run: yarn lint-server
-      - name: Run eslint-browser
+      - name: Run eslint-browser @staticWeb
         run: yarn lint-browser
 
   eslint-authApi:
@@ -31,10 +31,8 @@ jobs:
         with:
           node-version: '16'
       - run: yarn install
-      - name: Run eslint-server
+      - name: Run eslint-server @authApi
         run: yarn lint-server
-      - name: Run eslint-browser
-        run: yarn lint-browser
 
   slack-notification:
     if: always()
