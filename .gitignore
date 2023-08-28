@@ -3,11 +3,11 @@
 node_modules/
 .env
 
-authWeb/data/accessTokenList.json
-authWeb/data/authSessionList.json
-authWeb/data/notificationList.json
+authApi/data/accessTokenList.json
+authApi/data/authSessionList.json
+authApi/data/notificationList.json
 
-authWeb/doc/jsdoc/html/
+authApi/doc/jsdoc/html/
 
 data/redis/
 

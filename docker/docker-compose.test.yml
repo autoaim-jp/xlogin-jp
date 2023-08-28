@@ -19,17 +19,17 @@ services:
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
-  auth_web_container:
-    container_name: xltest-container-auth-web
+  auth_api_container:
+    container_name: xltest-container-auth-api
     build:
       context: ../
-      dockerfile: ./docker/authWebContainer/Dockerfile
+      dockerfile: ./docker/authApiContainer/Dockerfile
     tty: true
     ports:
       - 4000:4000
     volumes:
-      - ../authWeb:/app
-      - xltest-volume-awc-nm:/app/node_modules
+      - ../authApi:/app
+      - xltest-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=true
     command: sh -c "npm run test"
@@ -40,6 +40,6 @@ services:
 volumes:
   xltest-volume-rc-redis:
   xltest-volume-pc-psql:
-  xltest-volume-awc-nm:
+  xltest-volume-aac-nm:
 
 

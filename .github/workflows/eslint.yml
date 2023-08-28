@@ -1,12 +1,30 @@
 name: eslint
 on: [push]
 jobs:
-  eslint:
+
+  eslint-staticWeb:
     name: GitHub Actions eslint
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: authWeb
+        working-directory: staticWeb
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: yarn install
+      - name: Run eslint-server
+        run: yarn lint-server
+      - name: Run eslint-browser
+        run: yarn lint-browser
+
+  eslint-authApi:
+    name: GitHub Actions eslint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: authApi
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
