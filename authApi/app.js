@@ -288,28 +288,11 @@ const _getFunctionRouter = () => {
   }))
   expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, globalNotificationHandler)
 
-
-  return expressRouter
-}
-
-/**
- * _getOtherRouter.
- *
- * @return {Express.Router()} その他の処理を含むルーター
- * @memberof app
- */
-const _getOtherRouter = () => {
-  const expressRouter = express.Router()
-
   const handleLogoutHandler = action.getHandlerHandleLogout(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleLogout],
   }))
-  expressRouter.get('/logout', handleLogoutHandler)
-
-  const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
-  expressRouter.use(express.static(appPath + setting.getValue('server.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.get(`${setting.browserServerSetting.getValue('apiEndpoint')}/logout`, handleLogoutHandler)
 
   return expressRouter
 }
@@ -394,7 +377,6 @@ const main = async () => {
   expressApp.use(_getNotificationApiRouter())
   expressApp.use(_getFileRouter())
   expressApp.use(_getFunctionRouter())
-  expressApp.use(_getOtherRouter())
 
   expressApp.use(_getErrorRouter())
 

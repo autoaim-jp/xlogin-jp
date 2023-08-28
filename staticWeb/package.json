@@ -28,7 +28,6 @@
     "lint-server": "eslint *.js setting/",
     "lint-browser": "eslint view/src/js",
     "lint-fix": "yarn lint-server --fix && yarn lint-browser --fix",
-    "test": "yarn jest test/core.test.js",
     "dev-add-service": "node tool/src/registerNewService.js",
     "compile": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile",
     "compile-minify": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile --minify",

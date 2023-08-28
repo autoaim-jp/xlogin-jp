@@ -28,7 +28,6 @@ echo "===== ./run.sh ${fileId} ${op} ====="
 if [ $op = "build" ] || [ $op = "xdevkit" ]; then
   # init-xdevkit
   git submodule update -i && pushd authApi/xdevkit/ && git checkout master && git pull && git checkout $XDEVKIT_VERSION && git pull origin $XDEVKIT_VERSION && yarn install && popd && cp ./authApi/xdevkit/server/browserServerSetting.js ./authApi/setting/browserServerSetting.js && cp ./authApi/xdevkit/server/browserServerSetting.js ./authApi/view/src/js/_setting/browserServerSetting.js && cp -r ./authApi/xdevkit/view/src/js/_xdevkit ./authApi/view/src/js/_lib/
-  git submodule update -i && pushd staticWeb/xdevkit/ && git checkout master && git pull && git checkout $XDEVKIT_VERSION && git pull origin $XDEVKIT_VERSION && yarn install && popd && cp ./staticWeb/xdevkit/server/browserServerSetting.js ./staticWeb/setting/browserServerSetting.js && cp ./staticWeb/xdevkit/server/browserServerSetting.js ./staticWeb/view/src/js/_setting/browserServerSetting.js && cp -r ./staticWeb/xdevkit/view/src/js/_xdevkit ./staticWeb/view/src/js/_lib/
 fi
 
 # docker compose config
