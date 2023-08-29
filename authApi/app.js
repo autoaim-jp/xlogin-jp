@@ -79,24 +79,6 @@ const _getExpressMiddlewareRouter = () => {
 }
 
 /**
- * _getOidcRouter.
- * 
- * @return {Express.Router()} OIDC認証に関する処理を含むルーター
- * @memberof app
- */
-const _getOidcRouter = () => {
-  const expressRouter = express.Router()
-
-  const checkSignature = a.action.getHandlerCheckSignature(argNamed({
-    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
-    core: [a.core.isValidSignature],
-  }))
-
-  return expressRouter
-}
-
-/**
  * _getUserApiRouter.
  *
  * @return {Express.Router()} ユーザーAPIに関する処理を含むルーター
@@ -365,7 +347,6 @@ const main = async () => {
   expressApp.use(_getSessionRouter())
   expressApp.use(_getExpressMiddlewareRouter())
 
-  expressApp.use(_getOidcRouter())
   expressApp.use(_getUserApiRouter())
   expressApp.use(_getNotificationApiRouter())
   expressApp.use(_getFileRouter())
