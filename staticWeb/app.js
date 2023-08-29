@@ -4,8 +4,6 @@
  * @name エントリポイントのファイル
  * @memberof app
  */
-import fs from 'fs'
-import https from 'https'
 import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
@@ -27,8 +25,8 @@ const _getStaticRouter = () => {
   const expressRouter = express.Router()
 
   const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + setting.getValue('static.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
-  expressRouter.use(express.static(appPath + setting.getValue('static.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + a.setting.getValue('static.PUBLIC_BUILD_DIR'), { index: 'index.html', extensions: ['html'] }))
+  expressRouter.use(express.static(appPath + a.setting.getValue('static.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
 
   return expressRouter
 }
@@ -59,20 +57,9 @@ const _getErrorRouter = () => {
  * @memberof app
  */
 const startServer = (expressApp) => {
-  if (setting.getValue('env.SERVER_ORIGIN').indexOf('https') >= 0) {
-    const tlsConfig = {
-      key: fs.readFileSync(setting.getValue('env.TLS_KEY_PATH')),
-      cert: fs.readFileSync(setting.getValue('env.TLS_CERT_PATH')),
-    }
-    const server = https.createServer(tlsConfig, expressApp)
-    server.listen(setting.getValue('env.SERVER_PORT'), () => {
-      console.log(`xlogin.jp listen to port: ${setting.getValue('env.SERVER_PORT')}, origin: ${setting.getValue('env.SERVER_ORIGIN')}`)
-    })
-  } else {
-    expressApp.listen(setting.getValue('env.SERVER_PORT'), () => {
-      console.log(`xlogin.jp listen to port: ${setting.getValue('env.SERVER_PORT')}, origin: ${setting.getValue('env.SERVER_ORIGIN')}`)
-    })
-  }
+  expressApp.listen(a.setting.getValue('env.SERVER_PORT'), () => {
+    console.log(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
+  })
 }
 
 /**
@@ -102,7 +89,7 @@ const main = async () => {
 
   startServer(expressApp)
 
-  console.log(`open: http://${setting.getValue('env.SERVER_ORIGIN')}/`)
+  console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
 }
 
 const app = {

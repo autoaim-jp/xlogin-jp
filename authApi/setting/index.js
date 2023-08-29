@@ -7,8 +7,6 @@ const init = (env) => {
   setting.env = {}
   setting.env.SERVER_ORIGIN = env.SERVER_ORIGIN
   setting.env.SESSION_SECRET = env.SESSION_SECRET
-  setting.env.TLS_KEY_PATH = env.TLS_KEY_PATH
-  setting.env.TLS_CERT_PATH = env.TLS_CERT_PATH
   setting.env.SERVER_PORT = env.SERVER_PORT
 }
 
