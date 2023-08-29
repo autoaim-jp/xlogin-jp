@@ -247,7 +247,9 @@ const deleteFile = async (emailAddress, clientId, owner, filePath) => {
  */
 const endResponse = (req, res, handleResult) => {
   console.log('endResponse:', req.url, handleResult.error)
-  req.session.auth = handleResult.session
+  if (req.session) {
+    req.session.auth = handleResult.session
+  }
 
   if (handleResult.response) {
     if (mod.setting.getValue('api.deprecated')[req.path]) {

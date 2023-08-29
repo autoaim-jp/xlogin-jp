@@ -52,7 +52,7 @@ const _getSessionRouter = () => {
     rolling: true,
     name: a.setting.getValue('session.SESSION_ID'),
     cookie: {
-      path: '/',
+      path: '/f',
       maxAge: 1000 * 60 * 60 * 24 * 30,
       secure: a.setting.getValue('session.SESSION_COOKIE_SECURE'),
       httpOnly: true,
@@ -93,29 +93,6 @@ const _getOidcRouter = () => {
     core: [a.core.isValidSignature],
   }))
 
-  /**
-   * サービスでログインボタンがクリックされたときに、最初に来るAPI
-   * @name connect API
-   * @memberof feature
-   */
-  const connectHandler = a.action.getHandlerConnect(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleConnect],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/auth/connect`, connectHandler)
-
-  /**
-   * 認可コードを発行するAPI
-   * @name authCode API
-   * @memberof feature
-   */
-  const codeHandler = a.action.getHandlerCode(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleCode],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/auth/code`, checkSignature, codeHandler)
   return expressRouter
 }
 
@@ -206,7 +183,6 @@ const _getFileRouter = () => {
     core: [a.core.isValidSignature],
   }))
 
-
   const fileUpdateHandler = a.action.getHandlerFileUpdate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleFileUpdate],
@@ -247,6 +223,24 @@ const _getFileRouter = () => {
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
 
+  const checkSignature = a.action.getHandlerCheckSignature(argNamed({
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
+    output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
+  }))
+
+  /**
+   * サービスでログインボタンがクリックされたときに、最初に来るAPI
+   * @name connect API
+   * @memberof feature
+   */
+  const connectHandler = a.action.getHandlerConnect(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleConnect],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/connect`, connectHandler)
+
   const credentialCheckHandler = a.action.getHandlerCredentialCheck(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleCredentialCheck],
@@ -285,6 +279,18 @@ const _getFunctionRouter = () => {
     core: [a.core.handleGlobalNotification],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, globalNotificationHandler)
+
+  /**
+   * 認可コードを発行するAPI
+   * @name authCode API
+   * @memberof feature
+   */
+  const codeHandler = a.action.getHandlerCode(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleCode],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/code`, checkSignature, codeHandler)
 
   const handleLogoutHandler = a.action.getHandlerHandleLogout(argNamed({
     output: [a.output.endResponse],
