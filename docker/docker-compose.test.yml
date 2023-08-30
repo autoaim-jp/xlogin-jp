@@ -28,8 +28,6 @@ services:
       context: ../
       dockerfile: ./docker/authApiContainer/Dockerfile
     tty: true
-    ports:
-      - 4000:4000
     volumes:
       - ../authApi:/app
       - xltest-volume-aac-nm:/app/node_modules
@@ -46,8 +44,6 @@ services:
       context: ../
       dockerfile: ./docker/storageApiContainer/Dockerfile
     tty: true
-    ports:
-      - 4000:4000
     volumes:
       - ../storageApi:/app
       - xltest-volume-sac-nm:/app/node_modules
