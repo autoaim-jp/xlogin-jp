@@ -20,7 +20,7 @@
     "start": "node app.js",
     "lint-server": "eslint *.js setting/",
     "lint-fix": "yarn lint-server --fix",
-    "test": "echo 'no test exists'",
+    "test": "echo 'no test exists' && sleep infinity",
     "gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
     "gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
   },
