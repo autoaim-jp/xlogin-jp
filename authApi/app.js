@@ -151,52 +151,6 @@ const _getNotificationApiRouter = () => {
 }
 
 /**
- * _getFileRouter.
- *
- * @return {Express.Router()} ファイルに関する処理を含むルーター
- * @memberof app
- */
-const _getFileRouter = () => {
-  const expressRouter = express.Router()
-
-  const checkSignature = a.action.getHandlerCheckSignature(argNamed({
-    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
-    core: [a.core.isValidSignature],
-  }))
-
-  const fileUpdateHandler = a.action.getHandlerFileUpdate(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleFileUpdate],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/update`, checkSignature, fileUpdateHandler)
-
-  const fileContentHandler = a.action.getHandlerFileContent(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleFileContent],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
-
-  const fileDeleteHandler = a.action.getHandlerFileDelete(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleFileDelete],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/delete`, checkSignature, fileDeleteHandler)
-
-  const fileListHandler = a.action.getHandlerFileList(argNamed({
-    output: [a.output.endResponse],
-    core: [a.core.handleFileList],
-    lib: [a.lib.paramSnakeToCamel],
-  }))
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
-
-  return expressRouter
-}
-
-/**
  * _getFunctionRouter.
  *
  * @return {Express.Router()} 認証に関する処理を含むルーター
@@ -349,7 +303,6 @@ const main = async () => {
 
   expressApp.use(_getUserApiRouter())
   expressApp.use(_getNotificationApiRouter())
-  expressApp.use(_getFileRouter())
   expressApp.use(_getFunctionRouter())
 
   expressApp.use(_getErrorRouter())

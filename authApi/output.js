@@ -182,59 +182,6 @@ const openNotification = async (notificationIdList, clientId, emailAddress, exec
   return rowCountUpdateNotificationIsOpened
 }
 
-
-/* to fileList */
-/**
- * updateFile.
- *
- * @param {} emailAddress
- * @param {} clientId
- * @param {} owner
- * @param {} filePath
- * @param {} content
- * @return {boolean} ファイルを更新できたかどうか
- * @memberof output
- */
-const updateFile = async (emailAddress, clientId, owner, filePath, content) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress]) {
-    fileList[emailAddress] = {}
-  }
-
-  if (!fileList[emailAddress][owner]) {
-    fileList[emailAddress][owner] = {}
-  }
-
-  const dateUpdated = Date.now()
-  fileList[emailAddress][owner][filePath] = { dateUpdated, clientId, content }
-
-  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
-  return true
-}
-
-/**
- * deleteFile.
- *
- * @param {} emailAddress
- * @param {} clientId
- * @param {} owner
- * @param {} filePath
- * @return {boolean} ファイルを削除できたかどうか
- * @memberof output
- */
-const deleteFile = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
-    return false
-  }
-
-  delete fileList[emailAddress][owner][filePath]
-
-  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
-  return true
-}
-
-
 /* to http client */
 /**
  * endResponse.
@@ -282,8 +229,6 @@ export default {
   registerAccessToken,
   appendNotification,
   openNotification,
-  updateFile,
-  deleteFile,
 
   endResponse,
 }

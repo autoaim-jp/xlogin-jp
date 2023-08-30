@@ -365,118 +365,6 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
   }
 }
 
-/* POST /api/$apiVersion/file/update */
-/**
- * handleFileUpdate.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @param {} content
- * @return {HandleResult} ファイルを更新した結果
- * @memberof core
- */
-const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_update_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const updateFileResult = await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { updateFileResult } }, redirect: null,
-  }
-}
-
-/* GET /api/$apiVersion/file/content */
-/**
- * handleFileContent.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @memberof core
- */
-const handleFileContent = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_content_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { fileContent } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/file/delete */
-/**
- * handleFileDelete.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @return {HandleResult} ファイルを削除した結果
- * @memberof core
- */
-const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_delete_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const deleteFileResult = await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
-  }
-}
-
-/* GET /api/$apiVersion/file/list */
-/**
- * handleFileList.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @return {HandleResult} 取得したファイル一覧
- * @memberof core
- */
-const handleFileList = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_list_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const fileList = await mod.input.getFileList(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { fileList } }, redirect: null,
-  }
-}
-
 /* POST /f/$condition/credential/check */
 /**
  * handleCredentialCheck.
@@ -790,11 +678,6 @@ export default {
   handleNotificationList,
   handleNotificationAppend,
   handleNotificationOpen,
-
-  handleFileUpdate,
-  handleFileContent,
-  handleFileDelete,
-  handleFileList,
 
   handleCredentialCheck,
   handleThrough,
