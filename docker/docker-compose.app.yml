@@ -50,6 +50,23 @@ services:
       - redis_container
       - psql_container
 
+  storage_api_container:
+    container_name: xlapp-container-storage-api
+    build:
+      context: ../
+      dockerfile: ./docker/storageApiContainer/Dockerfile
+    tty: true
+    volumes:
+      - ../storageApi:/app
+      - xlapp-volume-sac-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "npm run start-watch"
+    depends_on:
+      - redis_container
+      - psql_container
+
+
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
@@ -62,12 +79,14 @@ services:
       - ../reverseProxy/log:/var/log/nginx
     depends_on:
       - auth_api_container
+      - storage_api_container
       - static_web_container
 
 volumes:
   xlapp-volume-rc-redis:
   xlapp-volume-pc-psql:
   xlapp-volume-aac-nm:
+  xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:
 
 

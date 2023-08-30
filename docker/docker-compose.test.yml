@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+  
   redis_container:
     container_name: xltest-container-redis
     build:
@@ -8,6 +9,7 @@ services:
       dockerfile: ./docker/redisContainer/Dockerfile
     volumes:
       - xltest-volume-rc-redis:/data
+
   psql_container:
     container_name: xltest-container-psql
     build:
@@ -19,6 +21,7 @@ services:
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
+
   auth_api_container:
     container_name: xltest-container-auth-api
     build:
@@ -37,9 +40,29 @@ services:
       - redis_container
       - psql_container
 
+  storage_api_container:
+    container_name: xltest-container-storage-api
+    build:
+      context: ../
+      dockerfile: ./docker/storageApiContainer/Dockerfile
+    tty: true
+    ports:
+      - 4000:4000
+    volumes:
+      - ../storageApi:/app
+      - xltest-volume-sac-nm:/app/node_modules
+    environment:
+     - IS_TEST=true
+    command: sh -c "npm run test"
+    depends_on:
+      - redis_container
+      - psql_container
+
+
 volumes:
   xltest-volume-rc-redis:
   xltest-volume-pc-psql:
   xltest-volume-aac-nm:
+  xltest-volume-sac-nm:
 
 
