@@ -5,17 +5,24 @@ jobs:
     name: GitHub Actions eslint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Run app
         run: make app-up &
       - name: sleep
-        run: sleep 30
-      - name: move 1
-        run: cd staticWeb
-      - name: Run eslint-server @staticWeb
-        run: yarn lint-server
-      - name: Run eslint-browser @staticWeb
-        run: yarn lint-browser
+        run: sleep 120
+      - name: Run eslint @staticWeb
+        run: |
+          cd staticWeb
+          yarn lint-server
+          yarn lint-browser
+      - name: Run eslint @authApi
+        run: |
+          cd authApi
+          yarn lint-server
+      - name: Run eslint @storageApi
+        run: |
+          cd storageApi
+          yarn lint-server
 
   slack-notification:
     if: always()
