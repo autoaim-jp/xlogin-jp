@@ -56,8 +56,7 @@ docker-compose-down-app:
 docker-compose-down-test:
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down --volumes
 
-
-ifeq (,$(filter $(MAKECMDGOALS),$(PHONY)))
-    $(error Target not found)
-endif
+%:
+	@echo "Target '$@' does not exist."
+	@make -s help
 
