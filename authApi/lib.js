@@ -97,7 +97,7 @@ const paramSnakeToCamel = (paramList = {}) => {
  * @memberof lib
  */
 const getUlid = () => {
-  return mod.ulid.ulid()
+  return mod.ulid()
 }
 
 /**

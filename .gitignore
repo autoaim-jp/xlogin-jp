@@ -12,5 +12,5 @@ authApi/data/notificationList.json
 authApi/doc/jsdoc/html/
 
 data/redis/
-data/upload/
+storageApi/data/upload/
 

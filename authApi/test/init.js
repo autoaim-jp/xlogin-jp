@@ -1,7 +1,7 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
 import crypto from 'crypto'
-import ulid from 'ulid'
+import { ulid } from 'ulid'
 import pg from 'pg'
 
 import setting from '../setting/index.js'

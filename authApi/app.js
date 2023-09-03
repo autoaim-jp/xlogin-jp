@@ -6,7 +6,7 @@
  */
 import fs from 'fs'
 import crypto from 'crypto'
-import ulid from 'ulid'
+import { ulid } from 'ulid'
 import express from 'express'
 import session from 'express-session'
 import bodyParser from 'body-parser'
