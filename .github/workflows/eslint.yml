@@ -1,19 +1,17 @@
 name: eslint
 on: [push]
 jobs:
-
   eslint-staticWeb:
     name: GitHub Actions eslint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: staticWeb
     steps:
       - uses: actions/checkout@v2
       - name: Run app
         run: make app-up &
       - name: sleep
         run: sleep 30
+      - name: move 1
+        run: cd staticWeb
       - name: Run eslint-server @staticWeb
         run: yarn lint-server
       - name: Run eslint-browser @staticWeb
