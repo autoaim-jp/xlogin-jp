@@ -1,5 +1,7 @@
+include version.conf
 SHELL=/bin/bash
-XDEVKIT_VERSION=v0.17
+
+.PHONY: app-build app-up app-down xdevkit test-build test-up test-down clean help
 
 app-up: docker-compose-up-app
 app-down: docker-compose-down-app
@@ -14,16 +16,20 @@ xdevkit: init-xdevkit
 clean: app-down test-down
 
 help:
-	@echo "Usage: make (app|test) (up|down|build|xdevkit)"
+	@echo "Usage: make (app|test|xdevkit|clean)-(build|up|down)"
 	@echo "Example:"
-	@echo "  make app up       # Start server"
-	@echo "  make app down     # Stop server"
-	@echo "  make app build    # Recreate image"
-	@echo "  make app xdevkit  # Update xdevkit"
-	@echo "  make test up      # Start test environment"
-	@echo "  make test down    # Stop test environment"
+	@echo "  make app-build    # Recreate image"
+	@echo "  make app-up       # Start server"
+	@echo "  make app-down     # Clean app container/volume"
+	@echo "------------------------------"
+	@echo "  make test-build   # Recreate test image"
+	@echo "  make test-up      # Start test"
+	@echo "  make test-down    # Clean test container/volume"
+	@echo "------------------------------"
+	@echo "  make xdevkit      # Update xdevkit only"
+	@echo "------------------------------"
+	@echo "  make clean        # Clean app, test container/volume"
 
-.PHONY: app up app down app build app xdevkit test up test down help
 
 # init
 init-xdevkit:
