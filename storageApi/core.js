@@ -4,6 +4,8 @@
  * @name コア機能を集約したファイル
  * @memberof core
  */
+// debug
+import fs from 'fs'
 
 /* local setting */
 const mod = {}
@@ -224,14 +226,7 @@ const handleFormCreate = async ({
 }) => {
   const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
   const upload = multer({
-    storage: multer.diskStorage({
-      destination: (_req, _file, cb) => {
-        cb(null, mod.setting.getValue('server.FORM_UPLOAD_DIR'))
-      },
-      filename: (_req, _file, cb) => {
-        cb(null, diskFilePath)
-      },
-    }),
+    storage: multer.memoryStorage(),
     limits: { fileSize: 2 * 1024 * 1024 },
   })
 
@@ -256,6 +251,9 @@ const handleFormCreate = async ({
     const error = 'handle_file_update_access_token'
     return _getErrorResponse(status, error, null)
   }
+
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
   console.log({ filePath })
   // TODO save diskFilePath and filePath
