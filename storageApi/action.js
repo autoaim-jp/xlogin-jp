@@ -86,6 +86,27 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
   }
 }
 
+/* form */
+/**
+ * getHandlerFormCreate.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFormCreate
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
+const getHandlerFormCreate = ({ paramSnakeToCamel, handleFormCreate, endResponse, multer }) => {
+  return async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+
+    const resultHandleFormCreate = await handleFormCreate({ req, clientId, accessToken, multer })
+    endResponse(req, res, resultHandleFormCreate)
+  }
+}
+
+
 /* common */
 /**
  * getHandlerCheckSignature.
@@ -101,10 +122,16 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     const clientId = req.headers['x-xlogin-client-id']
     const timestamp = req.headers['x-xlogin-timestamp']
     const path = req.originalUrl
-    const requestBody = req.body
+    let content = null
+    const contentTypeHeader = (req?.headers || {})['content-type'] || ''
+    if (contentTypeHeader.indexOf('multipart/form-data') === 0) {
+      content = { contentType: req.headers['content-type'] }
+    } else {
+      content = req.body
+    }
     const signature = req.headers['x-xlogin-signature']
 
-    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, requestBody, signature)
+    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, content, signature)
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'
@@ -122,6 +149,8 @@ export default {
   getHandlerFileContent,
   getHandlerFileList,
   getHandlerFileDelete,
+
+  getHandlerFormCreate,
 
   getHandlerCheckSignature,
 }

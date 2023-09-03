@@ -1,44 +1,86 @@
 {
 
 	"homepage": "https://autoaim-jp.github.io/xlogin-jp",
-  "dependencies": {
-    "nodemon": "^2.0.22",
-    "dotenv": "^16.0.1",
-    "express": "^4.18.1"
-  },
-  "scripts": {
-    "start-watch": "nodemon --ignore '*.json' --delay 1 app.js",
-    "start": "node app.js",
-    "lint-server": "eslint *.js setting/",
-    "lint-browser": "eslint view/src/js",
-    "lint-fix": "yarn lint-server --fix && yarn lint-browser --fix",
-    "dev-add-service": "node tool/src/registerNewService.js",
-    "compile": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile",
-    "compile-minify": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile --minify",
-    "watch": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command watch",
-    "gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
-    "gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
-  },
-  "type": "module",
-  "devDependencies": {
-    "@babel/core": "^7.22.9",
-    "@babel/eslint-parser": "^7.18.9",
-    "@babel/preset-env": "^7.22.9",
-    "@typescript-eslint/eslint-plugin": "^5.33.0",
-    "@typescript-eslint/parser": "^5.33.0",
-    "babel-jest": "^29.6.1",
-    "jest": "^29.6.1",
-    "eslint": "^7.32.0 || ^8.2.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-jest": "^26.8.2",
-    "gh-pages": "^6.0.0",
-    "jsdoc": "^4.0.0",
-    "clean-css": "^5.3.2",
-    "commander": "^10.0.1",
-    "ejs": "^3.1.9",
-    "html-minifier": "^4.0.0",
-    "js-beautify": "^1.14.7",
-    "uglify-js": "^3.17.4"
-  }
+
+	"dependencies": {
+
+		"dotenv": "^16.0.1",
+
+		"express": "^4.18.1",
+
+		"nodemon": "^3.0.1"
+
+	},
+
+	"scripts": {
+
+		"start-watch": "nodemon --ignore '*.json' --delay 1 app.js",
+
+		"start": "node app.js",
+
+		"lint-server": "eslint *.js setting/",
+
+		"lint-browser": "eslint view/src/js",
+
+		"lint-fix": "yarn lint-server --fix && yarn lint-browser --fix",
+
+		"dev-add-service": "node tool/src/registerNewService.js",
+
+		"compile": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile",
+
+		"compile-minify": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile --minify",
+
+		"watch": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command watch",
+
+		"gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
+
+		"gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
+
+	},
+
+	"type": "module",
+
+	"devDependencies": {
+
+		"@babel/core": "^7.22.9",
+
+		"@babel/eslint-parser": "^7.18.9",
+
+		"@babel/preset-env": "^7.22.9",
+
+		"@typescript-eslint/eslint-plugin": "^5.33.0",
+
+		"@typescript-eslint/parser": "^5.33.0",
+
+		"babel-jest": "^29.6.1",
+
+		"clean-css": "^5.3.2",
+
+		"commander": "^10.0.1",
+
+		"ejs": "^3.1.9",
+
+		"eslint": "^7.32.0 || ^8.2.0",
+
+		"eslint-config-airbnb-base": "^15.0.0",
+
+		"eslint-plugin-import": "^2.25.2",
+
+		"eslint-plugin-jest": "^26.8.2",
+
+		"gh-pages": "^6.0.0",
+
+		"html-minifier": "^4.0.0",
+
+		"jest": "^29.6.1",
+
+		"js-beautify": "^1.14.7",
+
+		"jsdoc": "^4.0.0",
+
+		"uglify-js": "^3.17.4"
+
+	}
+
 }
+

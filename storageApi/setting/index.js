@@ -13,9 +13,8 @@ const init = (env) => {
 setting.startup = {}
 setting.startup.MAX_RETRY_PSQL_CONNECT_N = 30
 setting.server = {}
-setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
-setting.server.PRIVATE_FILE_DIR = 'data/file'
 setting.server.FILE_LIST_JSON = 'data/fileList.json'
+setting.server.FORM_UPLOAD_DIR = 'data/upload/'
 
 setting.oidc = {}
 setting.oidc.CODE_L = 64
@@ -46,6 +45,10 @@ setting.user.HMAC_SECRET = 'xlogin20220630'
 setting.user.DEFAULT_USER_NAME = 'no name'
 
 setting.notification = {}
+
+setting.key = {}
+setting.key.FORM_UPLOAD = 'file'
+
 /**
  * 全ての通知を取得する際に使うキーワード。
  * xlogin内で表示するときに使う。

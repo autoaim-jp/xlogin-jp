@@ -13,6 +13,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
+import multer from 'multer'
 
 import setting from './setting/index.js'
 import output from './output.js'
@@ -88,6 +89,33 @@ const _getFileRouter = () => {
 }
 
 /**
+ * _getFormRouter.
+ *
+ * @return {Express.Router()} フォームに関する処理を含むルーター
+ * @memberof app
+ */
+const _getFormRouter = () => {
+  const expressRouter = express.Router()
+
+  const checkSignature = a.action.getHandlerCheckSignature(argNamed({
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
+    output: [a.output.endResponse],
+    core: [a.core.isValidSignature],
+  }))
+
+  const formCreateHandler = a.action.getHandlerFormCreate(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFormCreate],
+    lib: [a.lib.paramSnakeToCamel],
+    mod: { multer },
+  }))
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/form/create`, checkSignature, formCreateHandler)
+
+  return expressRouter
+}
+
+
+/**
  * _getErrorRouter.
  *
  * @return {Express.Router()} エラー処理を含むルーター
@@ -151,6 +179,7 @@ const main = async () => {
   expressApp.use(_getExpressMiddlewareRouter())
 
   expressApp.use(_getFileRouter())
+  expressApp.use(_getFormRouter())
 
   expressApp.use(_getErrorRouter())
 

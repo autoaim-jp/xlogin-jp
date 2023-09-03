@@ -208,6 +208,65 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
   }
 }
 
+/* POST /api/$apiVersion/form/create */
+/**
+ * handleFormCreate.
+ *
+ * @param {} req 
+ * @param {} clientId 
+ * @param {} accessToken 
+ * @param {} multer 
+ * @return {HandleResult} フォームデータを保存した結果
+ * @memberof core
+ */
+const handleFormCreate = async ({ req, clientId, accessToken, multer }) => {
+  const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, mod.setting.getValue('server.FORM_UPLOAD_DIR'))
+      },
+      filename: (req, file, cb) => {
+        cb(null, diskFilePath)
+      },
+    }),
+    limits: { fileSize: 2 * 1024 * 1024 },
+  })
+
+  const uploadResult = await new Promise((resolve) => {
+    upload.single(mod.setting.getValue('key.FORM_UPLOAD'))(req, null, (error) => {
+
+      if (error instanceof multer.MulterError) {
+        return resolve({ error: true, message: error.message })
+      } else if (error) {
+        return resolve({ error: true, message: 'unkown error' })
+      }
+
+      return resolve({ error: false, message: 'success' })
+    })
+  })
+
+  const { owner, filePath } = mod.lib.paramSnakeToCamel(req.body)
+
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_file_update_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  // TODO save diskFilePath and filePath
+  // const createFormResult = await mod.output.createForm(emailAddress, clientId, owner, filePath, diskFilePath)
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { uploadResult } }, redirect: null,
+  }
+}
+
+
+
 export default {
   init,
   createPgPool,
@@ -218,5 +277,7 @@ export default {
   handleFileContent,
   handleFileDelete,
   handleFileList,
+
+  handleFormCreate,
 }
 
