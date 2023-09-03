@@ -219,14 +219,16 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
  * @return {HandleResult} フォームデータを保存した結果
  * @memberof core
  */
-const handleFormCreate = async ({ req, clientId, accessToken, multer }) => {
+const handleFormCreate = async ({
+  req, clientId, accessToken, multer,
+}) => {
   const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
   const upload = multer({
     storage: multer.diskStorage({
-      destination: (req, file, cb) => {
+      destination: (_req, _file, cb) => {
         cb(null, mod.setting.getValue('server.FORM_UPLOAD_DIR'))
       },
-      filename: (req, file, cb) => {
+      filename: (_req, _file, cb) => {
         cb(null, diskFilePath)
       },
     }),
@@ -235,10 +237,9 @@ const handleFormCreate = async ({ req, clientId, accessToken, multer }) => {
 
   const uploadResult = await new Promise((resolve) => {
     upload.single(mod.setting.getValue('key.FORM_UPLOAD'))(req, null, (error) => {
-
       if (error instanceof multer.MulterError) {
         return resolve({ error: true, message: error.message })
-      } else if (error) {
+      } if (error) {
         return resolve({ error: true, message: 'unkown error' })
       }
 
@@ -249,13 +250,14 @@ const handleFormCreate = async ({ req, clientId, accessToken, multer }) => {
   const { owner, filePath } = mod.lib.paramSnakeToCamel(req.body)
 
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  
+
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_update_access_token'
     return _getErrorResponse(status, error, null)
   }
 
+  console.log({ filePath })
   // TODO save diskFilePath and filePath
   // const createFormResult = await mod.output.createForm(emailAddress, clientId, owner, filePath, diskFilePath)
 
@@ -264,7 +266,6 @@ const handleFormCreate = async ({ req, clientId, accessToken, multer }) => {
     status, session: null, response: { result: { uploadResult } }, redirect: null,
   }
 }
-
 
 
 export default {

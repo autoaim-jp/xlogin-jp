@@ -96,12 +96,16 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFormCreate = ({ paramSnakeToCamel, handleFormCreate, endResponse, multer }) => {
+const getHandlerFormCreate = ({
+  handleFormCreate, endResponse, multer,
+}) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
-    const resultHandleFormCreate = await handleFormCreate({ req, clientId, accessToken, multer })
+    const resultHandleFormCreate = await handleFormCreate({
+      req, clientId, accessToken, multer,
+    })
     endResponse(req, res, resultHandleFormCreate)
   }
 }
