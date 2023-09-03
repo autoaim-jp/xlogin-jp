@@ -1,7 +1,8 @@
 include version.conf
 SHELL=/bin/bash
+PHONY=app-build app-up app-down xdevkit test-build test-up test-down clean help
 
-.PHONY: app-build app-up app-down xdevkit test-build test-up test-down clean help
+.PHONY: $(PHONY)
 
 app-up: docker-compose-up-app
 app-down: docker-compose-down-app
@@ -55,4 +56,8 @@ docker-compose-down-app:
 docker-compose-down-test:
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down --volumes
 
+
+ifeq (,$(filter $(MAKECMDGOALS),$(PHONY)))
+    $(error Target not found)
+endif
 
