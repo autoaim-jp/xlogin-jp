@@ -18,6 +18,7 @@
 		"start-watch": "nodemon --ignore '*.json' --delay 1 app.js",
 		"start": "node app.js",
 		"lint-server": "eslint *.js setting/",
+		"lint": "yarn lint-server",
 		"lint-fix": "yarn lint-server --fix",
 		"test": "yarn jest test/core.test.js",
 		"gendoc": "yarn jsdoc -c doc/jsdoc/config.json",

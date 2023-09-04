@@ -12,7 +12,7 @@ services:
       - xlcommon-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run lint-fix"
+    command: sh -c "yarn run lint"
 
   auth_api_container:
     container_name: xllint-container-auth-api
@@ -25,7 +25,7 @@ services:
       - xlcommon-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run lint-fix"
+    command: sh -c "yarn run lint"
 
   storage_api_container:
     container_name: xllint-container-storage-api
@@ -38,7 +38,7 @@ services:
       - xlcommon-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run lint-fix"
+    command: sh -c "yarn run lint"
 
 volumes:
   xlcommon-volume-aac-nm:

@@ -482,13 +482,14 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
       if (!permissionList[key]) {
         uncheckedPermissionExists = true
       }
+    } else {
+      splitPermissionList.optional[key] = permissionList[key]
     }
   })
   requestScope.split(',').forEach((key) => {
     if (key === '') {
       return
     }
-    splitPermissionList.required[key] = permissionList[key]
 
     if (!permissionList[key]) {
       uncheckedPermissionExists = true
