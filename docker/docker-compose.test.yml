@@ -31,7 +31,7 @@ services:
     volumes:
       - ../authApi:/app
       - xltest-volume-aac-nm:/app/node_modules
-    command: sh -c "npm run test"
+    command: sh -c "yarn run test"
     depends_on:
       - redis_container
       - psql_container
@@ -47,7 +47,7 @@ services:
       - xltest-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=true
-    command: sh -c "npm run test"
+    command: sh -c "yarn run test"
     depends_on:
       - redis_container
       - psql_container

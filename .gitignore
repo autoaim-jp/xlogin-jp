@@ -14,3 +14,8 @@ authApi/doc/jsdoc/html/
 data/redis/
 storageApi/data/upload/
 
+yarn.lock
+yarn-error.log
+package-lock.json
+
+

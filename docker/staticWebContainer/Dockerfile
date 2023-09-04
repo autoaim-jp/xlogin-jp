@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY ./staticWeb /app
 
-RUN npm install
+RUN yarn install
 

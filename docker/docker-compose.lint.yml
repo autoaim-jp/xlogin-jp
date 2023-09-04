@@ -9,10 +9,10 @@ services:
     tty: true
     volumes:
       - ../staticWeb:/app
-      - xllint-volume-swc-nm:/app/node_modules
+      - xlcommon-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run lint-fix"
+    command: sh -c "yarn run lint-fix"
 
   auth_api_container:
     container_name: xllint-container-auth-api
@@ -22,10 +22,10 @@ services:
     tty: true
     volumes:
       - ../authApi:/app
-      - xllint-volume-aac-nm:/app/node_modules
+      - xlcommon-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run lint-fix"
+    command: sh -c "yarn run lint-fix"
 
   storage_api_container:
     container_name: xllint-container-storage-api
@@ -35,14 +35,14 @@ services:
     tty: true
     volumes:
       - ../storageApi:/app
-      - xllint-volume-sac-nm:/app/node_modules
+      - xlcommon-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run lint-fix"
+    command: sh -c "yarn run lint-fix"
 
 volumes:
-  xllint-volume-aac-nm:
-  xllint-volume-sac-nm:
-  xllint-volume-swc-nm:
+  xlcommon-volume-aac-nm:
+  xlcommon-volume-sac-nm:
+  xlcommon-volume-swc-nm:
 
 

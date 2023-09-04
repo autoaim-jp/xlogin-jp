@@ -10,7 +10,7 @@ jobs:
         with:
           node-version: '18'
       - name: Run lint
-        run: make lint-up
+        run: make lint
 
   slack-notification:
     if: always()

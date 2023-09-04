@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY ./storageApi /app
 
-RUN npm install
+RUN yarn install
 

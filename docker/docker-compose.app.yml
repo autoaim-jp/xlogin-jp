@@ -32,7 +32,7 @@ services:
       - xlapp-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run start-watch"
+    command: sh -c "yarn run start-watch"
 
   auth_api_container:
     container_name: xlapp-container-auth-api
@@ -45,7 +45,7 @@ services:
       - xlapp-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run start-watch"
+    command: sh -c "yarn run start-watch"
     depends_on:
       - redis_container
       - psql_container
@@ -61,7 +61,7 @@ services:
       - xlapp-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "npm run start-watch"
+    command: sh -c "yarn run start-watch"
     depends_on:
       - redis_container
       - psql_container

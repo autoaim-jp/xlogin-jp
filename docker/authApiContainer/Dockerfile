@@ -4,5 +4,5 @@ WORKDIR /app
 
 COPY ./authApi /app
 
-RUN npm install
+RUN yarn install
 
