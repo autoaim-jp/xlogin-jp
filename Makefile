@@ -1,6 +1,6 @@
 include version.conf
 SHELL=/bin/bash
-PHONY=app-build app-up app-down xdevkit test-build test-up test-down clean help
+PHONY=app-build app-up app-down xdevkit test-build test-up test-down lint-up clean help
 
 .PHONY: $(PHONY)
 
@@ -11,6 +11,8 @@ app-build: init-xdevkit docker-compose-build-app
 test-up: docker-compose-up-test
 test-build: init-xdevkit docker-compose-build-test
 test-down: docker-compose-down-test
+
+lint-up: init-xdevkit docker-compose-up-lint
 
 xdevkit: init-xdevkit
 
@@ -26,6 +28,8 @@ help:
 	@echo "  make test-build   # Recreate test image"
 	@echo "  make test-up      # Start test"
 	@echo "  make test-down    # Clean test container/volume"
+	@echo "------------------------------"
+	@echo "  make lint-up      # lint"
 	@echo "------------------------------"
 	@echo "  make xdevkit      # Update xdevkit only"
 	@echo "------------------------------"
@@ -49,6 +53,9 @@ docker-compose-up-app:
 	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up
 docker-compose-up-test:
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml up --abort-on-container-exit
+docker-compose-up-lint:
+	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
+
 
 # down
 docker-compose-down-app:

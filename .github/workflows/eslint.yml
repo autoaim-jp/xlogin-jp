@@ -6,23 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run app
-        run: make app-up &
-      - name: sleep
-        run: sleep 120
-      - name: Run eslint @staticWeb
-        run: |
-          cd staticWeb
-          yarn lint-server
-          yarn lint-browser
-      - name: Run eslint @authApi
-        run: |
-          cd authApi
-          yarn lint-server
-      - name: Run eslint @storageApi
-        run: |
-          cd storageApi
-          yarn lint-server
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Run lint
+        run: make lint-up
 
   slack-notification:
     if: always()
