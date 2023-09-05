@@ -217,31 +217,16 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
  * @param {} req 
  * @param {} clientId 
  * @param {} accessToken 
- * @param {} multer 
  * @return {HandleResult} フォームデータを保存した結果
  * @memberof core
  */
 const handleFormCreate = async ({
-  req, clientId, accessToken, multer,
+  req, clientId, accessToken,
 }) => {
   const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
-  const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 2 * 1024 * 1024 },
-  })
 
-  const uploadResult = await new Promise((resolve) => {
-    upload.single(mod.setting.getValue('key.FORM_UPLOAD'))(req, null, (error) => {
-      if (error instanceof multer.MulterError) {
-        return resolve({ error: true, message: error.message })
-      } if (error) {
-        return resolve({ error: true, message: 'unkown error' })
-      }
-
-      return resolve({ error: false, message: 'success' })
-    })
-  })
-
+  const FORM_UPLOAD = mod.setting.getValue('key.FORM_UPLOAD')
+  const uploadResult = await mod.lib.parseMultipartFileUpload(req, FORM_UPLOAD)
   const { owner, filePath } = mod.lib.paramSnakeToCamel(req.body)
 
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)

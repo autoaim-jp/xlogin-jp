@@ -97,14 +97,14 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
  * @memberof action
  */
 const getHandlerFormCreate = ({
-  handleFormCreate, endResponse, multer,
+  handleFormCreate, endResponse, 
 }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
     const resultHandleFormCreate = await handleFormCreate({
-      req, clientId, accessToken, multer,
+      req, clientId, accessToken, 
     })
     endResponse(req, res, resultHandleFormCreate)
   }

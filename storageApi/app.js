@@ -106,7 +106,6 @@ const _getFormRouter = () => {
   const formCreateHandler = a.action.getHandlerFormCreate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleFormCreate],
-    mod: { multer },
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/form/create`, checkSignature, formCreateHandler)
 
@@ -154,7 +153,7 @@ const startServer = (expressApp) => {
 const init = async () => {
   dotenv.config()
   a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid)
+  a.lib.init(crypto, ulid, multer)
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
