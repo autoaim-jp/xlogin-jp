@@ -87,3 +87,16 @@ create table notification_info.notification_list (
 );
 grant all privileges on notification_info.notification_list to xl_admin;
 
+-- file
+create table file_info.file_list (
+  file_serial_id serial not null,
+  client_id varchar(256),
+  user_serial_id int not null references user_info.user_list(user_serial_id),
+  date_registered varchar(256),
+  file_path varchar(256),
+  disk_file_path varchar(256)
+);
+grant all privileges on file_info.file_list to xl_admin;
+grant usage on sequence file_info.file_list_file_serial_id_seq to xl_admin;
+
+

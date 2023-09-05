@@ -233,15 +233,24 @@ const handleFormCreate = async ({
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_update_access_token'
+    const error = 'handle_form_create_access_token'
     return _getErrorResponse(status, error, null)
   }
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
+  console.log({ emailAddress })
   console.log({ filePath })
-  // const createFormResult = await mod.output.createForm(emailAddress, clientId, owner, filePath, diskFilePath)
+  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  console.log({ user })
+  if (!user || !user.userSerialId) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_form_create_user'
+    return _getErrorResponse(status, error, null)
+  }
+  const createFormResult = await mod.output.createFile(user.userSerialId, clientId, filePath, diskFilePath, mod.lib.execQuery)
+  console.log({ createFormResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {

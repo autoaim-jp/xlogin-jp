@@ -1,4 +1,5 @@
 /* /output.js */
+
 /**
  * @file
  * @name アプリケーションからのデータ出力に関するファイル
@@ -72,6 +73,29 @@ const deleteFile = async (emailAddress, clientId, owner, filePath) => {
   return true
 }
 
+/**
+ * createFile.
+ *
+ * @param {} userSerialId
+ * @param {} clientId
+ * @param {} filePath
+ * @param {} diskFilePath
+ * @param {} execQuery
+ * @return {int} 作成した行数
+ * @memberof output
+ */
+const createFile = async (userSerialId, clientId, filePath, diskFilePath, execQuery) => {
+  const dateRegistered = Date.now()
+  const query = 'insert into file_info.file_list (client_id, user_serial_id, date_registered, file_path, disk_file_path) values ($1, $2, $3, $4, $5)'
+  const paramList = [clientId, userSerialId, dateRegistered, filePath, diskFilePath]
+
+  const { result } = await execQuery(query, paramList)
+  const { rowCount } = result
+
+  return rowCount
+}
+
+
 
 /* to http client */
 /**
@@ -115,6 +139,7 @@ export default {
 
   updateFile,
   deleteFile,
+  createFile,
 
   endResponse,
 }

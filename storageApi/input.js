@@ -196,6 +196,33 @@ const getFileList = async (emailAddress, clientId, owner, filePath) => {
 }
 
 
+/* from userList */
+/**
+ * getUserSerialIdByEmailAddress.
+ *
+ * @param {} emailAddress
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {User} メールアドレスでDBから取得したユーザ
+ * @memberof input
+ */
+const getUserSerialIdByEmailAddress = async (emailAddress, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from user_info.user_list where email_address = $1'
+  const paramList = [emailAddress]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  console.log({ err, result })
+  if (err || rowCount === 0) {
+    return null
+  }
+
+  const { userSerialId } = paramSnakeToCamel(result.rows[0])
+  const user = { userSerialId }
+  return user
+}
+
+
 export default {
   init,
   isValidClient,
@@ -205,5 +232,7 @@ export default {
 
   getFileContent,
   getFileList,
+
+  getUserSerialIdByEmailAddress,
 }
 

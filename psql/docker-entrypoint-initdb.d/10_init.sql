@@ -16,4 +16,7 @@ grant all privileges on schema access_info to xl_admin;
 create schema notification_info;
 grant all privileges on schema notification_info to xl_admin;
 
+create schema file_info;
+grant all privileges on schema file_info to xl_admin;
+
 
