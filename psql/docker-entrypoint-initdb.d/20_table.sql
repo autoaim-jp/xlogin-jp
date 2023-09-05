@@ -51,7 +51,7 @@ create table access_info.access_token_list (
   access_token varchar(256),
   client_id varchar(256),
   email_address varchar(256),
-  split_permission_list varchar(256)
+  split_permission_list varchar(512)
 );
 grant all privileges on access_info.access_token_list to xl_admin;
 
@@ -62,7 +62,7 @@ create table access_info.auth_session_list (
   code_challenge_method varchar(256),
   code_challenge varchar(256),
   email_address varchar(256),
-  split_permission_list varchar(256)
+  split_permission_list varchar(512)
 );
 grant all privileges on access_info.auth_session_list to xl_admin;
 

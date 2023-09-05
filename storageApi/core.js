@@ -111,7 +111,7 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
  * @memberof core
  */
 const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -138,7 +138,7 @@ const handleFileUpdate = async (clientId, accessToken, owner, filePath, content)
  * @memberof core
  */
 const handleFileContent = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -166,7 +166,7 @@ const handleFileContent = async (clientId, accessToken, owner, filePath) => {
  * @memberof core
  */
 const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -194,7 +194,7 @@ const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
  * @memberof core
  */
 const handleFileList = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -229,7 +229,7 @@ const handleFormCreate = async ({
   const uploadResult = await mod.lib.parseMultipartFileUpload(req, FORM_UPLOAD)
   const { owner, filePath } = mod.lib.paramSnakeToCamel(req.body)
 
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -241,7 +241,6 @@ const handleFormCreate = async ({
   fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
   console.log({ filePath })
-  // TODO save diskFilePath and filePath
   // const createFormResult = await mod.output.createForm(emailAddress, clientId, owner, filePath, diskFilePath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')

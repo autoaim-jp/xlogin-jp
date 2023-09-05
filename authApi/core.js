@@ -496,6 +496,8 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
     }
   })
 
+  console.log({ debug: splitPermissionList })
+
   if (uncheckedPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { oldPermissionList: permissionList, requestScope }
