@@ -98,87 +98,87 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
   return { signatureCheckResult: true }
 }
 
-/* POST /api/$apiVersion/file/update */
+/* POST /api/$apiVersion/json/update */
 /**
- * handleFileUpdate.
+ * handleJsonUpdate.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @param {} content
  * @return {HandleResult} ファイルを更新した結果
  * @memberof core
  */
-const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
+const handleJsonUpdate = async (clientId, accessToken, owner, jsonPath, content) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_update_access_token'
+    const error = 'handle_json_update_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const updateFileResult = await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+  const updateJsonResult = await mod.output.updateJson(emailAddress, clientId, owner, jsonPath, content)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { updateFileResult } }, redirect: null,
+    status, session: null, response: { result: { updateJsonResult } }, redirect: null,
   }
 }
 
-/* GET /api/$apiVersion/file/content */
+/* GET /api/$apiVersion/json/content */
 /**
- * handleFileContent.
+ * handleJsonContent.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @memberof core
  */
-const handleFileContent = async (clientId, accessToken, owner, filePath) => {
+const handleJsonContent = async (clientId, accessToken, owner, jsonPath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_content_access_token'
+    const error = 'handle_json_content_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+  const jsonContent = await mod.input.getJsonContent(emailAddress, clientId, owner, jsonPath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { fileContent } }, redirect: null,
+    status, session: null, response: { result: { jsonContent } }, redirect: null,
   }
 }
 
-/* POST /api/$apiVersion/file/delete */
+/* POST /api/$apiVersion/json/delete */
 /**
- * handleFileDelete.
+ * handleJsonDelete.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @return {HandleResult} ファイルを削除した結果
  * @memberof core
  */
-const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
+const handleJsonDelete = async (clientId, accessToken, owner, jsonPath) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_delete_access_token'
+    const error = 'handle_json_delete_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const deleteFileResult = await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+  const deleteJsonResult = await mod.output.deleteJson(emailAddress, clientId, owner, jsonPath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
+    status, session: null, response: { result: { deleteJsonResult } }, redirect: null,
   }
 }
 
@@ -253,7 +253,7 @@ const handleFormCreate = async ({
   if (fileName === '') {
     fileName = 'r'
   }
-  
+
   const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   console.log({ user })
   if (!user || !user.userSerialId) {
@@ -279,9 +279,10 @@ export default {
 
   isValidSignature,
 
-  handleFileUpdate,
-  handleFileContent,
-  handleFileDelete,
+  handleJsonUpdate,
+  handleJsonContent,
+  handleJsonDelete,
+
   handleFileList,
 
   handleFormCreate,

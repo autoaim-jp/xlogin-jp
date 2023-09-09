@@ -5,64 +5,64 @@
  * @memberof action
  */
 
-/* file */
+/* json */
 /**
- * getHandlerFileUpdate.
+ * getHandlerJsonUpdate.
  *
  * @param {} paramSnakeToCamel
- * @param {} handleFileUpdate
+ * @param {} handleJsonUpdate
  * @param {} endResponse
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFileUpdate = ({ paramSnakeToCamel, handleFileUpdate, endResponse }) => {
+const getHandlerJsonUpdate = ({ paramSnakeToCamel, handleJsonUpdate, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath, content } = paramSnakeToCamel(req.body)
+    const { owner, jsonPath, content } = paramSnakeToCamel(req.body)
 
-    const resultHandleFileUpdate = await handleFileUpdate(clientId, accessToken, owner, filePath, content)
-    endResponse(req, res, resultHandleFileUpdate)
+    const resultHandleJsonUpdate = await handleJsonUpdate(clientId, accessToken, owner, jsonPath, content)
+    endResponse(req, res, resultHandleJsonUpdate)
   }
 }
 
 /**
- * getHandlerFileContent.
+ * getHandlerJsonContent.
  *
  * @param {} paramSnakeToCamel
- * @param {} handleFileContent
+ * @param {} handleJsonContent
  * @param {} endResponse
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent, endResponse }) => {
+const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = paramSnakeToCamel(req.query)
+    const { owner, jsonPath } = paramSnakeToCamel(req.query)
 
-    const resultHandleFileContent = await handleFileContent(clientId, accessToken, owner, filePath)
-    endResponse(req, res, resultHandleFileContent)
+    const resultHandleJsonContent = await handleJsonContent(clientId, accessToken, owner, jsonPath)
+    endResponse(req, res, resultHandleJsonContent)
   }
 }
 
 /**
- * getHandlerFileDelete.
+ * getHandlerJsonDelete.
  *
  * @param {} paramSnakeToCamel
- * @param {} handleFileDelete
+ * @param {} handleJsonDelete
  * @param {} endResponse
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFileDelete = ({ paramSnakeToCamel, handleFileDelete, endResponse }) => {
+const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = paramSnakeToCamel(req.body)
+    const { owner, jsonPath } = paramSnakeToCamel(req.body)
 
-    const resultHandleFileDelete = await handleFileDelete(clientId, accessToken, owner, filePath)
-    endResponse(req, res, resultHandleFileDelete)
+    const resultHandleJsonDelete = await handleJsonDelete(clientId, accessToken, owner, jsonPath)
+    endResponse(req, res, resultHandleJsonDelete)
   }
 }
 
@@ -97,14 +97,14 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
  * @memberof action
  */
 const getHandlerFormCreate = ({
-  handleFormCreate, endResponse, 
+  handleFormCreate, endResponse,
 }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
     const resultHandleFormCreate = await handleFormCreate({
-      req, clientId, accessToken, 
+      req, clientId, accessToken,
     })
     endResponse(req, res, resultHandleFormCreate)
   }
@@ -149,11 +149,11 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
 }
 
 export default {
-  getHandlerFileUpdate,
-  getHandlerFileContent,
-  getHandlerFileList,
-  getHandlerFileDelete,
+  getHandlerJsonUpdate,
+  getHandlerJsonContent,
+  getHandlerJsonDelete,
 
+  getHandlerFileList,
   getHandlerFormCreate,
 
   getHandlerCheckSignature,

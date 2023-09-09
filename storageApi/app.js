@@ -57,26 +57,26 @@ const _getFileRouter = () => {
     core: [a.core.isValidSignature],
   }))
 
-  const fileUpdateHandler = a.action.getHandlerFileUpdate(argNamed({
+  const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
     output: [a.output.endResponse],
-    core: [a.core.handleFileUpdate],
+    core: [a.core.handleJsonUpdate],
     lib: [a.lib.paramSnakeToCamel],
   }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/update`, checkSignature, fileUpdateHandler)
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
-  const fileContentHandler = a.action.getHandlerFileContent(argNamed({
+  const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
     output: [a.output.endResponse],
-    core: [a.core.handleFileContent],
+    core: [a.core.handleJsonContent],
     lib: [a.lib.paramSnakeToCamel],
   }))
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
-  const fileDeleteHandler = a.action.getHandlerFileDelete(argNamed({
+  const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
     output: [a.output.endResponse],
-    core: [a.core.handleFileDelete],
+    core: [a.core.handleJsonDelete],
     lib: [a.lib.paramSnakeToCamel],
   }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/delete`, checkSignature, fileDeleteHandler)
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
     output: [a.output.endResponse],

@@ -22,54 +22,54 @@ const init = (setting, fs) => {
   mod.fs = fs
 }
 
-/* to fileList */
+/* to jsonList */
 /**
- * updateFile.
+ * updateJson.
  *
  * @param {} emailAddress
  * @param {} clientId
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @param {} content
  * @return {boolean} ファイルを更新できたかどうか
  * @memberof output
  */
-const updateFile = async (emailAddress, clientId, owner, filePath, content) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress]) {
-    fileList[emailAddress] = {}
+const updateJson = async (emailAddress, clientId, owner, jsonPath, content) => {
+  const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
+  if (!jsonList[emailAddress]) {
+    jsonList[emailAddress] = {}
   }
 
-  if (!fileList[emailAddress][owner]) {
-    fileList[emailAddress][owner] = {}
+  if (!jsonList[emailAddress][owner]) {
+    jsonList[emailAddress][owner] = {}
   }
 
   const dateUpdated = Date.now()
-  fileList[emailAddress][owner][filePath] = { dateUpdated, clientId, content }
+  jsonList[emailAddress][owner][jsonPath] = { dateUpdated, clientId, content }
 
-  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
+  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(jsonList, null, 2))
   return true
 }
 
 /**
- * deleteFile.
+ * deleteJson.
  *
  * @param {} emailAddress
  * @param {} clientId
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @return {boolean} ファイルを削除できたかどうか
  * @memberof output
  */
-const deleteFile = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
+const deleteJson = async (emailAddress, clientId, owner, jsonPath) => {
+  const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
+  if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner][jsonPath]) {
     return false
   }
 
-  delete fileList[emailAddress][owner][filePath]
+  delete jsonList[emailAddress][owner][jsonPath]
 
-  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(fileList, null, 2))
+  mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), JSON.stringify(jsonList, null, 2))
   return true
 }
 
@@ -94,7 +94,6 @@ const createFile = async (fileLabel, userSerialId, clientId, fileDir, fileName, 
 
   return rowCount
 }
-
 
 
 /* to http client */
@@ -137,8 +136,9 @@ const endResponse = (req, res, handleResult) => {
 export default {
   init,
 
-  updateFile,
-  deleteFile,
+  updateJson,
+  deleteJson,
+
   createFile,
 
   endResponse,

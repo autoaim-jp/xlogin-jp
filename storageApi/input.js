@@ -146,54 +146,54 @@ const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operatio
   return emailAddress
 }
 
-/* from fileList */
+/* from jsonList */
 /**
- * getFileContent.
+ * getJsonContent.
  *
  * @param {} emailAddress
  * @param {} clientId
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @return {Array} メールアドレスとファイルパスで取得したファイル
  * @memberof input
  */
-const getFileContent = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner][filePath]) {
+const getJsonContent = async (emailAddress, clientId, owner, jsonPath) => {
+  const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
+  if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner][jsonPath]) {
     return null
   }
 
-  return fileList[emailAddress][owner][filePath].content
+  return jsonList[emailAddress][owner][jsonPath].content
 }
 
 /**
- * getFileList.
+ * getJsonList.
  * getJsonMessageListとして使えるかも
  *
  * @param {} emailAddress
  * @param {} clientId
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @return {Array} メールアドレスとファイルパスで取得したファイル内容
  * @memberof input
  */
-const _getFileList = async (emailAddress, clientId, owner, filePath) => {
-  const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
-  if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
+const _getJsonList = async (emailAddress, clientId, owner, jsonPath) => {
+  const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
+  if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner]) {
     return null
   }
 
-  const resultFileList = Object.keys(fileList[emailAddress][owner]).map((_filePath) => {
-    if (_filePath.indexOf(filePath) === 0) {
-      const fileObj = { ...fileList[emailAddress][owner][_filePath] }
-      delete fileObj.content
-      return fileObj
+  const resultJsonList = Object.keys(jsonList[emailAddress][owner]).map((_jsonPath) => {
+    if (_jsonPath.indexOf(jsonPath) === 0) {
+      const jsonObj = { ...jsonList[emailAddress][owner][_jsonPath] }
+      delete jsonObj.content
+      return jsonObj
     }
     return null
   }).filter((row) => { return row })
 
 
-  return resultFileList
+  return resultJsonList
 }
 
 const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
@@ -209,7 +209,7 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
 
   const fileList = []
   result.rows.forEach((row) => {
-    const { fileLabel, fileDir, fileName, } = paramSnakeToCamel(row)
+    const { fileLabel, fileDir, fileName } = paramSnakeToCamel(row)
     const fileInfo = { fileLabel, fileDir, fileName }
     fileList.push(fileInfo)
   })
@@ -252,7 +252,7 @@ export default {
 
   checkPermissionAndGetEmailAddress,
 
-  getFileContent,
+  getJsonContent,
   getFileList,
 
   getUserSerialIdByEmailAddress,
