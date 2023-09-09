@@ -189,7 +189,7 @@ const handleJsonDelete = async (clientId, accessToken, owner, jsonPath) => {
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} fileDir
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
@@ -217,8 +217,9 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
- * @return {HandleResult} 取得したファイル一覧
+ * @param {} fileDir
+ * @param {} filelabel
+ * @return {Buffer} ファイルの中身
  * @memberof core
  */
 const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
