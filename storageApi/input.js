@@ -168,6 +168,7 @@ const getFileContent = async (emailAddress, clientId, owner, filePath) => {
 
 /**
  * getFileList.
+ * getJsonMessageListとして使えるかも
  *
  * @param {} emailAddress
  * @param {} clientId
@@ -176,7 +177,7 @@ const getFileContent = async (emailAddress, clientId, owner, filePath) => {
  * @return {Array} メールアドレスとファイルパスで取得したファイル内容
  * @memberof input
  */
-const getFileList = async (emailAddress, clientId, owner, filePath) => {
+const _getFileList = async (emailAddress, clientId, owner, filePath) => {
   const fileList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!fileList[emailAddress] || !fileList[emailAddress][owner] || !fileList[emailAddress][owner]) {
     return null
@@ -193,6 +194,27 @@ const getFileList = async (emailAddress, clientId, owner, filePath) => {
 
 
   return resultFileList
+}
+
+const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2'
+  const paramList = [owner, fileDir]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  console.log({ err, result })
+  if (err || rowCount === 0) {
+    return null
+  }
+
+  const fileList = []
+  result.rows.forEach((row) => {
+    const { fileLabel, fileDir, fileName, } = paramSnakeToCamel(row)
+    const fileInfo = { fileLabel, fileDir, fileName }
+    fileList.push(fileInfo)
+  })
+
+  return fileList
 }
 
 

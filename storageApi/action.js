@@ -79,9 +79,9 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, filePath } = paramSnakeToCamel(req.query)
+    const { owner, fileDir } = paramSnakeToCamel(req.query)
 
-    const resultHandleFileList = await handleFileList(clientId, accessToken, owner, filePath)
+    const resultHandleFileList = await handleFileList(clientId, accessToken, owner, fileDir)
     endResponse(req, res, resultHandleFileList)
   }
 }

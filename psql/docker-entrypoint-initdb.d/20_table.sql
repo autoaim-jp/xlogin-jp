@@ -90,10 +90,12 @@ grant all privileges on notification_info.notification_list to xl_admin;
 -- file
 create table file_info.file_list (
   file_serial_id serial not null,
+  file_label varchar(26) not null,
   client_id varchar(256),
   user_serial_id int not null references user_info.user_list(user_serial_id),
   date_registered varchar(256),
-  file_path varchar(256),
+  file_dir varchar(256),
+  file_name varchar(256),
   disk_file_path varchar(256)
 );
 grant all privileges on file_info.file_list to xl_admin;

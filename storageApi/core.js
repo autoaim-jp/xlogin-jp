@@ -193,8 +193,8 @@ const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
-const handleFileList = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const handleFileList = async (clientId, accessToken, owner, fileDir) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -202,7 +202,7 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
     return _getErrorResponse(status, error, null)
   }
 
-  const fileList = await mod.input.getFileList(emailAddress, clientId, owner, filePath)
+  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -242,6 +242,18 @@ const handleFormCreate = async ({
 
   console.log({ emailAddress })
   console.log({ filePath })
+  const filePathSplitList = filePath.split('/')
+  if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID')
+    const error = 'handle_form_create_invalid_filePath'
+    return _getErrorResponse(status, error, null)
+  }
+  const fileDir = filePathSplitList.slice(0, filePathSplitList.length - 1).join('/')
+  let fileName = filePathSplitList[filePathSplitList.length - 1]
+  if (fileName === '') {
+    fileName = 'r'
+  }
+  
   const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   console.log({ user })
   if (!user || !user.userSerialId) {
@@ -249,7 +261,9 @@ const handleFormCreate = async ({
     const error = 'handle_form_create_user'
     return _getErrorResponse(status, error, null)
   }
-  const createFormResult = await mod.output.createFile(user.userSerialId, clientId, filePath, diskFilePath, mod.lib.execQuery)
+
+  const fileLabel = mod.lib.getUlid()
+  const createFormResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.execQuery)
   console.log({ createFormResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
