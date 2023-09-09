@@ -91,11 +91,10 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
  *
  * @param {} paramSnakeToCamel
  * @param {} handleFileContent
- * @param {} endResponse
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent, endResponse }) => {
+const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
