@@ -168,7 +168,6 @@ const getJsonContent = async (emailAddress, clientId, owner, jsonPath) => {
 
 /**
  * getJsonList.
- * getJsonMessageListとして使えるかも
  *
  * @param {} emailAddress
  * @param {} clientId
@@ -177,7 +176,7 @@ const getJsonContent = async (emailAddress, clientId, owner, jsonPath) => {
  * @return {Array} メールアドレスとファイルパスで取得したファイル内容
  * @memberof input
  */
-const _getJsonList = async (emailAddress, clientId, owner, jsonPath) => {
+const getJsonList = async (emailAddress, clientId, owner, jsonPath) => {
   const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner]) {
     return null
@@ -209,7 +208,7 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
 
   const fileList = []
   result.rows.forEach((row) => {
-    const { fileLabel, fileDir, fileName } = paramSnakeToCamel(row)
+    const { fileLabel, fileName } = paramSnakeToCamel(row)
     const fileInfo = { fileLabel, fileDir, fileName }
     fileList.push(fileInfo)
   })
@@ -253,6 +252,8 @@ export default {
   checkPermissionAndGetEmailAddress,
 
   getJsonContent,
+  getJsonList,
+
   getFileList,
 
   getUserSerialIdByEmailAddress,
