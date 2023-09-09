@@ -210,6 +210,38 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
   }
 }
 
+/* GET /api/$apiVersion/file/content */
+/**
+ * handleFileContent.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} filePath
+ * @return {HandleResult} 取得したファイル一覧
+ * @memberof core
+ */
+const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
+    const error = 'handle_file_content_access_token'
+    return _getErrorResponse(status, error, null)
+  }
+
+  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  console.log({ debug: true, diskFilePath })
+
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
+  const fileContent = mod.input.getFileContent(diskFileFullPath)
+
+  return fileContent
+}
+
+
 /* POST /api/$apiVersion/form/create */
 /**
  * handleFormCreate.
@@ -284,6 +316,7 @@ export default {
   handleJsonDelete,
 
   handleFileList,
+  handleFileContent,
 
   handleFormCreate,
 }

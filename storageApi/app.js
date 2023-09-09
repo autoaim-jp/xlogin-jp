@@ -85,6 +85,14 @@ const _getFileRouter = () => {
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
+  const fileContentHandler = a.action.getHandlerFileContent(argNamed({
+    output: [a.output.endResponse],
+    core: [a.core.handleFileContent],
+    lib: [a.lib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
+
+
   return expressRouter
 }
 

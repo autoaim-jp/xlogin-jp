@@ -196,7 +196,7 @@ const getJsonList = async (emailAddress, clientId, owner, jsonPath) => {
 }
 
 const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
-  const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2'
+  const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 order by file_label desc'
   const paramList = [owner, fileDir]
 
   const { err, result } = await execQuery(query, paramList)
@@ -216,6 +216,33 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
   return fileList
 }
 
+const getDiskFilePath = async (owner, fileDir, fileLabel, execQuery, paramSnakeToCamel) => {
+  const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 and file_label = $3'
+  const paramList = [owner, fileDir, fileLabel]
+
+  const { err, result } = await execQuery(query, paramList)
+  const { rowCount } = result
+  console.log({ err, result })
+  if (err || rowCount === 0 || rowCount !== 1) {
+    return null
+  }
+
+  const { diskFilePath } = paramSnakeToCamel(result.rows[0])
+
+  return diskFilePath
+}
+
+
+/**
+ * getFileContent.
+ *
+ * @param {} filePath
+ * @return {Buffer} ファイルの中身
+ * @memberof input
+ */
+const getFileContent = (filePath) => {
+  return mod.fs.readFileSync(filePath)
+}
 
 /* from userList */
 /**
@@ -255,6 +282,8 @@ export default {
   getJsonList,
 
   getFileList,
+  getFileContent,
+  getDiskFilePath,
 
   getUserSerialIdByEmailAddress,
 }

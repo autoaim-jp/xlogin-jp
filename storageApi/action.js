@@ -86,6 +86,26 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
   }
 }
 
+/**
+ * getHandlerFileContent.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleFileContent
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
+const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent, endResponse }) => {
+  return async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, fileDir, fileLabel } = paramSnakeToCamel(req.query)
+
+    const resultHandleFileContent = await handleFileContent(clientId, accessToken, owner, fileDir, fileLabel)
+    res.end(resultHandleFileContent)
+  }
+}
+
 /* form */
 /**
  * getHandlerFormCreate.
@@ -154,6 +174,7 @@ export default {
   getHandlerJsonDelete,
 
   getHandlerFileList,
+  getHandlerFileContent,
   getHandlerFormCreate,
 
   getHandlerCheckSignature,
