@@ -221,7 +221,9 @@ const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
     const {
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked,
     } = req.body
-    const resultHandleUserAdd = await handleUserAdd(emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, req.session.auth)
+    const resultHandleUserAdd = await handleUserAdd({
+      emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession: req.session.auth,
+    })
     endResponse(req, res, resultHandleUserAdd)
   }
 }

@@ -11,6 +11,12 @@ const TEST_PARAM_COMMON = {
   requestScope: '',
   passHmac2: 'de9c2c84cc67f30892d2f6f3f8b8c11f11ffcb2cf4d6a9b669a46147c0db437656b7c42a8098c99fb4ad7ced651b64be0aee78eab62e625be1b8fbac894521cc',
 
+  newEmailAddress: 'awesome@example.com',
+  defaultUserName: 'no name',
+  saltHex: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  isTosChecked: true,
+  isPrivacyPolicyChecked: true,
+
   codeVerifier: 'ZxdT4pXVo1hNuk6CtcK7NAu_dBjsiiVUDOo01Ap_-A8HUcmnRKg4mG4R19pdshGy',
 
   splitPermissionList: {
@@ -81,6 +87,11 @@ export const TEST_PARAM = {
   // handleUserInfo
   filterKeyListStr: TEST_PARAM_COMMON.filterKeyListStr,
 
+  // handleUseradd
+  newEmailAddress: TEST_PARAM_COMMON.newEmailAddress,
+  saltHex: TEST_PARAM_COMMON.saltHex,
+  isTosChecked: TEST_PARAM_COMMON.isTosChecked,
+  isPrivacyPolicyChecked: TEST_PARAM_COMMON.isPrivacyPolicyChecked,
 }
 
 export const EXPECTED_PARAM = {
@@ -111,5 +122,8 @@ export const EXPECTED_PARAM = {
   // handleUserInfo
   clientId: TEST_PARAM_COMMON.clientId,
   userName: TEST_PARAM_COMMON.userName,
+
+  // handleUserAdd
+  defaultUserName: TEST_PARAM_COMMON.defaultUserName,
 }
 

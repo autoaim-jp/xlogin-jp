@@ -565,7 +565,9 @@ const handleConfirm = async ({
  * @return {HandleResult} ユーザを追加した結果
  * @memberof core
  */
-const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
+const handleUserAdd = async ({
+  emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession,
+}) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_user_add_session'
