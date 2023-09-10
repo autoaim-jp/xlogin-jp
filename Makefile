@@ -1,19 +1,19 @@
 include version.conf
 SHELL=/bin/bash
-PHONY=app-build app-up app-down xdevkit test-build test-up test-down lint view-build view-compile view-compile-minify view-watch clean help
+PHONY=app-build app-up app-down test-build test-up test-down lint view-build view-compile view-compile-minify view-watch xdevkit clean help
 
 .PHONY: $(PHONY)
 
+app-build: init-xdevkit docker-compose-build-app
 app-up: docker-compose-up-app
 app-down: docker-compose-down-app
-app-build: init-xdevkit docker-compose-build-app
 
-test-up: docker-compose-up-test
 test-build: init-xdevkit docker-compose-build-test
+test-up: docker-compose-up-test
 test-down: docker-compose-down-test
 
 lint: init-xdevkit docker-compose-up-lint
-view-build: docker-compose-build-view
+view-build: init-xdevkit docker-compose-build-view
 view-compile: docker-compose-up-view-compile
 view-compile-minify: docker-compose-up-view-compile-minify
 view-watch: docker-compose-up-view-watch
