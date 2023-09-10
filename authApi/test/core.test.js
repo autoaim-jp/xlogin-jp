@@ -128,6 +128,12 @@ describe('success through', () => {
   test('A5000-2 handleCode', coreLogin.handleCode({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
+   * testId: A1000-1
+   * function: handleUserInfo
+   */
+  test('B1000-1 handleUserInfo', coreLogin.handleUserInfo({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+
+  /**
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
@@ -151,19 +157,10 @@ describe('success through', () => {
    */
   test('A5000-2 handleCode 2', coreLogin.handleCode({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
-
-  /*
-test('handleUserInfo', async () => {
-    const argList = {
-      clientId: 'sample_localhost',
-      accessToken: '2Upv9RxTrEoin-AvqBtrmGsm0E74guOB7VirKOgt2D3qLOIPR7G0UyUArBTU2rkk',
-      filterKeyListStr: 'auth:emailAddress,auth:backupEmailAddress,auth:userName,sample_localhost:serviceUserId,sample_localhost:notification,sample_localhost:file',
-    }
-
-    const handleResult = await core.handleUserInfo(argList)
-    console.log(handleResult)
-})
-*/
-
+  /**
+   * testId: A1000-1
+   * function: handleUserInfo
+   */
+  test('B1000-1 handleUserInfo 2', coreLogin.handleUserInfo({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 })
 
