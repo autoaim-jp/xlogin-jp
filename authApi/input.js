@@ -268,6 +268,8 @@ const getUserByAccessToken = async (clientId, accessToken, filterKeyList, execQu
           const { serviceUserId } = paramSnakeToCamel(resultGetServiceUserInfo.rows[0])
           publicData[key] = serviceUserId
         }
+      } else if (keySplit[1] === 'emailAddress') {
+        publicData[key] = emailAddress
       } else {
         publicData[key] = null
       }

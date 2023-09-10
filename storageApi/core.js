@@ -233,8 +233,6 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
 
   const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
-  console.log({ debug: true, diskFilePath })
-
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
   const fileContent = mod.input.getFileContent(diskFileFullPath)
