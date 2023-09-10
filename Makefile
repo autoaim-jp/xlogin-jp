@@ -65,7 +65,11 @@ docker-compose-build-view:
 docker-compose-up-app:
 	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up
 docker-compose-up-test:
+	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down
+	docker volume rm xlogin-jp-test_xltest-volume-pc-psql
+	docker volume rm xlogin-jp-test_xltest-volume-rc-redis
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml up --abort-on-container-exit
+
 docker-compose-up-lint:
 	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
 docker-compose-up-view-compile:

@@ -1,7 +1,10 @@
 import init from './init.js'
-import core from '../core.js'
 import ulid from 'ulid'
 import pg from 'pg'
+
+import core from '../core.js'
+
+import coreLogin from './core/login.js'
 
 beforeAll(async () => {
   jest.spyOn(console, 'error').mockImplementation()
@@ -57,7 +60,7 @@ describe('A add user success', () => {
     emailAddress: TEST_PARAM_COMMON.emailAddress,
     passHmac2: TEST_PARAM_COMMON.passHmac2,
 
-    // handleCredentialCheck, handleConfirm
+    // handleCredentialCheck, handleConfirm, handleThrough
     authSession: {
       oidc: {
         clientId: TEST_PARAM_COMMON.clientId,
@@ -112,239 +115,31 @@ describe('A add user success', () => {
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
-  test('A1000-3,A1000-4 handleConnect', async () => {
-    const expected = {
-      status: 1,
-      session: EXPECTED_PARAM.session,
-      response: null,
-      redirect: '/confirm'
-    }
-
-    const paramKeyList = [
-      'user',
-      'clientId',
-      'redirectUri',
-      'state',
-      'scope',
-      'responseType',
-      'codeChallenge',
-      'codeChallengeMethod',
-      'requestScope',
-    ]
-
-    const argList = {}
-    paramKeyList.forEach((key) => {
-      argList[key] = TEST_PARAM[key]
-    })
-
-    const handleResult = await core.handleConnect(argList)
-    console.log('handleConnect:',handleResult)
-
-    expect(handleResult).toHaveProperty('status', expected.status)
-
-    expect(handleResult).toHaveProperty('session')
-    expect(handleResult).toHaveProperty('session.oidc')
-    expect(handleResult).toHaveProperty('session.oidc.clientId', expected.session.oidc.clientId)
-    expect(handleResult).toHaveProperty('session.oidc.state', expected.session.oidc.state)
-    expect(handleResult).toHaveProperty('session.oidc.scope', expected.session.oidc.scope)
-    expect(handleResult).toHaveProperty('session.oidc.responseType', expected.session.oidc.responseType)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallenge', expected.session.oidc.codeChallenge)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallengeMethod', expected.session.oidc.codeChallengeMethod)
-    expect(handleResult).toHaveProperty('session.oidc.redirectUri', expected.session.oidc.redirectUri)
-    expect(handleResult).toHaveProperty('session.oidc.requestScope', expected.session.oidc.requestScope)
-    expect(handleResult).toHaveProperty('session.oidc.condition', 'confirm')
-
-    expect(handleResult).toHaveProperty('session.user', expected.session.user)
-    expect(handleResult.session.user).toEqual(expected.session.user)
-
-    expect(handleResult).toHaveProperty('response', expected.response)
-    expect(handleResult).toHaveProperty('redirect', expected.redirect)
-  }, 10 * 1000)
-
-  test('A3000-3 handleUserAdd', () => {
-  })
-
-  /*
-test('handleThrough', () => {
-    const argList = {
-      ipAddress: '::ffff:172.26.0.1',
-      useragent: { browser: 'Godzilla', platform: 'xlogin' },
-      authSession: SESSION_OBJ,
-    }
-    const handleResult = await core.handleThrough(argList)
-
-    const expectedPart = {
-      status: 1,
-      session: {
-        code: 'giuQxKxMNwojfA4zPbAZgHAigA_kA-FmlIoBtU8ur7Sqcrv6e5FDdPL7IG1jqPyf',
-        splitPermissionList:{
-          required: {
-            'r:auth:userName': true,
-            'r:sample_localhost:serviceUserId': true,
-            'rw:sample_localhost:notification': true
-          },
-          optional: {}
-        }
-      },
-      response: {
-        result: {
-          oldPermissionList: null,
-          requestScope: '',
-        },
-      },
-    }
-    const expected = Object.assign({}, { session: SESSION_OBJ }, expectedPart)
-
-    console.log({ handleResult, expected })
-
-  // TODO
-    expect(handleResult.response).toEqual(expected.response)
-})
-
-*/
-
+  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnect({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A3000-2
    * function: handleCredentialCheck
    */
-  test('A3000-2 handleCredentialCheck', async () => {
-    const expected = {
-      status: 1,
-      session: EXPECTED_PARAM.session,
-      response: { redirect: '/confirm' },
-      redirect: null,
-    }
+  test('A3000-2 handleCredentialCheck', coreLogin.handleCredentialCheck({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
-    const paramKeyList = [
-      'emailAddress',
-      'passHmac2',
-      'authSession',
-    ]
-
-    const argList = {}
-    paramKeyList.forEach((key) => {
-      argList[key] = TEST_PARAM[key]
-    })
-
-    const handleResult = await core.handleCredentialCheck(argList)
-    console.log('handleCredentialCheck:', handleResult)
-
-    expect(handleResult).toHaveProperty('status', expected.status)
-
-    expect(handleResult).toHaveProperty('session')
-    expect(handleResult).toHaveProperty('session.oidc')
-    expect(handleResult).toHaveProperty('session.oidc.clientId', expected.session.oidc.clientId)
-    expect(handleResult).toHaveProperty('session.oidc.state', expected.session.oidc.state)
-    expect(handleResult).toHaveProperty('session.oidc.scope', expected.session.oidc.scope)
-    expect(handleResult).toHaveProperty('session.oidc.responseType', expected.session.oidc.responseType)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallenge', expected.session.oidc.codeChallenge)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallengeMethod', expected.session.oidc.codeChallengeMethod)
-    expect(handleResult).toHaveProperty('session.oidc.redirectUri', expected.session.oidc.redirectUri)
-    expect(handleResult).toHaveProperty('session.oidc.requestScope', expected.session.oidc.requestScope)
-    expect(handleResult).toHaveProperty('session.oidc.condition', 'confirm')
-
-    expect(handleResult).toHaveProperty('session.user', expected.session.user)
-    expect(handleResult.session.user).toEqual(expected.session.user)
-
-    expect(handleResult).toHaveProperty('response', expected.response)
-    expect(handleResult).toHaveProperty('redirect', expected.redirect)
-
-  })
+  /**
+   * testId: A4000-1
+   * function: handleThrough
+   */
+  test('A4000-1 handleThrough', coreLogin.handleThrough({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A4000-1
    * function: handleConfirm
    */
-  test('A4000-1 handleConfirm', async () => {
-    const expected = {
-      status: 1,
-      session: EXPECTED_PARAM.session,
-      response: { redirect: `http://127.0.0.1:3001/f/xlogin/callback?state=VeCTGA3M3O1KEWl4xtEKTuPKH8FrGmDlpowa0ZQ86scPneoqlgZVaTg5ZFGu3eO6&code=${TEST_PARAM._dummyCode}&iss=http://localhost:3000` },
-      redirect: null,
-    }
-    expected.session.oidc.splitPermissionList = EXPECTED_PARAM.splitPermissionList
-
-    const paramKeyList = [
-      'ipAddress',
-      'useragent',
-      'permissionList',
-      'authSession',
-    ]
-
-    const argList = {}
-    paramKeyList.forEach((key) => {
-      argList[key] = TEST_PARAM[key]
-    })
-
-    const handleResult = await core.handleConfirm(argList)
-    console.log('handleConfirm:', handleResult)
-
-    expect(handleResult).toHaveProperty('status', expected.status)
-
-    expect(handleResult).toHaveProperty('session')
-    expect(handleResult).toHaveProperty('session.oidc')
-    expect(handleResult).toHaveProperty('session.oidc.clientId', expected.session.oidc.clientId)
-    expect(handleResult).toHaveProperty('session.oidc.state', expected.session.oidc.state)
-    expect(handleResult).toHaveProperty('session.oidc.scope', expected.session.oidc.scope)
-    expect(handleResult).toHaveProperty('session.oidc.responseType', expected.session.oidc.responseType)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallenge', expected.session.oidc.codeChallenge)
-    expect(handleResult).toHaveProperty('session.oidc.codeChallengeMethod', expected.session.oidc.codeChallengeMethod)
-    expect(handleResult).toHaveProperty('session.oidc.redirectUri', expected.session.oidc.redirectUri)
-    expect(handleResult).toHaveProperty('session.oidc.requestScope', expected.session.oidc.requestScope)
-    expect(handleResult).toHaveProperty('session.oidc.splitPermissionList', expected.session.oidc.splitPermissionList)
-
-    expect(handleResult).toHaveProperty('session.oidc.condition', 'code')
-
-    expect(handleResult).toHaveProperty('session.oidc.code')
-    TEST_PARAM.code = handleResult.session.oidc.code
-    expected.response.redirect = expected.response.redirect.replace(TEST_PARAM._dummyCode, TEST_PARAM.code)
-
-    expect(handleResult).toHaveProperty('session.user', expected.session.user)
-    expect(handleResult.session.user).toEqual(expected.session.user)
-
-    expect(handleResult).toHaveProperty('response', expected.response)
-    expect(handleResult).toHaveProperty('redirect', expected.redirect)
-  })
+  test('A4000-1 handleConfirm', coreLogin.handleConfirm({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A5000-2
    * function: handleCode
    */
-  test('A5000-2 handleCode', async () => {
-    const expected = {
-      status: 1,
-      session: { condition: 'user_info', },
-      response: { result: { accessToken: '', splitPermissionList: EXPECTED_PARAM.splitPermissionList } },
-      redirect: null,
-    }
-
-    const paramKeyList = [
-      'clientId',
-      'code',
-      'codeVerifier',
-    ]
-
-    const argList = {}
-    paramKeyList.forEach((key) => {
-      argList[key] = TEST_PARAM[key]
-    })
-
-    const handleResult = await core.handleCode(argList)
-    console.log('handleCode:', handleResult)
-
-    expect(handleResult).toHaveProperty('status', expected.status)
-
-    expect(handleResult).toHaveProperty('session')
-    expect(handleResult.session).toEqual(expected.session)
-
-    expect(handleResult).toHaveProperty('response')
-    expect(handleResult).toHaveProperty('response.result')
-    expect(handleResult).toHaveProperty('response.result.accessToken')
-    TEST_PARAM.accessToken = handleResult.response.result.accessToken
-    expect(handleResult).toHaveProperty('response.result.splitPermissionList', expected.response.result.splitPermissionList)
-    expect(handleResult).toHaveProperty('redirect', expected.redirect)
-  })
+  test('A5000-2 handleCode', coreLogin.handleCode({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /*
 test('handleUserInfo', async () => {

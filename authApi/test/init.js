@@ -17,8 +17,6 @@ const asocial = {
 const a = asocial
 
 const init = async () => {
-  // debug
-  // const ulid = { ulid: () => { return '01ARZ3NDEKTSV4RRFFQ69G5FAV' } }
   dotenv.config({ path: './.testenv' })
   a.lib.monkeyPatch()
   a.lib.init(crypto, ulid)

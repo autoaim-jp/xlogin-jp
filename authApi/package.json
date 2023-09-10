@@ -20,7 +20,7 @@
 		"lint-server": "eslint *.js setting/",
 		"lint": "yarn lint-server",
 		"lint-fix": "yarn lint-server --fix",
-		"test": "yarn jest test/core.test.js",
+		"test": "yarn jest --roots test/",
 		"gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
 		"gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
 	},
