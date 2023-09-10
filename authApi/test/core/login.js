@@ -2,13 +2,18 @@ import { handleConnect } from './login/handleConnect.js'
 import { handleCredentialCheck } from './login/handleCredentialCheck.js'
 import { handleConfirm } from './login/handleConfirm.js'
 import { handleCode } from './login/handleCode.js'
-import { handleThrough } from './login/handleThrough.js'
+import { handleThroughReturnNotFound, handleThroughReturnRedirect } from './login/handleThrough.js'
+
+import { handleUserInfo } from './login/handleUserInfo.js'
 
 export default {
   handleConnect,
   handleCredentialCheck,
   handleConfirm,
   handleCode,
-  handleThrough,
+  handleThroughReturnNotFound,
+  handleThroughReturnRedirect,
+
+  handleUserInfo,
 }
 

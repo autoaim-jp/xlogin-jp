@@ -38,6 +38,17 @@ const insertTestData = async () => {
   const execQuery = a.lib.execQuery
   await a.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, execQuery)
 }
+
+const deleteAllData = async ({ cleanupTableList }) => {
+  const execQuery = a.lib.execQuery
+  const queryList = cleanupTableList.map((tableName) => {
+    return `truncate table ${tableName}`
+  })
+  for (const query of queryList) {
+    await execQuery(query)
+  }
+}
+
 const end = async () => {
   await a.lib.closePgPool()
 }
@@ -45,6 +56,7 @@ const end = async () => {
 export default {
   init,
   insertTestData,
+  deleteAllData,
   end,
 }
 

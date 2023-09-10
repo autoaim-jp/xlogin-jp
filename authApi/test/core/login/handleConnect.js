@@ -1,4 +1,4 @@
-export const handleConnect = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
+export const handleConnect = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
   return async () => {
     const expected = {
       status: 1,
@@ -25,7 +25,9 @@ export const handleConnect = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleConnect(argList)
-    console.log('handleConnect:',handleResult)
+    if (debugLog) {
+      console.log('handleConnect:',handleResult)
+    }
 
     expect(handleResult).toHaveProperty('status', expected.status)
 

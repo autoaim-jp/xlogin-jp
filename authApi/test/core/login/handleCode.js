@@ -1,4 +1,4 @@
-export const handleCode = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
+export const handleCode = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
   return async () => {
     const expected = {
       status: 1,
@@ -19,7 +19,9 @@ export const handleCode = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleCode(argList)
-    console.log('handleCode:', handleResult)
+    if (debugLog) {
+      console.log('handleCode:', handleResult)
+    }
 
     expect(handleResult).toHaveProperty('status', expected.status)
 

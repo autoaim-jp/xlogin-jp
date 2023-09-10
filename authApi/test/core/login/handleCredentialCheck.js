@@ -1,4 +1,4 @@
-export const handleCredentialCheck = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
+export const handleCredentialCheck = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
   return async () => {
     const expected = {
       status: 1,
@@ -19,7 +19,9 @@ export const handleCredentialCheck = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleCredentialCheck(argList)
-    console.log('handleCredentialCheck:', handleResult)
+    if (debugLog) {
+      console.log('handleCredentialCheck:', handleResult)
+    }
 
     expect(handleResult).toHaveProperty('status', expected.status)
 

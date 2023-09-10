@@ -1,9 +1,9 @@
-export const handleConfirm = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
+export const handleConfirm = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
   return async () => {
     const expected = {
       status: 1,
       session: EXPECTED_PARAM.session,
-      response: { redirect: `http://127.0.0.1:3001/f/xlogin/callback?state=VeCTGA3M3O1KEWl4xtEKTuPKH8FrGmDlpowa0ZQ86scPneoqlgZVaTg5ZFGu3eO6&code=${TEST_PARAM._dummyCode}&iss=http://localhost:3000` },
+      response: { redirect: `http://127.0.0.1:3001/f/xlogin/callback?state=${EXPECTED_PARAM.state}&code=${EXPECTED_PARAM._dummyCode}&iss=http://localhost:3000` },
       redirect: null,
     }
     expected.session.oidc.splitPermissionList = EXPECTED_PARAM.splitPermissionList
@@ -21,7 +21,9 @@ export const handleConfirm = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleConfirm(argList)
-    console.log('handleConfirm:', handleResult)
+    if (debugLog) {
+      console.log('handleConfirm:', handleResult)
+    }
 
     expect(handleResult).toHaveProperty('status', expected.status)
 
@@ -41,7 +43,7 @@ export const handleConfirm = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
 
     expect(handleResult).toHaveProperty('session.oidc.code')
     TEST_PARAM.code = handleResult.session.oidc.code
-    expected.response.redirect = expected.response.redirect.replace(TEST_PARAM._dummyCode, TEST_PARAM.code)
+    expected.response.redirect = expected.response.redirect.replace(EXPECTED_PARAM._dummyCode, TEST_PARAM.code)
 
     expect(handleResult).toHaveProperty('session.user', expected.session.user)
     expect(handleResult.session.user).toEqual(expected.session.user)

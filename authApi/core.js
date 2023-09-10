@@ -185,7 +185,6 @@ const handleConnect = async ({
 const handleCode = async ({
   clientId, code, codeVerifier,
 }) => {
-  console.log('handleCode', clientId, code, codeVerifier)
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -235,7 +234,6 @@ const handleCode = async ({
  * @memberof core
  */
 const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
-  console.log(clientId, accessToken, filterKeyListStr)
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -247,7 +245,6 @@ const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
 
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  console.log(userInfo)
   return {
     status, session: null, response: { result: { userInfo } }, redirect: null,
   }
@@ -376,7 +373,6 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
  * @memberof core
  */
 const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) => {
-  console.log(emailAddress, passHmac2, authSession)
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_credential_session'
@@ -496,8 +492,6 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
     }
   })
 
-  console.log({ debug: splitPermissionList })
-
   if (uncheckedPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { oldPermissionList: permissionList, requestScope }
@@ -524,7 +518,6 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
 const handleConfirm = async ({
   ipAddress, useragent, permissionList, authSession,
 }) => {
-  console.log(ipAddress, useragent, permissionList, authSession)
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
