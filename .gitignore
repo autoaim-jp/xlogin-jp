@@ -3,12 +3,19 @@
 node_modules/
 .env
 
-src/data/accessTokenList.json
-src/data/authSessionList.json
-src/data/notificationList.json
+log/
 
-src/doc/jsdoc/html/
+authApi/data/accessTokenList.json
+authApi/data/authSessionList.json
+authApi/data/notificationList.json
+
+authApi/doc/jsdoc/html/
 
 data/redis/
+storageApi/data/upload/
+
+yarn.lock
+yarn-error.log
+package-lock.json
 
 

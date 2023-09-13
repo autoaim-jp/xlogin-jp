@@ -1,0 +1,29 @@
+
+digraph G {
+
+#↓ここをGraphvizに貼り付ける
+"xlogin-jp/staticWeb/view"->"xdevkit/browserServerSetting.js" [label="/confirmで表示"]
+"xdevkit/browserServerSetting.js"->"json_v1" [label="labelとsummary表示のため"]
+"xlogin-jp/storageApi/core.js"->"json_v1" [label="API呼び出し権限チェック"]
+"client/src"->"xdevkit/browserServerSetting.js" [label="(サーバは今は未参照)"]
+"client/setting/xdevkitSetting.js"->"json_v1" [label="connect時に渡すSCOPE"]
+"client/ejs/component/editor.ejs"->"json_v1" [label="権限がないときにrequestScopeのボタン表示のため"]
+"client/js/mypage/output.js"->"json_v1" [label="権限がないときにフォームを非表示にするため"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

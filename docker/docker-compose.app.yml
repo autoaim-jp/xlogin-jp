@@ -1,0 +1,92 @@
+version: '3'
+
+services:
+  redis_container:
+    container_name: xlapp-container-redis
+    build:
+      context: ../
+      dockerfile: ./docker/redisContainer/Dockerfile
+    volumes:
+      - xlapp-volume-rc-redis:/data
+
+  psql_container:
+    container_name: xlapp-container-psql
+    build:
+      context: ../
+      dockerfile: ./docker/psqlContainer/Dockerfile
+    volumes:
+      - xlapp-volume-pc-psql:/var/lib/postgresql/data
+      - ../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=psqladmin
+      - POSTGRES_PASSWORD=psqlpass
+
+  static_web_container:
+    container_name: xlapp-container-static-web
+    build:
+      context: ../
+      dockerfile: ./docker/staticWebContainer/Dockerfile
+    tty: true
+    volumes:
+      - ../staticWeb:/app
+      - xlapp-volume-swc-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "yarn run start-watch"
+
+  auth_api_container:
+    container_name: xlapp-container-auth-api
+    build:
+      context: ../
+      dockerfile: ./docker/authApiContainer/Dockerfile
+    tty: true
+    volumes:
+      - ../authApi:/app
+      - xlapp-volume-aac-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "yarn run start-watch"
+    depends_on:
+      - redis_container
+      - psql_container
+
+  storage_api_container:
+    container_name: xlapp-container-storage-api
+    build:
+      context: ../
+      dockerfile: ./docker/storageApiContainer/Dockerfile
+    tty: true
+    volumes:
+      - ../storageApi:/app
+      - xlapp-volume-sac-nm:/app/node_modules
+    environment:
+     - IS_TEST=false
+    command: sh -c "yarn run start-watch"
+    depends_on:
+      - redis_container
+      - psql_container
+
+
+  reverse_proxy_container:
+    container_name: xlapp-container-reverse-proxy
+    build:
+      context: ../
+      dockerfile: ./docker/reverseProxyContainer/Dockerfile
+    ports:
+      - 3000:80
+    volumes:
+      - ../reverseProxy/nginx.conf:/etc/nginx/nginx.conf
+      - ../reverseProxy/log:/var/log/nginx
+    depends_on:
+      - auth_api_container
+      - storage_api_container
+      - static_web_container
+
+volumes:
+  xlapp-volume-rc-redis:
+  xlapp-volume-pc-psql:
+  xlapp-volume-aac-nm:
+  xlapp-volume-sac-nm:
+  xlapp-volume-swc-nm:
+
+
