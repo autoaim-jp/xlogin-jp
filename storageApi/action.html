@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: lib</title>
+    <title>JSDoc: Namespace: action</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: lib</h1>
+    <h1 class="page-title">Namespace: action</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>lib</h2>
+        <h2>action</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="doc_jsdoc_namespace.js.html">doc/jsdoc/namespace.js</a>, <a href="doc_jsdoc_namespace.js.html#line25">line 25</a>
+        <a href="doc_jsdoc_namespace.js.html">doc/jsdoc/namespace.js</a>, <a href="doc_jsdoc_namespace.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="._argNamed"><span class="type-signature">(static) </span>_argNamed<span class="signature">(obj)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id=".getHandlerCheckSignature"><span class="type-signature">(static) </span>getHandlerCheckSignature<span class="signature">(isValidSignature, INVALID_CREDENTIAL, endResponse)</span><span class="type-signature"> &rarr; {Promise(Express.next())}</span></h4>
     
 
     
@@ -117,7 +117,7 @@
 
 
 <div class="description">
-    <p>名前付きの引数を展開する</p>
+    <p>getHandlerCheckSignature.</p>
 </div>
 
 
@@ -153,15 +153,46 @@
 
         <tr>
             
-                <td class="name"><code>obj</code></td>
+                <td class="name"><code>isValidSignature</code></td>
             
 
             <td class="type">
             
-                
-<span class="param-type">Object</span>
+            </td>
 
+            
 
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>INVALID_CREDENTIAL</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
             
             </td>
 
@@ -210,7 +241,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line283">line 283</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line368">line 368</a>
     </li></ul></dd>
     
 
@@ -239,7 +270,7 @@
 
         
 <div class="param-desc">
-    <p>名前がついている引数を展開したもの</p>
+    <p>署名が正しかった場合はnext()が呼び出される</p>
 </div>
 
 
@@ -250,7 +281,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">Promise(Express.next())</span>
 
 
     </dd>
@@ -268,7 +299,7 @@
     
 
     
-    <h4 class="name" id=".addQueryStr"><span class="type-signature">(static) </span>addQueryStr<span class="signature">(url, queryStr)</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id=".getHandlerCode"><span class="type-signature">(static) </span>getHandlerCode<span class="signature">(paramSnakeToCamel, handleCode, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -276,7 +307,7 @@
 
 
 <div class="description">
-    <p>addQueryStr.</p>
+    <p>getHandlerCode.</p>
 </div>
 
 
@@ -312,7 +343,7 @@
 
         <tr>
             
-                <td class="name"><code>url</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
             
 
             <td class="type">
@@ -330,7 +361,25 @@
 
         <tr>
             
-                <td class="name"><code>queryStr</code></td>
+                <td class="name"><code>handleCode</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -382,161 +431,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line63">line 63</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>URLにクエリストリングを追加した結果</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">String</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".awaitSleep"><span class="type-signature">(static) </span>awaitSleep<span class="signature">(ms)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>awaitSleep.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>ms</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line223">line 223</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line39">line 39</a>
     </li></ul></dd>
     
 
@@ -594,7 +489,7 @@
     
 
     
-    <h4 class="name" id=".calcPbkdf2"><span class="type-signature">(static) </span>calcPbkdf2<span class="signature">(data, saltHex)</span><span class="type-signature"> &rarr; {Promise(string)}</span></h4>
+    <h4 class="name" id=".getHandlerConnect"><span class="type-signature">(static) </span>getHandlerConnect<span class="signature">(paramSnakeToCamel, handleConnect, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -602,7 +497,7 @@
 
 
 <div class="description">
-    <p>calcPbkdf2.</p>
+    <p>getHandlerConnect.</p>
 </div>
 
 
@@ -638,7 +533,7 @@
 
         <tr>
             
-                <td class="name"><code>data</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
             
 
             <td class="type">
@@ -656,7 +551,25 @@
 
         <tr>
             
-                <td class="name"><code>saltHex</code></td>
+                <td class="name"><code>handleConnect</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -708,7 +621,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line174">line 174</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -737,7 +650,7 @@
 
         
 <div class="param-desc">
-    <p>計算したPBKDF2</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -748,7 +661,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise(string)</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -766,7 +679,7 @@
     
 
     
-    <h4 class="name" id=".calcSha256AsB64"><span class="type-signature">(static) </span>calcSha256AsB64<span class="signature">(str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".getHandlerCredentialCheck"><span class="type-signature">(static) </span>getHandlerCredentialCheck<span class="signature">(paramSnakeToCamel, handleCredentialCheck, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -774,7 +687,7 @@
 
 
 <div class="description">
-    <p>calcSha256AsB64.</p>
+    <p>getHandlerCredentialCheck.</p>
 </div>
 
 
@@ -810,7 +723,43 @@
 
         <tr>
             
-                <td class="name"><code>str</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleCredentialCheck</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -862,7 +811,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line121">line 121</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line246">line 246</a>
     </li></ul></dd>
     
 
@@ -891,7 +840,7 @@
 
         
 <div class="param-desc">
-    <p>SHA-256ハッシュ</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -902,7 +851,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -920,7 +869,7 @@
     
 
     
-    <h4 class="name" id=".calcSha256HmacAsB64"><span class="type-signature">(static) </span>calcSha256HmacAsB64<span class="signature">(secret, str)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".getHandlerFileContent"><span class="type-signature">(static) </span>getHandlerFileContent<span class="signature">(paramSnakeToCamel, handleFileContent, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -928,7 +877,7 @@
 
 
 <div class="description">
-    <p>calcSha256HmacAsB64.</p>
+    <p>getHandlerFileContent.</p>
 </div>
 
 
@@ -964,7 +913,7 @@
 
         <tr>
             
-                <td class="name"><code>secret</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
             
 
             <td class="type">
@@ -982,7 +931,25 @@
 
         <tr>
             
-                <td class="name"><code>str</code></td>
+                <td class="name"><code>handleFileContent</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -1034,7 +1001,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line134">line 134</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -1063,7 +1030,7 @@
 
         
 <div class="param-desc">
-    <p>SHA-256のHMAC</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -1074,7 +1041,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -1092,7 +1059,7 @@
     
 
     
-    <h4 class="name" id=".closePgPool"><span class="type-signature">(async, static) </span>closePgPool<span class="signature">()</span><span class="type-signature"> &rarr; {undefined}</span></h4>
+    <h4 class="name" id=".getHandlerFileDelete"><span class="type-signature">(static) </span>getHandlerFileDelete<span class="signature">(paramSnakeToCamel, handleFileDelete, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -1100,117 +1067,7 @@
 
 
 <div class="description">
-    <p>closePgPool.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>戻り値なし</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">undefined</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".convertToCodeChallenge"><span class="type-signature">(static) </span>convertToCodeChallenge<span class="signature">(codeVerifier, codeChallengeMethod)</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>convertToCodeChallenge.</p>
+    <p>getHandlerFileDelete.</p>
 </div>
 
 
@@ -1246,7 +1103,7 @@
 
         <tr>
             
-                <td class="name"><code>codeVerifier</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
             
 
             <td class="type">
@@ -1264,7 +1121,25 @@
 
         <tr>
             
-                <td class="name"><code>codeChallengeMethod</code></td>
+                <td class="name"><code>handleFileDelete</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -1316,7 +1191,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line148">line 148</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line205">line 205</a>
     </li></ul></dd>
     
 
@@ -1345,7 +1220,7 @@
 
         
 <div class="param-desc">
-    <p>作成したcodeChallenge</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -1356,7 +1231,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -1374,7 +1249,7 @@
     
 
     
-    <h4 class="name" id=".execQuery"><span class="type-signature">(async, static) </span>execQuery<span class="signature">(query, paramList)</span><span class="type-signature"> &rarr; {Promise(object)}</span></h4>
+    <h4 class="name" id=".getHandlerFileList"><span class="type-signature">(static) </span>getHandlerFileList<span class="signature">(paramSnakeToCamel, handleFileList, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -1382,7 +1257,7 @@
 
 
 <div class="description">
-    <p>execQuery.</p>
+    <p>getHandlerFileList.</p>
 </div>
 
 
@@ -1418,7 +1293,7 @@
 
         <tr>
             
-                <td class="name"><code>query</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
             
 
             <td class="type">
@@ -1436,7 +1311,25 @@
 
         <tr>
             
-                <td class="name"><code>paramList</code></td>
+                <td class="name"><code>handleFileList</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -1488,7 +1381,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line241">line 241</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line225">line 225</a>
     </li></ul></dd>
     
 
@@ -1517,7 +1410,7 @@
 
         
 <div class="param-desc">
-    <p>DBアクセスの結果とエラー</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -1528,7 +1421,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise(object)</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -1546,7 +1439,7 @@
     
 
     
-    <h4 class="name" id=".formatDate"><span class="type-signature">(static) </span>formatDate<span class="signature">(format, date)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".getHandlerFileUpdate"><span class="type-signature">(static) </span>getHandlerFileUpdate<span class="signature">(paramSnakeToCamel, handleFileUpdate, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -1554,191 +1447,7 @@
 
 
 <div class="description">
-    <p>formatDate.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>format</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                    YYYY-MM-DD hh:mm:ss
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>date</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line207">line 207</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>フォーマットした時刻</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getMaxIdInList"><span class="type-signature">(static) </span>getMaxIdInList<span class="signature">(list)</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>getMaxIdInList.</p>
+    <p>getHandlerFileUpdate.</p>
 </div>
 
 
@@ -1774,7 +1483,43 @@
 
         <tr>
             
-                <td class="name"><code>list</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleFileUpdate</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -1826,7 +1571,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line192">line 192</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line165">line 165</a>
     </li></ul></dd>
     
 
@@ -1855,7 +1600,7 @@
 
         
 <div class="param-desc">
-    <p>リストの最大値</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -1866,7 +1611,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -1884,7 +1629,7 @@
     
 
     
-    <h4 class="name" id=".getRandomB64UrlSafe"><span class="type-signature">(static) </span>getRandomB64UrlSafe<span class="signature">(len)</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id=".getHandlerGlobalNotification"><span class="type-signature">(static) </span>getHandlerGlobalNotification<span class="signature">(handleGlobalNotification, ALL_NOTIFICATION, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -1892,7 +1637,7 @@
 
 
 <div class="description">
-    <p>getRandomB64UrlSafe.</p>
+    <p>getHandlerGlobalNotification.</p>
 </div>
 
 
@@ -1928,7 +1673,43 @@
 
         <tr>
             
-                <td class="name"><code>len</code></td>
+                <td class="name"><code>handleGlobalNotification</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ALL_NOTIFICATION</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -1980,7 +1761,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line110">line 110</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line335">line 335</a>
     </li></ul></dd>
     
 
@@ -2009,7 +1790,7 @@
 
         
 <div class="param-desc">
-    <p>URLセーフなBase64のランダム文字列</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -2020,7 +1801,7 @@
     </dt>
     <dd>
         
-<span class="param-type">String</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -2038,7 +1819,7 @@
     
 
     
-    <h4 class="name" id=".getUlid"><span class="type-signature">(static) </span>getUlid<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id=".getHandlerHandleLogout"><span class="type-signature">(static) </span>getHandlerHandleLogout<span class="signature">(handleLogout, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -2046,117 +1827,7 @@
 
 
 <div class="description">
-    <p>getUlid.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line99">line 99</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>作成したUUID</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">String</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".init"><span class="type-signature">(static) </span>init<span class="signature">(crypto, ulid)</span><span class="type-signature"> &rarr; {undefined}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>init.</p>
+    <p>getHandlerHandleLogout.</p>
 </div>
 
 
@@ -2192,7 +1863,7 @@
 
         <tr>
             
-                <td class="name"><code>crypto</code></td>
+                <td class="name"><code>handleLogout</code></td>
             
 
             <td class="type">
@@ -2210,7 +1881,7 @@
 
         <tr>
             
-                <td class="name"><code>ulid</code></td>
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -2262,7 +1933,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line17">line 17</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line350">line 350</a>
     </li></ul></dd>
     
 
@@ -2291,7 +1962,7 @@
 
         
 <div class="param-desc">
-    <p>戻り値なし</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -2302,7 +1973,7 @@
     </dt>
     <dd>
         
-<span class="param-type">undefined</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -2320,7 +1991,7 @@
     
 
     
-    <h4 class="name" id=".monkeyPatch"><span class="type-signature">(static) </span>monkeyPatch<span class="signature">()</span><span class="type-signature"> &rarr; {undefined}</span></h4>
+    <h4 class="name" id=".getHandlerNotificationAppend"><span class="type-signature">(static) </span>getHandlerNotificationAppend<span class="signature">(paramSnakeToCamel, handleNotificationAppend, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -2328,117 +1999,7 @@
 
 
 <div class="description">
-    <p>グローバルの関数をセットする。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line314">line 314</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>戻り値なし</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">undefined</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".objToQuery"><span class="type-signature">(static) </span>objToQuery<span class="signature">(obj)</span><span class="type-signature"> &rarr; {String}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>objToQuery.</p>
+    <p>getHandlerNotificationAppend.</p>
 </div>
 
 
@@ -2474,7 +2035,43 @@
 
         <tr>
             
-                <td class="name"><code>obj</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleNotificationAppend</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -2526,7 +2123,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line51">line 51</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line123">line 123</a>
     </li></ul></dd>
     
 
@@ -2555,7 +2152,7 @@
 
         
 <div class="param-desc">
-    <p>オブジェクトから作成したクエリストリング</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -2566,7 +2163,7 @@
     </dt>
     <dd>
         
-<span class="param-type">String</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -2584,7 +2181,7 @@
     
 
     
-    <h4 class="name" id=".paramSnakeToCamel"><span class="type-signature">(static) </span>paramSnakeToCamel<span class="signature">(paramList)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id=".getHandlerNotificationList"><span class="type-signature">(static) </span>getHandlerNotificationList<span class="signature">(paramSnakeToCamel, handleNotificationList, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -2592,7 +2189,7 @@
 
 
 <div class="description">
-    <p>paramSnakeToCamel.</p>
+    <p>getHandlerNotificationList.</p>
 </div>
 
 
@@ -2628,7 +2225,43 @@
 
         <tr>
             
-                <td class="name"><code>paramList</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleNotificationList</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -2680,7 +2313,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line82">line 82</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -2709,7 +2342,7 @@
 
         
 <div class="param-desc">
-    <p>オブジェクトのキーをスネークケースからキャメルケースに変換したもの</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -2720,7 +2353,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -2738,7 +2371,7 @@
     
 
     
-    <h4 class="name" id=".setPgPool"><span class="type-signature">(static) </span>setPgPool<span class="signature">(pgPool)</span><span class="type-signature"> &rarr; {undefined}</span></h4>
+    <h4 class="name" id=".getHandlerNotificationOpen"><span class="type-signature">(static) </span>getHandlerNotificationOpen<span class="signature">(paramSnakeToCamel, handleNotificationOpen, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -2746,7 +2379,7 @@
 
 
 <div class="description">
-    <p>setPgPool.</p>
+    <p>getHandlerNotificationOpen.</p>
 </div>
 
 
@@ -2782,7 +2415,43 @@
 
         <tr>
             
-                <td class="name"><code>pgPool</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleNotificationOpen</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -2834,7 +2503,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line29">line 29</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line143">line 143</a>
     </li></ul></dd>
     
 
@@ -2863,7 +2532,7 @@
 
         
 <div class="param-desc">
-    <p>戻り値なし</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -2874,7 +2543,7 @@
     </dt>
     <dd>
         
-<span class="param-type">undefined</span>
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -2892,7 +2561,7 @@
     
 
     
-    <h4 class="name" id=".waitForPsql"><span class="type-signature">(async, static) </span>waitForPsql<span class="signature">(maxRetryCnt)</span><span class="type-signature"> &rarr; {undefined}</span></h4>
+    <h4 class="name" id=".getHandlerPermissionCheck"><span class="type-signature">(static) </span>getHandlerPermissionCheck<span class="signature">(paramSnakeToCamel, handleConfirm, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
     
 
     
@@ -2900,7 +2569,7 @@
 
 
 <div class="description">
-    <p>waitForPsql.</p>
+    <p>getHandlerPermissionCheck.</p>
 </div>
 
 
@@ -2936,7 +2605,43 @@
 
         <tr>
             
-                <td class="name"><code>maxRetryCnt</code></td>
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleConfirm</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
             
 
             <td class="type">
@@ -2988,7 +2693,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line262">line 262</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line281">line 281</a>
     </li></ul></dd>
     
 
@@ -3017,7 +2722,7 @@
 
         
 <div class="param-desc">
-    <p>戻り値なし</p>
+    <p>Promise内の戻り値なし</p>
 </div>
 
 
@@ -3028,7 +2733,903 @@
     </dt>
     <dd>
         
-<span class="param-type">undefined</span>
+<span class="param-type">Promise()</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getHandlerScopeList"><span class="type-signature">(static) </span>getHandlerScopeList<span class="signature">(handleScope, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>getHandlerScopeList.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>handleScope</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line319">line 319</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Promise内の戻り値なし</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise()</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getHandlerThroughCheck"><span class="type-signature">(static) </span>getHandlerThroughCheck<span class="signature">(handleThrough, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>getHandlerThroughCheck.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>handleThrough</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line262">line 262</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Promise内の戻り値なし</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise()</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getHandlerUserAdd"><span class="type-signature">(static) </span>getHandlerUserAdd<span class="signature">(handleUserAdd, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>getHandlerUserAdd.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>handleUserAdd</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line301">line 301</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Promise内の戻り値なし</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise()</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getHandlerUserInfo"><span class="type-signature">(static) </span>getHandlerUserInfo<span class="signature">(paramSnakeToCamel, handleUserInfo, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>getHandlerUserInfo.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleUserInfo</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line61">line 61</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Promise内の戻り値なし</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise()</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getHandlerUserInfoUpdate"><span class="type-signature">(static) </span>getHandlerUserInfoUpdate<span class="signature">(paramSnakeToCamel, handleUserInfoUpdate, endResponse)</span><span class="type-signature"> &rarr; {Promise()}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>getHandlerUserInfoUpdate.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>paramSnakeToCamel</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleUserInfoUpdate</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endResponse</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line81">line 81</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Promise内の戻り値なし</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise()</span>
 
 
     </dd>
@@ -3062,7 +3663,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Aug 19 2023 01:03:49 GMT+0900 (日本標準時)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Aug 19 2023 01:03:48 GMT+0900 (日本標準時)
 </footer>
 
 <script> prettyPrint(); </script>
