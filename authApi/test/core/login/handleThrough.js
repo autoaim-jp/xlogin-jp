@@ -46,7 +46,7 @@ export const handleThroughReturnRedirect = ({ debugLog, core, TEST_PARAM, EXPECT
     const expected = {
       status: 1,
       session: EXPECTED_PARAM.session,
-      response: { redirect: `http://127.0.0.1:3001/f/xlogin/callback?state=${EXPECTED_PARAM.state}&code=${EXPECTED_PARAM._dummyCode}&iss=http://localhost:3000` },
+      response: { redirect: `http://127.0.0.1:3001/f/xlogin/callback?state=${EXPECTED_PARAM.state}&code=${EXPECTED_PARAM._dummyCode}&iss=${EXPECTED_PARAM.iss}` },
       redirect: null,
     }
     expected.session.oidc.splitPermissionList = EXPECTED_PARAM.splitPermissionList

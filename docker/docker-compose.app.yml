@@ -73,7 +73,7 @@ services:
       context: ../
       dockerfile: ./docker/reverseProxyContainer/Dockerfile
     ports:
-      - 3000:80
+      - 3333:80
     volumes:
       - ../reverseProxy/nginx.conf:/etc/nginx/nginx.conf
       - ../reverseProxy/log:/var/log/nginx

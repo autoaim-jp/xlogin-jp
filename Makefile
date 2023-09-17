@@ -1,8 +1,10 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch xdevkit lint doc-generate doc-publish clean help
+PHONY=default app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch xdevkit lint doc-generate doc-publish clean help
 
 .PHONY: $(PHONY)
+
+default: app-up
 
 app-build: init-xdevkit docker-compose-build-app
 app-up: docker-compose-up-app
