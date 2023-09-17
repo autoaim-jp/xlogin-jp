@@ -1,6 +1,6 @@
 include version.conf
 SHELL=/bin/bash
-PHONY=app-build app-up app-down test-build test-up test-down lint view-build view-compile view-compile-minify view-watch xdevkit clean help
+PHONY=app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch xdevkit lint gendoc clean help
 
 .PHONY: $(PHONY)
 
@@ -12,7 +12,6 @@ test-build: init-xdevkit docker-compose-build-test
 test-up: docker-compose-up-test
 test-down: docker-compose-down-test
 
-lint: init-xdevkit docker-compose-up-lint
 view-build: init-xdevkit docker-compose-build-view
 view-compile: docker-compose-up-view-compile
 view-compile-minify: docker-compose-up-view-compile-minify
@@ -20,11 +19,14 @@ view-watch: docker-compose-up-view-watch
 
 xdevkit: init-xdevkit
 
+lint: init-xdevkit docker-compose-up-lint
+gendoc: docker-compose-up-gendoc
+
 clean: app-down test-down
 
 help:
 	@echo "Usage: make (app|test)-(build|up|down)"
-	@echo "Usage: make (xdevkit|lint|clean)"
+	@echo "Usage: make (xdevkit|lint|gendoc|clean)"
 	@echo "Usage: make view-(build|compile|compile-minify|watch)"
 	@echo "Example:"
 	@echo "  make app-build             # Recreate image"
@@ -43,6 +45,7 @@ help:
 	@echo "  make xdevkit               # Update xdevkit only"
 	@echo "------------------------------"
 	@echo "  make lint     		          # lint"
+	@echo "  make gendoc     		          # gendoc"
 	@echo "------------------------------"
 	@echo "  make clean                 # Clean app, test container/volume"
 
@@ -70,8 +73,6 @@ docker-compose-up-test:
 	docker volume rm xlogin-jp-test_xltest-volume-rc-redis || true
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml up --abort-on-container-exit
 
-docker-compose-up-lint:
-	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
 docker-compose-up-view-compile:
 	BUILD_COMMAND="compile" docker compose -p xlogin-jp-view -f ./docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
@@ -84,6 +85,16 @@ docker-compose-down-app:
 	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml down --volumes
 docker-compose-down-test:
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down --volumes
+
+# devtool
+docker-compose-up-lint:
+	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
+docker-compose-up-gendoc:
+	# rm -rf doc/jsdoc/html/staticWeb/ && cp -r staticWeb/doc/jsdoc/html/ doc/jsdoc/html/staticWeb/
+	# rm -rf doc/jsdoc/html/authApi/ && cp -r authApi/doc/jsdoc/html/ doc/jsdoc/html/authApi/
+	# rm -rf doc/jsdoc/html/storageApi/ && cp -r storageApi/doc/jsdoc/html/ doc/jsdoc/html/storageApi/
+	docker compose -p xlogin-jp-gendoc -f ./docker/docker-compose.gendoc.yml up --abort-on-container-exit
+
 
 %:
 	@echo "Target '$@' does not exist."
