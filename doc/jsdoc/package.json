@@ -1,0 +1,10 @@
+{
+	"homepage": "https://autoaim-jp.github.io/xlogin-jp",
+	"scripts": {
+		"gh-pages-deploy": "gh-pages -d html -m \"update: --skip-ci\""
+	},
+	"type": "module",
+	"dependencies": {
+		"gh-pages": "^6.0.0"
+	}
+}

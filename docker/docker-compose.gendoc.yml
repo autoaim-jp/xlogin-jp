@@ -54,7 +54,7 @@ services:
       - xlgendoc-volume-jsdoc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "echo gendoc_done"
+    command: sh -c "yarn run gh-pages-deploy"
     depends_on:
       static_web_container:
         condition: service_completed_successfully
