@@ -93,7 +93,7 @@ docker-compose-up-gendoc:
 	# rm -rf doc/jsdoc/html/staticWeb/ && cp -r staticWeb/doc/jsdoc/html/ doc/jsdoc/html/staticWeb/
 	# rm -rf doc/jsdoc/html/authApi/ && cp -r authApi/doc/jsdoc/html/ doc/jsdoc/html/authApi/
 	# rm -rf doc/jsdoc/html/storageApi/ && cp -r storageApi/doc/jsdoc/html/ doc/jsdoc/html/storageApi/
-	docker compose -p xlogin-jp-gendoc -f ./docker/docker-compose.gendoc.yml up --abort-on-container-exit
+	docker compose -p xlogin-jp-gendoc -f ./docker/docker-compose.gendoc.yml up
 
 
 %:

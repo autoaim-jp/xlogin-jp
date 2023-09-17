@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["app.js", "setting", "output.js", "core.js", "input.js", "action.js", "lib.js", "view", "doc/jsdoc/namespace.js"],
+    "include": ["app.js", "setting", "view", "doc/jsdoc/namespace.js"],
     "includePattern": ".+\\.js(doc|x)?$"
   },
   "sourceType": "module",

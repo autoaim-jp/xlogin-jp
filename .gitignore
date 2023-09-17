@@ -9,6 +9,7 @@ authApi/data/accessTokenList.json
 authApi/data/authSessionList.json
 authApi/data/notificationList.json
 
+*/doc/jsdoc/html/
 doc/jsdoc/html/
 
 data/redis/

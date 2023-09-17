@@ -64,5 +64,8 @@ services:
         condition: service_completed_successfully
 
 volumes:
+  xlcommon-volume-aac-nm:
+  xlcommon-volume-sac-nm:
+  xlcommon-volume-swc-nm:
   xlgendoc-volume-jsdoc-nm:
 
