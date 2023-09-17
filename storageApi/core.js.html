@@ -32,6 +32,8 @@
  * @name コア機能を集約したファイル
  * @memberof core
  */
+// debug
+import fs from 'fs'
 
 /* local setting */
 const mod = {}
@@ -124,356 +126,87 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
   return { signatureCheckResult: true }
 }
 
-
-/* user */
+/* POST /api/$apiVersion/json/update */
 /**
- * _credentialCheck.
- *
- * @param {} emailAddress
- * @param {} passHmac2
- * @return {credentialCheckResult} メールアドレスとパスワードの組み合わせが正しいかどうか
- * @memberof core
- */
-const _credentialCheck = async (emailAddress, passHmac2) => {
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  if (!user) {
-    return { credentialCheckResult: false }
-  }
-
-  const isValidCredential = await mod.input.isValidCredential(emailAddress, passHmac2, mod.lib.execQuery, mod.lib.paramSnakeToCamel, mod.lib.calcPbkdf2)
-
-  if (!isValidCredential) {
-    return { credentialCheckResult: false }
-  }
-
-  return { credentialCheckResult: true }
-}
-
-/* connect */
-/* GET /api/$apiVersion/auth/connect */
-/**
- * handleConnect.
- *
- * @param {} user
- * @param {} clientId
- * @param {} redirectUri
- * @param {} state
- * @param {} scope
- * @param {} responseType
- * @param {} codeChallenge
- * @param {} codeChallengeMethod
- * @param {} requestScope
- * @return {HandleResult} Connectした結果
- * @memberof core
- */
-const handleConnect = async ({
-  user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
-}) => {
-  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.execQuery)
-  if (!isValidClientResult) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
-    const error = 'handle_connect_client'
-    return _getErrorResponse(status, error, true)
-  }
-
-  const newUserSession = {
-    oidc: {
-      clientId, state, scope, responseType, codeChallenge, codeChallengeMethod, redirectUri, requestScope,
-    },
-  }
-
-  if (user) {
-    newUserSession.user = user
-    newUserSession.oidc.condition = mod.setting.getValue('condition.CONFIRM')
-    const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
-    const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-    return {
-      status, session: newUserSession, response: null, redirect,
-    }
-  }
-
-  newUserSession.oidc.condition = mod.setting.getValue('condition.LOGIN')
-  const redirect = mod.setting.getValue('url.AFTER_CONNECT')
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: newUserSession, response: null, redirect,
-  }
-}
-
-/* GET /api/$apiVersion/auth/code */
-/**
- * handleCode.
- *
- * @param {} clientId
- * @param {} code
- * @param {} codeVerifier
- * @return {HandleResult} codeが正しいかどうか処理した結果
- * @memberof core
- */
-const handleCode = async ({
-  clientId, code, codeVerifier,
-}) => {
-  console.log('handleCode', clientId, code, codeVerifier)
-  const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_code_session'
-    return _getErrorResponse(status, error, true)
-  }
-
-  if (clientId !== authSession.clientId) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
-    const error = 'handle_code_client'
-    return _getErrorResponse(status, error, true)
-  }
-
-  const generatedCodeChallenge = mod.lib.convertToCodeChallenge(codeVerifier, authSession.codeChallengeMethod)
-  if (authSession.codeChallenge !== generatedCodeChallenge) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CODE_VERIFIER')
-    const error = 'handle_code_challenge'
-    return _getErrorResponse(status, error, true)
-  }
-
-  const accessToken = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.ACCESS_TOKEN_L'))
-
-  const newUserSession = { condition: mod.setting.getValue('condition.USER_INFO') }
-
-  const splitPermissionList = JSON.parse(authSession.splitPermissionList)
-  const resultRegisterAccessToken = await mod.output.registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList, mod.lib.execQuery)
-  if (!resultRegisterAccessToken) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_code_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: newUserSession, response: { result: { accessToken, splitPermissionList } }, redirect: null,
-  }
-}
-
-/* GET /api/$apiVersion/user/info */
-/**
- * handleUserInfo.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} filterKeyListStr
- * @return {HandleResult} ユーザ情報を取得した結果
- * @memberof core
- */
-const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
-  console.log(clientId, accessToken, filterKeyListStr)
-  const filterKeyList = filterKeyListStr.split(',')
-  const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!userInfo) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_user_info_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  console.log(userInfo)
-  return {
-    status, session: null, response: { result: { userInfo } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/user/update */
-/**
- * handleUserInfoUpdate.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} backupEmailAddress
- * @return {HandleResult} ユーザ情報を更新した結果
- * @memberof core
- */
-const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_user_update_backup_email_address'
-    return _getErrorResponse(status, error, null)
-  }
-  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.execQuery)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { userInfoUpdateResult } }, redirect: null,
-  }
-}
-
-
-/* GET /api/$apiVersion/notification/list */
-/**
- * handleNotificationList.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} notificationRange
- * @return {HandleResult} 取得した通知一覧
- * @memberof core
- */
-const handleNotificationList = async (clientId, accessToken, notificationRange) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_notification_list_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const notificationList = await mod.input.getNotification(emailAddress, notificationRange, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { notificationList } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/notification/append */
-/**
- * handleNotificationAppend.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} notificationRange
- * @param {} subject
- * @param {} detail
- * @return {HandleResult} 通知を追加した結果
- * @memberof core
- */
-const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_notification_append_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const notificationId = mod.lib.getUlid()
-  const notificationAppendResult = await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.execQuery, mod.lib.getMaxIdInList)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { notificationAppendResult } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/notification/open */
-/**
- * handleNotificationOpen.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} notificationRange
- * @param {} notificationIdList
- * @return {HandleResult} 通知をオープンした結果
- * @memberof core
- */
-const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_notification_open_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const notificationOpenResult = await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.execQuery, mod.lib.getMaxIdInList)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { notificationOpenResult } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/file/update */
-/**
- * handleFileUpdate.
+ * handleJsonUpdate.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @param {} content
  * @return {HandleResult} ファイルを更新した結果
  * @memberof core
  */
-const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const handleJsonUpdate = async (clientId, accessToken, owner, jsonPath, content) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_update_access_token'
+    const error = 'handle_json_update_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const updateFileResult = await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
+  const updateJsonResult = await mod.output.updateJson(emailAddress, clientId, owner, jsonPath, content)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { updateFileResult } }, redirect: null,
+    status, session: null, response: { result: { updateJsonResult } }, redirect: null,
   }
 }
 
-/* GET /api/$apiVersion/file/content */
+/* GET /api/$apiVersion/json/content */
 /**
- * handleFileContent.
+ * handleJsonContent.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @memberof core
  */
-const handleFileContent = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const handleJsonContent = async (clientId, accessToken, owner, jsonPath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_content_access_token'
+    const error = 'handle_json_content_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
+  const jsonContent = await mod.input.getJsonContent(emailAddress, clientId, owner, jsonPath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { fileContent } }, redirect: null,
+    status, session: null, response: { result: { jsonContent } }, redirect: null,
   }
 }
 
-/* POST /api/$apiVersion/file/delete */
+/* POST /api/$apiVersion/json/delete */
 /**
- * handleFileDelete.
+ * handleJsonDelete.
  *
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} jsonPath
  * @return {HandleResult} ファイルを削除した結果
  * @memberof core
  */
-const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const handleJsonDelete = async (clientId, accessToken, owner, jsonPath) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_delete_access_token'
+    const error = 'handle_json_delete_access_token'
     return _getErrorResponse(status, error, null)
   }
 
-  const deleteFileResult = await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
+  const deleteJsonResult = await mod.output.deleteJson(emailAddress, clientId, owner, jsonPath)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
+    status, session: null, response: { result: { deleteJsonResult } }, redirect: null,
   }
 }
 
@@ -484,12 +217,12 @@ const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
  * @param {} clientId
  * @param {} accessToken
  * @param {} owner
- * @param {} filePath
+ * @param {} fileDir
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
-const handleFileList = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+const handleFileList = async (clientId, accessToken, owner, fileDir) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -497,7 +230,7 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
     return _getErrorResponse(status, error, null)
   }
 
-  const fileList = await mod.input.getFileList(emailAddress, clientId, owner, filePath)
+  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -505,292 +238,99 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
   }
 }
 
-/* POST /f/$condition/credential/check */
+/* GET /api/$apiVersion/file/content */
 /**
- * handleCredentialCheck.
+ * handleFileContent.
  *
- * @param {} emailAddress
- * @param {} passHmac2
- * @param {} authSession
- * @return {HandleResult} メールアドレスとパスワードを確認した結果
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} fileDir
+ * @param {} filelabel
+ * @return {Buffer} ファイルの中身
  * @memberof core
  */
-const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) => {
-  console.log(emailAddress, passHmac2, authSession)
-  if (!authSession || !authSession.oidc) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_credential_session'
-    return _getErrorResponse(status, error, false)
+const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
+    const error = 'handle_file_content_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  const resultCredentialCheck = await _credentialCheck(emailAddress, passHmac2)
-  if (resultCredentialCheck.credentialCheckResult !== true) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CREDENTIAL')
-    const error = 'handle_credential_credential'
-    return _getErrorResponse(status, error, false, null, authSession)
-  }
+  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
+  const fileContent = mod.input.getFileContent(diskFileFullPath)
 
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
-  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return fileContent
 }
 
-/* after /f/confirm/ */
+
+/* POST /api/$apiVersion/form/create */
 /**
- * _afterCheckPermission.
+ * handleFormCreate.
  *
- * @param {} ipAddress
- * @param {} useragent
- * @param {} authSession
- * @param {} splitPermissionList
- * @return {HandleResult} パーミッションをチェックした後の結果
+ * @param {} req 
+ * @param {} clientId 
+ * @param {} accessToken 
+ * @return {HandleResult} フォームデータを保存した結果
  * @memberof core
  */
-const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPermissionList) => {
-  let detail = 'Login'
-  detail += ` at ${mod.lib.formatDate(mod.setting.browserServerSetting.getValue('userReadableDateFormat.full'))}`
-  const subject = detail
-  detail += ` with ${useragent.browser}(${useragent.platform})`
-  detail += ` by ${authSession.oidc.clientId}`
-  detail += ` from ${ipAddress}`
-
-  const notificationId = mod.lib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), authSession.user.emailAddress, subject, detail, mod.lib.execQuery)
-
-
-  const serviceUserId = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('user.SERVICE_USER_ID_L'))
-  await mod.output.registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId, serviceUserId, mod.lib.execQuery)
-
-  const code = mod.lib.getRandomB64UrlSafe(mod.setting.getValue('oidc.CODE_L'))
-
-  const iss = mod.setting.getValue('env.SERVER_ORIGIN')
-  const { redirectUri, state } = authSession.oidc
-  const redirect = mod.lib.addQueryStr(decodeURIComponent(redirectUri), mod.lib.objToQuery({ state, code, iss }))
-
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CODE'), code, splitPermissionList }) })
-
-  await mod.output.registerAuthSession(newUserSession, mod.lib.execQuery)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
-}
-
-/* POST /f/confirm/through/check */
-/**
- * handleThrough.
- *
- * @param {} ipAddress
- * @param {} useragent
- * @param {} authSession
- * @return {HandleResult} 既に認証ができているかどうか確認した結果
- * @memberof core
- */
-const handleThrough = async ({ ipAddress, useragent, authSession }) => {
-  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_confirm_session'
-    return _getErrorResponse(status, error, false)
-  }
-
-  const permissionList = await mod.input.getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  const { scope, requestScope } = authSession.oidc
-
-  if (!permissionList) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_FOUND')
-    const result = { oldPermissionList: null, requestScope }
-    return { status, session: authSession, response: { result } }
-  }
-
-  let uncheckedPermissionExists = false
-  const splitPermissionList = { required: {}, optional: {} }
-  scope.split(',').forEach((_key) => {
-    let key = _key
-    if (_key[0] === '*') {
-      key = _key.slice(1)
-      splitPermissionList.required[key] = permissionList[key]
-
-      if (!permissionList[key]) {
-        uncheckedPermissionExists = true
-      }
-    }
-  })
-  requestScope.split(',').forEach((key) => {
-    if (key === '') {
-      return
-    }
-    splitPermissionList.required[key] = permissionList[key]
-
-    if (!permissionList[key]) {
-      uncheckedPermissionExists = true
-    }
-  })
-
-  if (uncheckedPermissionExists) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
-    const result = { oldPermissionList: permissionList, requestScope }
-    return { status, session: authSession, response: { result } }
-  }
-
-  const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
-  return resultAfterCheckPermission
-}
-
-/* POST /f/confirm/permission/check */
-/**
- * handleConfirm.
- *
- * @param {} ipAddress
- * @param {} useragent
- * @param {} permissionList
- * @param {} authSession
- * @return {HandleResult} 権限を登録した結果
- * @memberof core
- */
-const handleConfirm = async ({
-  ipAddress, useragent, permissionList, authSession,
+const handleFormCreate = async ({
+  req, clientId, accessToken,
 }) => {
-  console.log(ipAddress, useragent, permissionList, authSession)
-  if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_confirm_session'
-    return _getErrorResponse(status, error, false)
+  const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
+
+  const FORM_UPLOAD = mod.setting.getValue('key.FORM_UPLOAD')
+  const uploadResult = await mod.lib.parseMultipartFileUpload(req, FORM_UPLOAD)
+  const { owner, filePath } = mod.lib.paramSnakeToCamel(req.body)
+
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_form_create_access_token'
+    return _getErrorResponse(status, error, null)
   }
 
-  const { scope } = authSession.oidc
-  let uncheckedRequiredPermissionExists = false
-  const splitPermissionList = { required: {}, optional: {} }
-  scope.split(',').forEach((_key) => {
-    let key = _key
-    if (_key[0] === '*') {
-      key = _key.slice(1)
-      splitPermissionList.required[key] = permissionList[key]
-      if (!permissionList[key]) {
-        uncheckedRequiredPermissionExists = true
-      }
-    } else {
-      splitPermissionList.optional[key] = permissionList[key]
-    }
-  })
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
-  if (uncheckedRequiredPermissionExists) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
-    const result = { isRequiredScopeChecked: false }
-    return { status, session: authSession, response: { result } }
+  console.log({ emailAddress })
+  console.log({ filePath })
+  const filePathSplitList = filePath.split('/')
+  if (filePathSplitList.length &lt;= 2 || filePathSplitList[0] !== '') {
+    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID')
+    const error = 'handle_form_create_invalid_filePath'
+    return _getErrorResponse(status, error, null)
+  }
+  const fileDir = filePathSplitList.slice(0, filePathSplitList.length - 1).join('/')
+  let fileName = filePathSplitList[filePathSplitList.length - 1]
+  if (fileName === '') {
+    fileName = 'r'
   }
 
-  const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
-  return resultAfterCheckPermission
-}
-
-/* POST /f/login/user/add */
-/**
- * handleUserAdd.
- *
- * @param {} emailAddress
- * @param {} passPbkdf2
- * @param {} saltHex
- * @param {} isTosChecked
- * @param {} isPrivacyPolicyChecked
- * @param {} authSession
- * @return {HandleResult} ユーザを追加した結果
- * @memberof core
- */
-const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
-  if (!authSession || !authSession.oidc) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_user_add_session'
-    return _getErrorResponse(status, error, false)
+  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
+  console.log({ user })
+  if (!user || !user.userSerialId) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_form_create_user'
+    return _getErrorResponse(status, error, null)
   }
 
-  if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CHECK')
-    const error = 'handle_user_add_checkbox'
-    return _getErrorResponse(status, error, false, null, authSession)
-  }
+  const fileLabel = mod.lib.getUlid()
+  const createFormResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.execQuery)
+  console.log({ createFormResult })
 
-  const userExists = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (userExists) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.REGISTER_FAIL')
-    const error = 'handle_user_add_register'
-    return _getErrorResponse(status, error, false, null, authSession)
-  }
-
-  const userName = mod.setting.getValue('user.DEFAULT_USER_NAME')
-  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.execQuery)
-
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
-  const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
-}
-
-/* GET /f/confirm/scope/list */
-/**
- * handleScope.
- *
- * @param {} authSession
- * @return {HandleResult} スコープ一覧
- * @memberof core
- */
-const handleScope = async (authSession) => {
-  if (!authSession || !authSession.oidc) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_permission_list_session'
-    return _getErrorResponse(status, error, false)
-  }
-
-  const { scope } = authSession.oidc
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-
-  return {
-    status, session: authSession, response: { result: { scope } },
-  }
-}
-
-/* GET /f/notification/global/list */
-/**
- * handleGlobalNotification.
- *
- * @param {} authSession
- * @param {} ALL_NOTIFICATION
- * @return {HandleResult} 全サービスの通知一覧
- * @memberof core
- */
-const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
-  if (!authSession) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
-    const error = 'handle_notification_list_session'
-    return _getErrorResponse(status, error, false)
-  }
-
-  const globalNotificationList = await mod.input.getNotification(authSession.user.emailAddress, ALL_NOTIFICATION, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-
-  return {
-    status, session: authSession, response: { result: { globalNotificationList } },
-  }
-}
-
-/* GET /logout */
-/**
- * handleLogout.
- * @return {HandleResult} ログアウト処理した結果
- * @memberof core
- */
-const handleLogout = async () => {
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: {}, response: null, redirect: '/',
+    status, session: null, response: { result: { uploadResult } }, redirect: null,
   }
 }
+
 
 export default {
   init,
@@ -798,28 +338,14 @@ export default {
 
   isValidSignature,
 
-  handleConnect,
-  handleCode,
-  handleUserInfo,
-  handleUserInfoUpdate,
+  handleJsonUpdate,
+  handleJsonContent,
+  handleJsonDelete,
 
-  handleNotificationList,
-  handleNotificationAppend,
-  handleNotificationOpen,
-
-  handleFileUpdate,
-  handleFileContent,
-  handleFileDelete,
   handleFileList,
+  handleFileContent,
 
-  handleCredentialCheck,
-  handleThrough,
-  handleConfirm,
-  handleUserAdd,
-  handleScope,
-  handleGlobalNotification,
-
-  handleLogout,
+  handleFormCreate,
 }
 
 </code></pre>
@@ -838,7 +364,7 @@ export default {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Aug 19 2023 01:03:48 GMT+0900 (日本標準時)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Sep 17 2023 09:28:52 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -213,7 +213,6 @@ const handleConnect = async ({
 const handleCode = async ({
   clientId, code, codeVerifier,
 }) => {
-  console.log('handleCode', clientId, code, codeVerifier)
   const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
@@ -263,7 +262,6 @@ const handleCode = async ({
  * @memberof core
  */
 const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
-  console.log(clientId, accessToken, filterKeyListStr)
   const filterKeyList = filterKeyListStr.split(',')
   const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
@@ -275,7 +273,6 @@ const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
 
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  console.log(userInfo)
   return {
     status, session: null, response: { result: { userInfo } }, redirect: null,
   }
@@ -393,118 +390,6 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
   }
 }
 
-/* POST /api/$apiVersion/file/update */
-/**
- * handleFileUpdate.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @param {} content
- * @return {HandleResult} ファイルを更新した結果
- * @memberof core
- */
-const handleFileUpdate = async (clientId, accessToken, owner, filePath, content) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_update_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const updateFileResult = await mod.output.updateFile(emailAddress, clientId, owner, filePath, content)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { updateFileResult } }, redirect: null,
-  }
-}
-
-/* GET /api/$apiVersion/file/content */
-/**
- * handleFileContent.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @memberof core
- */
-const handleFileContent = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_content_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const fileContent = await mod.input.getFileContent(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { fileContent } }, redirect: null,
-  }
-}
-
-/* POST /api/$apiVersion/file/delete */
-/**
- * handleFileDelete.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @return {HandleResult} ファイルを削除した結果
- * @memberof core
- */
-const handleFileDelete = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_delete_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const deleteFileResult = await mod.output.deleteFile(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { deleteFileResult } }, redirect: null,
-  }
-}
-
-/* GET /api/$apiVersion/file/list */
-/**
- * handleFileList.
- *
- * @param {} clientId
- * @param {} accessToken
- * @param {} owner
- * @param {} filePath
- * @return {HandleResult} 取得したファイル一覧
- * @memberof core
- */
-const handleFileList = async (clientId, accessToken, owner, filePath) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
-
-  if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_file_list_access_token'
-    return _getErrorResponse(status, error, null)
-  }
-
-  const fileList = await mod.input.getFileList(emailAddress, clientId, owner, filePath)
-
-  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return {
-    status, session: null, response: { result: { fileList } }, redirect: null,
-  }
-}
-
 /* POST /f/$condition/credential/check */
 /**
  * handleCredentialCheck.
@@ -516,7 +401,6 @@ const handleFileList = async (clientId, accessToken, owner, filePath) => {
  * @memberof core
  */
 const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) => {
-  console.log(emailAddress, passHmac2, authSession)
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_credential_session'
@@ -536,7 +420,9 @@ const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) =
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* after /f/confirm/ */
@@ -576,7 +462,9 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
   await mod.output.registerAuthSession(newUserSession, mod.lib.execQuery)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* POST /f/confirm/through/check */
@@ -602,7 +490,9 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!permissionList) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_FOUND')
     const result = { oldPermissionList: null, requestScope }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   let uncheckedPermissionExists = false
@@ -616,13 +506,14 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
       if (!permissionList[key]) {
         uncheckedPermissionExists = true
       }
+    } else {
+      splitPermissionList.optional[key] = permissionList[key]
     }
   })
   requestScope.split(',').forEach((key) => {
     if (key === '') {
       return
     }
-    splitPermissionList.required[key] = permissionList[key]
 
     if (!permissionList[key]) {
       uncheckedPermissionExists = true
@@ -632,7 +523,9 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (uncheckedPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { oldPermissionList: permissionList, requestScope }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
@@ -653,7 +546,6 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
 const handleConfirm = async ({
   ipAddress, useragent, permissionList, authSession,
 }) => {
-  console.log(ipAddress, useragent, permissionList, authSession)
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
@@ -679,7 +571,9 @@ const handleConfirm = async ({
   if (uncheckedRequiredPermissionExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.NOT_ENOUGH_PARAM')
     const result = { isRequiredScopeChecked: false }
-    return { status, session: authSession, response: { result } }
+    return {
+      status, session: authSession, response: { result }, redirect: null,
+    }
   }
 
   const resultAfterCheckPermission = await _afterCheckPermission(ipAddress, useragent, authSession, splitPermissionList)
@@ -699,7 +593,9 @@ const handleConfirm = async ({
  * @return {HandleResult} ユーザを追加した結果
  * @memberof core
  */
-const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession) => {
+const handleUserAdd = async ({
+  emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession,
+}) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_user_add_session'
@@ -729,7 +625,9 @@ const handleUserAdd = async (emailAddress, passPbkdf2, saltHex, isTosChecked, is
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
-  return { status, session: newUserSession, response: { redirect } }
+  return {
+    status, session: newUserSession, response: { redirect }, redirect: null,
+  }
 }
 
 /* GET /f/confirm/scope/list */
@@ -807,11 +705,6 @@ export default {
   handleNotificationAppend,
   handleNotificationOpen,
 
-  handleFileUpdate,
-  handleFileContent,
-  handleFileDelete,
-  handleFileList,
-
   handleCredentialCheck,
   handleThrough,
   handleConfirm,
@@ -838,7 +731,7 @@ export default {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Aug 19 2023 01:03:48 GMT+0900 (日本標準時)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Sep 17 2023 09:28:53 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
