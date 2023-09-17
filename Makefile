@@ -1,6 +1,6 @@
-include version.conf
+include setting/version.conf
 SHELL=/bin/bash
-PHONY=app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch xdevkit lint gendoc clean help
+PHONY=app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch xdevkit lint doc-generate doc-publish clean help
 
 .PHONY: $(PHONY)
 
@@ -20,14 +20,16 @@ view-watch: docker-compose-up-view-watch
 xdevkit: init-xdevkit
 
 lint: init-xdevkit docker-compose-up-lint
-gendoc: docker-compose-up-gendoc
+doc-generate: docker-compose-up-doc-generate
+doc-publish: docker-compose-up-doc-publish
 
 clean: app-down test-down
 
 help:
 	@echo "Usage: make (app|test)-(build|up|down)"
-	@echo "Usage: make (xdevkit|lint|gendoc|clean)"
 	@echo "Usage: make view-(build|compile|compile-minify|watch)"
+	@echo "Usage: make doc-(generate|publish)"
+	@echo "Usage: make (xdevkit|lint|clean)"
 	@echo "Example:"
 	@echo "  make app-build             # Recreate image"
 	@echo "  make app-up                # Start server"
@@ -44,8 +46,10 @@ help:
 	@echo "  make view-watch            # watch"
 	@echo "  make xdevkit               # Update xdevkit only"
 	@echo "------------------------------"
+	@echo "  make doc-generate     		  # doc-generate"
+	@echo "  make doc-deploy     		    # doc-deploy"
+	@echo "------------------------------"
 	@echo "  make lint     		          # lint"
-	@echo "  make gendoc     		          # gendoc"
 	@echo "------------------------------"
 	@echo "  make clean                 # Clean app, test container/volume"
 
@@ -89,8 +93,11 @@ docker-compose-down-test:
 # devtool
 docker-compose-up-lint:
 	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
-docker-compose-up-gendoc:
-	docker compose -p xlogin-jp-gendoc -f ./docker/docker-compose.gendoc.yml up
+docker-compose-up-doc-generate:
+	BUILD_COMMAND="doc-generate" docker compose -p xlogin-jp-doc -f ./docker/docker-compose.doc.yml up
+docker-compose-up-doc-publish:
+	BUILD_COMMAND="doc-publish" docker compose -p xlogin-jp-doc -f ./docker/docker-compose.doc.yml up
+
 
 
 %:

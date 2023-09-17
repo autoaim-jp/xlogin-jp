@@ -21,7 +21,7 @@
 		"lint": "yarn lint-server",
 		"lint-fix": "yarn lint-server --fix",
 		"test": "yarn jest --roots test/",
-		"gendoc": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
+		"doc-generate": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
 	},
 	"type": "module",
 	"devDependencies": {

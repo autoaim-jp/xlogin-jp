@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY ./doc/jsdoc /app
+COPY ./ /app
 
 RUN yarn install
 
