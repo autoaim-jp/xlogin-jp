@@ -37,9 +37,9 @@ services:
     volumes:
       - ../authApi:/app
       - xltest-volume-aac-nm:/app/node_modules
-    command: sh -c "rm ./log/test.done || true && yarn run test && echo 0 > ./log/test.done && sleep infinity"
+    command: sh -c "rm /tmp/test.done || true && yarn run test && echo 0 > /tmp/test.done && sleep infinity"
     healthcheck:
-      test: ls ./log/test.done
+      test: ls /tmp/test.done
       interval: 5s
       timeout : 5s
       retries: 10
