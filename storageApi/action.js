@@ -21,7 +21,9 @@ const getHandlerJsonUpdate = ({ paramSnakeToCamel, handleJsonUpdate, endResponse
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, jsonPath, content } = paramSnakeToCamel(req.body)
 
-    const resultHandleJsonUpdate = await handleJsonUpdate({ clientId, accessToken, owner, jsonPath, content })
+    const resultHandleJsonUpdate = await handleJsonUpdate({
+      clientId, accessToken, owner, jsonPath, content,
+    })
     endResponse(req, res, resultHandleJsonUpdate)
   }
 }
@@ -41,7 +43,9 @@ const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endRespon
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, jsonPath } = paramSnakeToCamel(req.query)
 
-    const resultHandleJsonContent = await handleJsonContent({ clientId, accessToken, owner, jsonPath })
+    const resultHandleJsonContent = await handleJsonContent({
+      clientId, accessToken, owner, jsonPath,
+    })
     endResponse(req, res, resultHandleJsonContent)
   }
 }
