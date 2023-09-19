@@ -110,7 +110,7 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
  * @return {HandleResult} ファイルを更新した結果
  * @memberof core
  */
-const handleJsonUpdate = async (clientId, accessToken, owner, jsonPath, content) => {
+const handleJsonUpdate = async ({ clientId, accessToken, owner, jsonPath, content }) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {
@@ -137,7 +137,7 @@ const handleJsonUpdate = async (clientId, accessToken, owner, jsonPath, content)
  * @param {} jsonPath
  * @memberof core
  */
-const handleJsonContent = async (clientId, accessToken, owner, jsonPath) => {
+const handleJsonContent = async ({ clientId, accessToken, owner, jsonPath }) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {

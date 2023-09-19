@@ -22,7 +22,7 @@
     "lint-server": "eslint *.js setting/",
     "lint": "yarn lint-server",
     "lint-fix": "yarn lint-server --fix",
-    "test": "echo 'no test exists' && sleep infinity",
+		"test": "yarn jest --roots test/",
 		"doc-generate": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
   },
   "type": "module",

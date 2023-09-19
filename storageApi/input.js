@@ -201,7 +201,6 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
 
   const { err, result } = await execQuery(query, paramList)
   const { rowCount } = result
-  console.log({ err, result })
   if (err || rowCount === 0) {
     return null
   }
@@ -222,7 +221,6 @@ const getDiskFilePath = async (owner, fileDir, fileLabel, execQuery, paramSnakeT
 
   const { err, result } = await execQuery(query, paramList)
   const { rowCount } = result
-  console.log({ err, result })
   if (err || rowCount === 0 || rowCount !== 1) {
     return null
   }
@@ -260,7 +258,6 @@ const getUserSerialIdByEmailAddress = async (emailAddress, execQuery, paramSnake
 
   const { err, result } = await execQuery(query, paramList)
   const { rowCount } = result
-  console.log({ err, result })
   if (err || rowCount === 0) {
     return null
   }

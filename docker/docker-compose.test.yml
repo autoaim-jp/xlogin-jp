@@ -1,12 +1,13 @@
 version: '3'
 
 services:
-  
   redis_container:
     container_name: xltest-container-redis
     build:
       context: ../
       dockerfile: ./docker/redisContainer/Dockerfile
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
     volumes:
       - xltest-volume-rc-redis:/data
 
@@ -21,6 +22,11 @@ services:
     environment:
       - POSTGRES_USER=psqladmin
       - POSTGRES_PASSWORD=psqlpass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   auth_api_container:
     container_name: xltest-container-auth-api
@@ -31,10 +37,17 @@ services:
     volumes:
       - ../authApi:/app
       - xltest-volume-aac-nm:/app/node_modules
-    command: sh -c "yarn run test"
+    command: sh -c "rm ./log/test.done || true && yarn run test && echo 0 > ./log/test.done && sleep infinity"
+    healthcheck:
+      test: ls ./log/test.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
     depends_on:
-      - redis_container
-      - psql_container
+      redis_container: 
+        condition: service_healthy
+      psql_container:
+        condition: service_healthy
 
   storage_api_container:
     container_name: xltest-container-storage-api
@@ -49,9 +62,12 @@ services:
      - IS_TEST=true
     command: sh -c "yarn run test"
     depends_on:
-      - redis_container
-      - psql_container
-
+      redis_container: 
+        condition: service_healthy
+      psql_container:
+        condition: service_healthy
+      auth_api_container:
+        condition: service_healthy
 
 volumes:
   xltest-volume-rc-redis:
