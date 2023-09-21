@@ -83,13 +83,26 @@ const insertTestData = async () => {
 
   await _registerAccessToken(clientId, accessToken, emailAddress, splitPermissionList, execQuery)
 }
+
+const deleteAllData = async ({ cleanupTableList }) => {
+  const execQuery = a.lib.execQuery
+  const queryList = cleanupTableList.map((tableName) => {
+    return `truncate table ${tableName}`
+  })
+  for (const query of queryList) {
+    await execQuery(query)
+  }
+}
+
 const end = async () => {
   await a.lib.closePgPool()
 }
 
+
 export default {
   init,
   insertTestData,
+  deleteAllData,
   end,
 }
 
