@@ -65,7 +65,9 @@ const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, jsonPath } = paramSnakeToCamel(req.body)
 
-    const resultHandleJsonDelete = await handleJsonDelete({ clientId, accessToken, owner, jsonPath })
+    const resultHandleJsonDelete = await handleJsonDelete({
+      clientId, accessToken, owner, jsonPath,
+    })
     endResponse(req, res, resultHandleJsonDelete)
   }
 }
