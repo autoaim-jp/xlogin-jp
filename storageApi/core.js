@@ -169,7 +169,7 @@ const handleJsonContent = async ({
  * @return {HandleResult} ファイルを削除した結果
  * @memberof core
  */
-const handleJsonDelete = async (clientId, accessToken, owner, jsonPath) => {
+const handleJsonDelete = async ({ clientId, accessToken, owner, jsonPath }) => {
   const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.paramSnakeToCamel)
 
   if (!emailAddress) {

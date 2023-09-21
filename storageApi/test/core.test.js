@@ -50,6 +50,12 @@ describe('A add user success', () => {
    */
   test('C1021 handleJsonContent', coreJson.handleJsonContent({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
+  /**
+   * testId: C1030 
+   * function: handleJsonDelete
+   */
+  test('C1030 handleJsonDelete', coreJson.handleJsonDelete({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+
 })
 
 afterAll(async () => {

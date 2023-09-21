@@ -3,12 +3,6 @@
     "sample_localhost": {}
   },
   "user@example.com": {
-    "sample_localhost": {
-      "/profile/readme.txt": {
-        "dateUpdated": 1695306273872,
-        "clientId": "sample_localhost",
-        "content": "this is a test content!"
-      }
-    }
+    "sample_localhost": {}
   }
 }
