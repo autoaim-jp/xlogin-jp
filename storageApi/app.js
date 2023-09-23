@@ -110,11 +110,11 @@ const _getFormRouter = () => {
     core: [a.core.isValidSignature],
   }))
 
-  const formCreateHandler = a.action.getHandlerFormCreate(argNamed({
+  const formCreateHandler = a.action.getHandlerFileCreate(argNamed({
     output: [a.output.endResponse],
-    core: [a.core.handleFormCreate],
+    core: [a.core.handleFileCreate],
   }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/form/create`, checkSignature, formCreateHandler)
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/create`, checkSignature, formCreateHandler)
 
   return expressRouter
 }

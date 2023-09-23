@@ -72,6 +72,8 @@ const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse
   }
 }
 
+/* file */
+
 /**
  * getHandlerFileList.
  *
@@ -111,27 +113,26 @@ const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent }) => {
   }
 }
 
-/* form */
 /**
- * getHandlerFormCreate.
+ * getHandlerFileCreate.
  *
  * @param {} paramSnakeToCamel
- * @param {} handleFormCreate
+ * @param {} handleFileCreate
  * @param {} endResponse
  * @return {Promise()} Promise内の戻り値なし
  * @memberof action
  */
-const getHandlerFormCreate = ({
-  handleFormCreate, endResponse,
+const getHandlerFileCreate = ({
+  handleFileCreate, endResponse,
 }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
-    const resultHandleFormCreate = await handleFormCreate({
+    const resultHandleFileCreate = await handleFileCreate({
       req, clientId, accessToken,
     })
-    endResponse(req, res, resultHandleFormCreate)
+    endResponse(req, res, resultHandleFileCreate)
   }
 }
 
@@ -180,7 +181,7 @@ export default {
 
   getHandlerFileList,
   getHandlerFileContent,
-  getHandlerFormCreate,
+  getHandlerFileCreate,
 
   getHandlerCheckSignature,
 }

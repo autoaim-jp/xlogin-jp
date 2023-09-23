@@ -15,7 +15,7 @@ setting.static.PUBLIC_BUILD_DIR = 'view/build'
 setting.static.PUBLIC_STATIC_DIR = 'view/static'
 
 setting.session = {}
-setting.session.SESSION_ID = 'sid'
+setting.session.SESSION_ID = 'sid_protected'
 setting.session.SESSION_COOKIE_SECURE = false
 setting.session.REDIS_PORT = 6379
 setting.session.REDIS_HOST = 'redis_container'

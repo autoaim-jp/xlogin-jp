@@ -91,17 +91,13 @@ describe('C save file success', () => {
    * testId: C2041 
    * function: handleFileList
    */
-  // test('C2041 handleFileList', coreJson.handleFileList({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  test('C2041 handleFileList', coreJson.handleFileList({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: C2021 
    * function: handleFileContent
    */
-  // test('C2021 handleFileContent', coreJson.handleFileContent({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
-
-
-
-
+  test('C2021 handleFileContent', coreJson.handleFileContent({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
 })
 

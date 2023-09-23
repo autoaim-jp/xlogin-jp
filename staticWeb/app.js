@@ -62,7 +62,7 @@ const _getProtectedRouter = () => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       secure: a.setting.getValue('session.SESSION_COOKIE_SECURE'),
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
     },
     store: new RedisStore({ client: redis }),
   }))
@@ -87,6 +87,7 @@ const _getProtectedRouter = () => {
   })
 
   expressRouter.use((req, res, next) => {
+    // console.log({ path: req.path, sess: req.session })
     if(req.session && req.session.protectedCheckDone) {
       return next()
     }

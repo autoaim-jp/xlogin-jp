@@ -247,9 +247,9 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
 }
 
 
-/* POST /api/$apiVersion/form/create */
+/* POST /api/$apiVersion/file/create */
 /**
- * handleFormCreate.
+ * handleFileCreate.
  *
  * @param {} req 
  * @param {} clientId 
@@ -257,7 +257,7 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
  * @return {HandleResult} フォームデータを保存した結果
  * @memberof core
  */
-const handleFormCreate = async ({
+const handleFileCreate = async ({
   req, clientId, accessToken,
 }) => {
   const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
@@ -270,7 +270,7 @@ const handleFormCreate = async ({
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_form_create_access_token'
+    const error = 'handle_file_create_access_token'
     return _getErrorResponse(status, error, null)
   }
 
@@ -282,7 +282,7 @@ const handleFormCreate = async ({
   const filePathSplitList = filePath.split('/')
   if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID')
-    const error = 'handle_form_create_invalid_filePath'
+    const error = 'handle_file_create_invalid_filePath'
     return _getErrorResponse(status, error, null)
   }
   const fileDir = filePathSplitList.slice(0, filePathSplitList.length - 1).join('/')
@@ -295,13 +295,13 @@ const handleFormCreate = async ({
   console.log({ user })
   if (!user || !user.userSerialId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
-    const error = 'handle_form_create_user'
+    const error = 'handle_file_create_user'
     return _getErrorResponse(status, error, null)
   }
 
   const fileLabel = mod.lib.getUlid()
-  const createFormResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.execQuery)
-  console.log({ createFormResult })
+  const createFileResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.execQuery)
+  console.log({ createFileResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -322,7 +322,7 @@ export default {
 
   handleFileList,
   handleFileContent,
+  handleFileCreate,
 
-  handleFormCreate,
 }
 
