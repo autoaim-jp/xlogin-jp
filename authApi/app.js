@@ -56,7 +56,7 @@ const _getSessionRouter = () => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       secure: a.setting.getValue('session.SESSION_COOKIE_SECURE'),
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
     },
     store: new (RedisStore(session))({ client: redis }),
   }))

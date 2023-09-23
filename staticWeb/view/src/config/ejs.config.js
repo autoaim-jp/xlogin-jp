@@ -7,7 +7,6 @@ const breadcrumbAllList = {
   '/confirm': '権限の確認',
   '/register': '新規登録',
   '/serviceList': 'サービス一覧',
-  '/protected': 'パスワード入力',
   '/error': 'エラー',
 }
 
@@ -120,16 +119,5 @@ export const ejsConfig = {
     externalScriptList: [],
   },
 
-  protected: {
-    title: 'protected | xlogin.jp',
-    description: 'protected page',
-    author: 'autoaim_jp',
-    breadcrumbList: getBreadcrumbList(['/', '/protected']),
-
-    inlineCssList: ['/css/tailwind.css'],
-    externalCssList: [],
-    inlineScriptList: [],
-    externalScriptList: [],
-  },
 }
 
