@@ -4,6 +4,7 @@ id_rsa_deploy_key_xlogin_jp
 
 node_modules/
 .env
+.htpasswd
 
 log/
 
