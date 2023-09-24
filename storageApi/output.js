@@ -89,7 +89,7 @@ const createFile = async (fileLabel, userSerialId, clientId, fileDir, fileName, 
   const query = 'insert into file_info.file_list (file_label, client_id, user_serial_id, date_registered, file_dir, file_name, disk_file_path) values ($1, $2, $3, $4, $5, $6, $7)'
   const paramList = [fileLabel, clientId, userSerialId, dateRegistered, fileDir, fileName, diskFilePath]
 
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
 
   return rowCount

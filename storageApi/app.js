@@ -166,7 +166,7 @@ const init = async () => {
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.setPgPool({ pgPool })
+  a.lib.commonServerLib.setPgPool({ pgPool })
 }
 
 /**

@@ -88,9 +88,9 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
  * @memberof core
  */
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
-  const contentHash = mod.lib.commonServerLib.calcSha256AsB64(JSON.stringify(requestBody))
+  const contentHash = mod.lib.commonServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
   const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.commonServerLib.calcSha256HmacAsB64)
+  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.commonServerLib.calcSha256HmacAsB64)
   if (!isValidSignatureResult) {
     return { signatureCheckResult: false }
   }
@@ -113,7 +113,7 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 const handleJsonUpdate = async ({
   clientId, accessToken, owner, jsonPath, content,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -142,7 +142,7 @@ const handleJsonUpdate = async ({
 const handleJsonContent = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -172,7 +172,7 @@ const handleJsonContent = async ({
 const handleJsonDelete = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -200,7 +200,7 @@ const handleJsonDelete = async ({
  * @memberof core
  */
 const handleFileList = async (clientId, accessToken, owner, fileDir) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -208,7 +208,7 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
     return _getErrorResponse(status, error, null)
   }
 
-  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -229,7 +229,7 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
  * @memberof core
  */
 const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
@@ -237,7 +237,7 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
     return _getErrorResponse(status, error, null)
   }
 
-  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
@@ -263,10 +263,10 @@ const handleFileCreate = async ({
   const diskFilePath = `${Date.now()}_${Math.round(Math.random() * 1E9)}`
 
   const FORM_UPLOAD = mod.setting.getValue('key.FORM_UPLOAD')
-  const uploadResult = await mod.lib.parseMultipartFileUpload(req, FORM_UPLOAD)
-  const { owner, filePath } = mod.lib.commonServerLib.paramSnakeToCamel(req.body)
+  const uploadResult = await mod.lib.parseMultipartFileUpload({ req, formKey: FORM_UPLOAD })
+  const { owner, filePath } = mod.lib.commonServerLib.paramSnakeToCamel({ paramList: req.body })
 
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -289,7 +289,7 @@ const handleFileCreate = async ({
     fileName = 'r'
   }
 
-  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
   if (!user || !user.userSerialId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_user'
@@ -297,7 +297,8 @@ const handleFileCreate = async ({
   }
 
   const fileLabel = mod.lib.commonServerLib.getUlid()
-  const createFileResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.execQuery)
+  const createFileResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.commonServerLib.execQuery)
+  console.log({ createFileResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {

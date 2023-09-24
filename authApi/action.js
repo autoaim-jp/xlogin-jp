@@ -19,7 +19,7 @@ const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) =>
     const user = req.session.auth?.user
     const {
       clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
-    } = paramSnakeToCamel(req.query)
+    } = paramSnakeToCamel({ paramList: req.query })
     const resultHandleConnect = await handleConnect({
       user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     })
@@ -40,7 +40,7 @@ const getHandlerCode = ({ paramSnakeToCamel, handleCode, endResponse }) => {
   return async (req, res) => {
     const {
       clientId, code, codeVerifier,
-    } = paramSnakeToCamel(req.query)
+    } = paramSnakeToCamel({ paramList: req.query })
     const resultHandleCode = await handleCode({
       clientId, code, codeVerifier,
     })
@@ -62,7 +62,7 @@ const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) 
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { filterKeyListStr } = paramSnakeToCamel(req.query)
+    const { filterKeyListStr } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleUserInfo = await handleUserInfo({ clientId, accessToken, filterKeyListStr })
     endResponse(req, res, resultHandleUserInfo)
@@ -82,7 +82,7 @@ const getHandlerUserInfoUpdate = ({ paramSnakeToCamel, handleUserInfoUpdate, end
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { backupEmailAddress } = paramSnakeToCamel(req.body)
+    const { backupEmailAddress } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleUserInfoUpdate = await handleUserInfoUpdate(clientId, accessToken, backupEmailAddress)
     endResponse(req, res, resultHandleUserInfoUpdate)
@@ -104,7 +104,7 @@ const getHandlerNotificationList = ({ paramSnakeToCamel, handleNotificationList,
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange } = paramSnakeToCamel(req.query)
+    const { notificationRange } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleNotification = await handleNotificationList(clientId, accessToken, notificationRange)
     endResponse(req, res, resultHandleNotification)
@@ -124,7 +124,7 @@ const getHandlerNotificationAppend = ({ paramSnakeToCamel, handleNotificationApp
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, subject, detail } = paramSnakeToCamel(req.body)
+    const { notificationRange, subject, detail } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleNotificationAppend = await handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail)
     endResponse(req, res, resultHandleNotificationAppend)
@@ -144,7 +144,7 @@ const getHandlerNotificationOpen = ({ paramSnakeToCamel, handleNotificationOpen,
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, notificationIdList } = paramSnakeToCamel(req.body)
+    const { notificationRange, notificationIdList } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleNotificationOpen = await handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList)
     endResponse(req, res, resultHandleNotificationOpen)
@@ -163,7 +163,7 @@ const getHandlerNotificationOpen = ({ paramSnakeToCamel, handleNotificationOpen,
  */
 const getHandlerCredentialCheck = ({ paramSnakeToCamel, handleCredentialCheck, endResponse }) => {
   return async (req, res) => {
-    const { emailAddress, passHmac2 } = paramSnakeToCamel(req.body)
+    const { emailAddress, passHmac2 } = paramSnakeToCamel({ paramList: req.body })
     const resultHandleCredentialCheck = await handleCredentialCheck({ emailAddress, passHmac2, authSession: req.session.auth })
     endResponse(req, res, resultHandleCredentialCheck)
   }
@@ -200,7 +200,7 @@ const getHandlerPermissionCheck = ({ paramSnakeToCamel, handleConfirm, endRespon
   return async (req, res) => {
     const { useragent } = req
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
-    const { permissionList } = paramSnakeToCamel(req.body)
+    const { permissionList } = paramSnakeToCamel({ paramList: req.body })
     const resultHandleConfirm = await handleConfirm({
       ipAddress, useragent, permissionList, authSession: req.session.auth,
     })

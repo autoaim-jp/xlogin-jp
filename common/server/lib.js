@@ -21,7 +21,7 @@ const init = ({ crypto, ulid }) => {
  * @return {String} オブジェクトから作成したクエリストリング
  * @memberof lib
  */
-const objToQuery = (obj) => {
+const objToQuery = ({ obj }) => {
   return Object.entries(obj).map(([key, value]) => { return `${key}=${value}` }).join('&')
 }
 
@@ -33,7 +33,7 @@ const objToQuery = (obj) => {
  * @return {String} URLにクエリストリングを追加した結果
  * @memberof lib
  */
-const addQueryStr = (url, queryStr) => {
+const addQueryStr = ({ url, queryStr }) => {
   if (url === undefined) {
     return '/error'
   }
@@ -52,7 +52,11 @@ const addQueryStr = (url, queryStr) => {
  * @return {Object} オブジェクトのキーをスネークケースからキャメルケースに変換したもの
  * @memberof lib
  */
-const paramSnakeToCamel = (paramList = {}) => {
+const paramSnakeToCamel = ({ paramList }) => {
+  if (paramList === undefined) {
+    paramList = {}
+  }
+
   const newParamList = {}
   Object.entries(paramList).forEach(([key, value]) => {
     const newKey = key.replace(/([_][a-z])/g, (group) => {
@@ -80,7 +84,7 @@ const getUlid = () => {
  * @return {String} URLセーフなBase64のランダム文字列
  * @memberof lib
  */
-const getRandomB64UrlSafe = (len) => {
+const getRandomB64UrlSafe = ({ len }) => {
   return mod.crypto.randomBytes(len).toString('base64url').slice(0, len)
 }
 
@@ -91,7 +95,7 @@ const getRandomB64UrlSafe = (len) => {
  * @return {string} SHA-256ハッシュ
  * @memberof lib
  */
-const calcSha256AsB64 = (str) => {
+const calcSha256AsB64 = ({ str }) => {
   const sha256 = mod.crypto.createHash('sha256')
   sha256.update(str)
   return sha256.digest('base64')
@@ -104,10 +108,83 @@ const calcSha256AsB64 = (str) => {
  * @return {string} SHA-256のHMAC
  * @memberof lib
  */
-const calcSha256HmacAsB64 = (secret, str) => {
+const calcSha256HmacAsB64 = ({ secret, str }) => {
   const sha256Hmac = mod.crypto.createHmac('sha256', secret)
   sha256Hmac.update(str)
   return sha256Hmac.digest('base64')
+}
+
+/* date */
+/**
+ * formatDate.
+ *
+ * @param {} format
+ * @param {} date
+ * @return {string} フォーマットした時刻
+ * @memberof lib
+ */
+const formatDate = ({ format, date }) => {
+  if (format === undefined) {
+    format = 'YYYY-MM-DD hh:mm:ss'
+  }
+  if (date === undefined) {
+    date = new Date()
+  }
+
+  return format.replace(/YYYY/g, date.getFullYear())
+    .replace(/MM/g, (`0${date.getMonth() + 1}`).slice(-2))
+    .replace(/DD/g, (`0${date.getDate()}`).slice(-2))
+    .replace(/hh/g, (`0${date.getHours()}`).slice(-2))
+    .replace(/mm/g, (`0${date.getMinutes()}`).slice(-2))
+    .replace(/ss/g, (`0${date.getSeconds()}`).slice(-2))
+}
+
+/* db */
+/**
+ * setPgPool.
+ *
+ * @param {} pgPool
+ * @return {undefined} 戻り値なし
+ * @memberof lib
+ */
+const setPgPool = ({ pgPool }) => {
+  mod.pgPool = pgPool
+}
+
+/**
+ * closePgPool.
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof lib
+ */
+const closePgPool = async () => {
+  await mod.pgPool.end()
+}
+
+/**
+ * execQuery.
+ *
+ * @param {} query
+ * @param {} paramList
+ * @return {Promise(object)} DBアクセスの結果とエラー
+ * @memberof lib
+ */
+const execQuery = async ({ query, paramList }) => {
+  if (paramList === undefined) {
+    paramList = []
+  }
+
+  return new Promise((resolve) => {
+    mod.pgPool
+      .query(query, paramList)
+      .then((result) => {
+        return resolve({ err: null, result })
+      })
+      .catch((err) => {
+        console.error('Error executing query', err.stack)
+        return resolve({ err, result: null })
+      })
+  })
 }
 
 
@@ -168,6 +245,11 @@ export default {
   calcSha256AsB64,
   calcSha256HmacAsB64,
 
+  formatDate,
+
+  setPgPool,
+  closePgPool,
+  execQuery,
 
   monkeyPatch,
 }

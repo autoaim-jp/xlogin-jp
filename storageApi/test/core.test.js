@@ -62,6 +62,7 @@ describe('C save file success', () => {
   const TEST_PARAM = JSON.parse(JSON.stringify(_TEST_PARAM))
   const EXPECTED_PARAM = JSON.parse(JSON.stringify(_EXPECTED_PARAM))
 
+  /*
   afterAll(async () => {
     const cleanupTableList = [
       //'user_info.user_list',
@@ -80,6 +81,7 @@ describe('C save file success', () => {
     await init.deleteAllData({ cleanupTableList })
     await init.insertTestData()
   })
+  */
 
   /**
    * testId: C2010 

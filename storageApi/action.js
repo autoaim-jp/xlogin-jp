@@ -19,7 +19,7 @@ const getHandlerJsonUpdate = ({ paramSnakeToCamel, handleJsonUpdate, endResponse
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, jsonPath, content } = paramSnakeToCamel(req.body)
+    const { owner, jsonPath, content } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleJsonUpdate = await handleJsonUpdate({
       clientId, accessToken, owner, jsonPath, content,
@@ -41,7 +41,7 @@ const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endRespon
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, jsonPath } = paramSnakeToCamel(req.query)
+    const { owner, jsonPath } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleJsonContent = await handleJsonContent({
       clientId, accessToken, owner, jsonPath,
@@ -63,7 +63,7 @@ const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, jsonPath } = paramSnakeToCamel(req.body)
+    const { owner, jsonPath } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleJsonDelete = await handleJsonDelete({
       clientId, accessToken, owner, jsonPath,
@@ -87,7 +87,7 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, fileDir } = paramSnakeToCamel(req.query)
+    const { owner, fileDir } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleFileList = await handleFileList(clientId, accessToken, owner, fileDir)
     endResponse(req, res, resultHandleFileList)
@@ -106,7 +106,7 @@ const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent }) => {
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { owner, fileDir, fileLabel } = paramSnakeToCamel(req.query)
+    const { owner, fileDir, fileLabel } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleFileContent = await handleFileContent(clientId, accessToken, owner, fileDir, fileLabel)
     res.end(resultHandleFileContent)

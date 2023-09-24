@@ -35,7 +35,7 @@ const isValidClient = async (clientId, redirectUri, execQuery) => {
   const query = 'select * from access_info.client_list where client_id = $1 and redirect_uri = $2'
   const paramList = [clientId, decodeURIComponent(redirectUri)]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0) {
     return false
@@ -60,14 +60,14 @@ const isValidSignature = async (clientId, dataToSign, signature, execQuery, para
   const query = 'select * from access_info.secret_list where client_id = $1'
   const paramList = [clientId]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0) {
     return false
   }
 
-  const { clientSecret } = paramSnakeToCamel(result.rows[0])
-  const correctSignature = calcSha256HmacAsB64(clientSecret, dataToSign)
+  const { clientSecret } = paramSnakeToCamel({ paramList: result.rows[0] })
+  const correctSignature = calcSha256HmacAsB64({ secret: clientSecret, str: dataToSign })
 
   return signature === correctSignature
 }
@@ -131,12 +131,12 @@ const checkPermissionAndGetEmailAddress = async (accessToken, clientId, operatio
   const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
   const paramList = [clientId, accessToken]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0) {
     return null
   }
-  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel(result.rows[0])
+  const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel({ paramList: result.rows[0] })
   const splitPermissionList = JSON.parse(splitPermissionListStr)
   const isAuthorized = _checkPermission(splitPermissionList, operationKey, range, dataType)
   if (!isAuthorized) {
@@ -199,7 +199,7 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
   const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 order by file_label desc'
   const paramList = [owner, fileDir]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0) {
     return null
@@ -207,7 +207,7 @@ const getFileList = async (owner, fileDir, execQuery, paramSnakeToCamel) => {
 
   const fileList = []
   result.rows.forEach((row) => {
-    const { fileLabel, fileName } = paramSnakeToCamel(row)
+    const { fileLabel, fileName } = paramSnakeToCamel({ paramList: row })
     const fileInfo = { fileLabel, fileDir, fileName }
     fileList.push(fileInfo)
   })
@@ -219,13 +219,13 @@ const getDiskFilePath = async (owner, fileDir, fileLabel, execQuery, paramSnakeT
   const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 and file_label = $3'
   const paramList = [owner, fileDir, fileLabel]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0 || rowCount !== 1) {
     return null
   }
 
-  const { diskFilePath } = paramSnakeToCamel(result.rows[0])
+  const { diskFilePath } = paramSnakeToCamel({ paramList: result.rows[0] })
 
   return diskFilePath
 }
@@ -256,13 +256,13 @@ const getUserSerialIdByEmailAddress = async (emailAddress, execQuery, paramSnake
   const query = 'select * from user_info.user_list where email_address = $1'
   const paramList = [emailAddress]
 
-  const { err, result } = await execQuery(query, paramList)
+  const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
   if (err || rowCount === 0) {
     return null
   }
 
-  const { userSerialId } = paramSnakeToCamel(result.rows[0])
+  const { userSerialId } = paramSnakeToCamel({ paramList: result.rows[0] })
   const user = { userSerialId }
   return user
 }

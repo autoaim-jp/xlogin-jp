@@ -37,12 +37,12 @@ const registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, use
   const queryAddUser = 'insert into user_info.user_list (email_address, user_name) values ($1, $2)'
   const paramListAddUser = [emailAddress, userName]
 
-  await execQuery(queryAddUser, paramListAddUser)
+  await execQuery({ query: queryAddUser, paramList: paramListAddUser })
 
   const queryAddCredential = 'insert into user_info.credential_list (email_address, pass_pbkdf2, salt_hex) values ($1, $2, $3)'
   const paramListAddCredential = [emailAddress, passPbkdf2, saltHex]
 
-  await execQuery(queryAddCredential, paramListAddCredential)
+  await execQuery({ query: queryAddCredential, paramList: paramListAddCredential })
 
   return true
 }
@@ -61,7 +61,7 @@ const registerServiceUserId = async (emailAddress, clientId, serviceUserId, exec
   const query = 'insert into user_info.service_user_list (email_address, client_id, service_user_id) values ($1, $2, $3)'
   const paramList = [emailAddress, clientId, serviceUserId]
 
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
   return rowCount
 }
@@ -79,7 +79,7 @@ const updateBackupEmailAddressByAccessToken = async (emailAddress, backupEmailAd
   const query = 'insert into user_info.personal_data_list (email_address, backup_email_address) values ($1, $2) on conflict(email_address) do update set backup_email_address = $2'
   const paramList = [emailAddress, backupEmailAddress]
 
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
   return rowCount
 }
@@ -100,7 +100,7 @@ const registerAuthSession = async (authSession, execQuery) => {
   } = authSession.oidc
   const { emailAddress } = authSession.user
   const paramList = [code, clientId, condition, codeChallengeMethod, codeChallenge, emailAddress, JSON.stringify(splitPermissionList)]
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
 
   return rowCount
@@ -123,7 +123,7 @@ const registerAccessToken = async (clientId, accessToken, emailAddress, splitPer
   const query = 'insert into access_info.access_token_list (access_token, client_id, email_address, split_permission_list) values ($1, $2, $3, $4)'
   const paramList = [accessToken, clientId, emailAddress, splitPermissionListStr]
 
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
 
   return rowCount
@@ -149,7 +149,7 @@ const appendNotification = async (notificationId, clientId, emailAddress, subjec
   const query = 'insert into notification_info.notification_list (notification_id, client_id, email_address, notification_range, date_registered, subject, detail, is_opened) values ($1, $2, $3, $4, $5, $6, $7, $8)'
   const paramList = [notificationId, clientId, emailAddress, notificationRange, dateRegistered, subject, detail, isOpened]
 
-  const { result } = await execQuery(query, paramList)
+  const { result } = await execQuery({ query, paramList })
   const { rowCount } = result
 
   return rowCount
@@ -167,16 +167,16 @@ const appendNotification = async (notificationId, clientId, emailAddress, subjec
  * @memberof output
  */
 const openNotification = async (notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList) => {
-  const lastOpendNoticationId = getMaxIdInList(notificationIdList)
+  const lastOpendNoticationId = getMaxIdInList({ list: notificationIdList })
   const notificationRange = clientId
   const queryUpdateLastOpenedNotificationId = 'insert into notification_info.opened_notification_list (email_address, notification_range, notification_id) values ($1, $2, $3) on conflict(email_address, notification_range) do update set notification_id = $3'
   const paramListUpdateLastOpenedNotificationId = [emailAddress, notificationRange, lastOpendNoticationId]
-  await execQuery(queryUpdateLastOpenedNotificationId, paramListUpdateLastOpenedNotificationId)
+  await execQuery({ query: queryUpdateLastOpenedNotificationId, paramList: paramListUpdateLastOpenedNotificationId })
 
   const queryUpdateNotificationIsOpened = 'update notification_info.notification_list set is_opened = true where notification_id in ($1)'
   const paramListUpdateNotificationIsOpened = [[notificationIdList]]
 
-  const { result: resultUpdateNotificationIsOpened } = await execQuery(queryUpdateNotificationIsOpened, paramListUpdateNotificationIsOpened)
+  const { result: resultUpdateNotificationIsOpened } = await execQuery({ query: queryUpdateNotificationIsOpened, paramList: paramListUpdateNotificationIsOpened })
   const { rowCount: rowCountUpdateNotificationIsOpened } = resultUpdateNotificationIsOpened
 
   return rowCountUpdateNotificationIsOpened
