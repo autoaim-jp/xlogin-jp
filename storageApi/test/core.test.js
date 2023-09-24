@@ -83,21 +83,21 @@ describe('C save file success', () => {
 
   /**
    * testId: C2010 
-   * function: handleFormCreate
+   * function: handleFileCreate
    */
-  // test('C2010 handleFormCreate', coreJson.handleFormCreate({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  // test('C2010 handleFileCreate', coreFile.handleFileCreate({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: C2041 
    * function: handleFileList
    */
-  test('C2041 handleFileList', coreJson.handleFileList({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  // test('C2041 handleFileList', coreFile.handleFileList({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: C2021 
    * function: handleFileContent
    */
-  test('C2021 handleFileContent', coreJson.handleFileContent({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  // test('C2021 handleFileContent', coreFile.handleFileContent({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
 })
 

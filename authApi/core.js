@@ -86,9 +86,9 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
  * @memberof core
  */
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
-  const contentHash = mod.lib.calcSha256AsB64(JSON.stringify(requestBody))
+  const contentHash = mod.lib.commonServerLib.calcSha256AsB64(JSON.stringify(requestBody))
   const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.calcSha256HmacAsB64)
+  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.commonServerLib.calcSha256HmacAsB64)
   if (!isValidSignatureResult) {
     return { signatureCheckResult: false }
   }

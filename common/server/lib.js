@@ -85,6 +85,33 @@ const getRandomB64UrlSafe = (len) => {
 }
 
 /**
+ * calcSha256AsB64.
+ *
+ * @param {} str
+ * @return {string} SHA-256ハッシュ
+ * @memberof lib
+ */
+const calcSha256AsB64 = (str) => {
+  const sha256 = mod.crypto.createHash('sha256')
+  sha256.update(str)
+  return sha256.digest('base64')
+}
+/**
+ * calcSha256HmacAsB64.
+ *
+ * @param {} secret
+ * @param {} str
+ * @return {string} SHA-256のHMAC
+ * @memberof lib
+ */
+const calcSha256HmacAsB64 = (secret, str) => {
+  const sha256Hmac = mod.crypto.createHmac('sha256', secret)
+  sha256Hmac.update(str)
+  return sha256Hmac.digest('base64')
+}
+
+
+/**
  * 名前付きの引数を展開する
  *
  * @param {Object} obj
@@ -138,6 +165,9 @@ export default {
   paramSnakeToCamel,
   getUlid,
   getRandomB64UrlSafe,
+  calcSha256AsB64,
+  calcSha256HmacAsB64,
+
 
   monkeyPatch,
 }

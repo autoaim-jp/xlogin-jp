@@ -28,7 +28,7 @@ const init = ({ crypto, ulid }) => {
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const setPgPool = (pgPool) => {
+const setPgPool = ({ pgPool }) => {
   mod.pgPool = pgPool
 }
 
@@ -40,32 +40,6 @@ const setPgPool = (pgPool) => {
  */
 const closePgPool = async () => {
   await mod.pgPool.end()
-}
-
-/**
- * calcSha256AsB64.
- *
- * @param {} str
- * @return {string} SHA-256ハッシュ
- * @memberof lib
- */
-const calcSha256AsB64 = (str) => {
-  const sha256 = mod.crypto.createHash('sha256')
-  sha256.update(str)
-  return sha256.digest('base64')
-}
-/**
- * calcSha256HmacAsB64.
- *
- * @param {} secret
- * @param {} str
- * @return {string} SHA-256のHMAC
- * @memberof lib
- */
-const calcSha256HmacAsB64 = (secret, str) => {
-  const sha256Hmac = mod.crypto.createHmac('sha256', secret)
-  sha256Hmac.update(str)
-  return sha256Hmac.digest('base64')
 }
 
 /**
@@ -189,8 +163,6 @@ export default {
   setPgPool,
   closePgPool,
 
-  calcSha256AsB64,
-  calcSha256HmacAsB64,
   convertToCodeChallenge,
   calcPbkdf2,
   getMaxIdInList,

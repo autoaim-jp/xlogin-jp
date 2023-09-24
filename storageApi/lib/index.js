@@ -1,4 +1,5 @@
-/* /lib.js */
+/* /lib/index.js */
+import commonServerLib from './commonServerLib.js'
 /**
  * @file
  * @name アプリケーション全体で共通で使用するライブラリ
@@ -15,10 +16,11 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = (crypto, ulid, multer) => {
+const init = ({ crypto, ulid, multer }) => {
   mod.crypto = crypto
   mod.ulid = ulid
   mod.multer = multer
+  commonServerLib.init({ crypto, ulid })
 }
 
 /**
@@ -28,7 +30,7 @@ const init = (crypto, ulid, multer) => {
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const setPgPool = (pgPool) => {
+const setPgPool = ({ pgPool }) => {
   mod.pgPool = pgPool
 }
 
@@ -40,161 +42,6 @@ const setPgPool = (pgPool) => {
  */
 const closePgPool = async () => {
   await mod.pgPool.end()
-}
-
-/* url */
-/**
- * objToQuery.
- *
- * @param {} obj
- * @return {String} オブジェクトから作成したクエリストリング
- * @memberof lib
- */
-const objToQuery = (obj) => {
-  return Object.entries(obj).map(([key, value]) => { return `${key}=${value}` }).join('&')
-}
-
-/**
- * addQueryStr.
- *
- * @param {} url
- * @param {} queryStr
- * @return {String} URLにクエリストリングを追加した結果
- * @memberof lib
- */
-const addQueryStr = (url, queryStr) => {
-  if (url === undefined) {
-    return '/error'
-  }
-
-  if (url.indexOf('?') >= 0) {
-    return `${url}&${queryStr}`
-  }
-
-  return `${url}?${queryStr}`
-}
-
-/**
- * paramSnakeToCamel.
- *
- * @param {} paramList
- * @return {Object} オブジェクトのキーをスネークケースからキャメルケースに変換したもの
- * @memberof lib
- */
-const paramSnakeToCamel = (paramList = {}) => {
-  const newParamList = {}
-  Object.entries(paramList).forEach(([key, value]) => {
-    const newKey = key.replace(/([_][a-z])/g, (group) => {
-      return group.toUpperCase().replace('_', '')
-    })
-    newParamList[newKey] = value
-  })
-  return newParamList
-}
-
-/* id, auth */
-/**
- * getUlid.
- * @return {String} 作成したUUID
- * @memberof lib
- */
-const getUlid = () => {
-  return mod.ulid.ulid()
-}
-
-/**
- * getRandomB64UrlSafe.
- *
- * @param {} len
- * @return {String} URLセーフなBase64のランダム文字列
- * @memberof lib
- */
-const getRandomB64UrlSafe = (len) => {
-  return mod.crypto.randomBytes(len).toString('base64url').slice(0, len)
-}
-
-/**
- * calcSha256AsB64.
- *
- * @param {} str
- * @return {string} SHA-256ハッシュ
- * @memberof lib
- */
-const calcSha256AsB64 = (str) => {
-  const sha256 = mod.crypto.createHash('sha256')
-  sha256.update(str)
-  return sha256.digest('base64')
-}
-/**
- * calcSha256HmacAsB64.
- *
- * @param {} secret
- * @param {} str
- * @return {string} SHA-256のHMAC
- * @memberof lib
- */
-const calcSha256HmacAsB64 = (secret, str) => {
-  const sha256Hmac = mod.crypto.createHmac('sha256', secret)
-  sha256Hmac.update(str)
-  return sha256Hmac.digest('base64')
-}
-
-/**
- * convertToCodeChallenge.
- *
- * @param {} codeVerifier
- * @param {} codeChallengeMethod
- * @return {string} 作成したcodeChallenge
- * @memberof lib
- */
-const convertToCodeChallenge = (codeVerifier, codeChallengeMethod) => {
-  /**
-   * calcSha256AsB64Url.
-   *
-   * @param {} str
-   */
-  const calcSha256AsB64Url = (str) => {
-    const sha256 = mod.crypto.createHash('sha256')
-    sha256.update(str)
-    return sha256.digest('base64url')
-  }
-
-  if (codeChallengeMethod === 'S256') {
-    return calcSha256AsB64Url(codeVerifier)
-  }
-  throw new Error('unimplemented')
-}
-
-/**
- * calcPbkdf2.
- *
- * @param {} data
- * @param {} saltHex
- * @return {Promise(string)} 計算したPBKDF2
- * @memberof lib
- */
-const calcPbkdf2 = (data, saltHex) => {
-  return new Promise((resolve) => {
-    mod.crypto.pbkdf2(data, Buffer.from(saltHex, 'hex'), 1000 * 1000, 64, 'sha512', (err, derivedKey) => {
-      if (err) {
-        return resolve(null)
-      }
-      return resolve(derivedKey.toString('hex'))
-    })
-  })
-}
-
-/**
- * getMaxIdInList.
- *
- * @param {} list
- * @return {string} リストの最大値
- * @memberof lib
- */
-const getMaxIdInList = (list) => {
-  return list.reduce((p, c) => {
-    return p > c ? p : c
-  })
 }
 
 /* date */
@@ -273,70 +120,12 @@ const parseMultipartFileUpload = (req, formKey) => {
   })
 }
 
-
-/**
- * 名前付きの引数を展開する
- *
- * @param {Object} obj
- * @return {object} 名前がついている引数を展開したもの
- * @memberof lib
- */
-const _argNamed = (obj) => {
-  const flattened = {}
-
-  Object.keys(obj).forEach((key) => {
-    if (Array.isArray(obj[key])) {
-      Object.assign(flattened, obj[key].reduce((prev, curr) => {
-        if (typeof curr === 'undefined') {
-          throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}\n===== maybe you need make func exported like  module.exports = { func, } =====`)
-        } else if (typeof curr === 'function') {
-          prev[curr.name] = curr
-        } else {
-          throw new Error(`[error] flat argument by list can only contain function but: ${typeof curr} @${key}`)
-        }
-        return prev
-      }, {}))
-    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-      Object.assign(flattened, obj[key])
-    } else {
-      flattened[key] = obj[key]
-    }
-  })
-
-  return flattened
-}
-
-/**
- * グローバルの関数をセットする。
- *
- * @return {undefined} 戻り値なし
- * @memberof lib
- */
-const monkeyPatch = () => {
-  if (typeof global.argNamed === 'undefined') {
-    global.argNamed = _argNamed
-  } else {
-    console.log('[warn] global.argNamed is already set.')
-  }
-}
-
-
 export default {
+  commonServerLib,
+
   init,
   setPgPool,
   closePgPool,
-
-  objToQuery,
-  addQueryStr,
-  paramSnakeToCamel,
-
-  getUlid,
-  getRandomB64UrlSafe,
-  calcSha256AsB64,
-  calcSha256HmacAsB64,
-  convertToCodeChallenge,
-  calcPbkdf2,
-  getMaxIdInList,
 
   formatDate,
   awaitSleep,
@@ -344,7 +133,5 @@ export default {
   parseMultipartFileUpload,
 
   execQuery,
-
-  monkeyPatch,
 }
 

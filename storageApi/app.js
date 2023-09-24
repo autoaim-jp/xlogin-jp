@@ -6,7 +6,7 @@
  */
 import fs from 'fs'
 import crypto from 'crypto'
-import ulid from 'ulid'
+import { ulid } from 'ulid'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
@@ -60,34 +60,34 @@ const _getFileRouter = () => {
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonUpdate],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonContent],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
   const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonDelete],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleFileList],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
   const fileContentHandler = a.action.getHandlerFileContent(argNamed({
     core: [a.core.handleFileContent],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
 
@@ -159,14 +159,14 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid, multer)
+  a.lib.commonServerLib.monkeyPatch()
+  a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.setPgPool(pgPool)
+  a.lib.setPgPool({ pgPool })
 }
 
 /**

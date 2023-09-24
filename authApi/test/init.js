@@ -25,9 +25,7 @@ const init = async () => {
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.setPgPool(pgPool)
-
-  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
+  a.lib.setPgPool({ pgPool })
 }
 
 const insertTestData = async () => {

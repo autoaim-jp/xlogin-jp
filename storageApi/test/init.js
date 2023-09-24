@@ -1,8 +1,8 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
 import crypto from 'crypto'
-// undefined?
-// import ulid from 'ulid'
+import { ulid } from 'ulid'
+import multer from 'multer'
 import pg from 'pg'
 
 import setting from '../setting/index.js'
@@ -20,16 +20,14 @@ const a = asocial
 const init = async () => {
   const ulid = { ulid: () => { return '01ARZ3NDEKTSV4RRFFQ69G5FAV' } }
   dotenv.config({ path: './.testenv' })
-  a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid)
+  a.lib.commonServerLib.monkeyPatch()
+  a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.setPgPool(pgPool)
-
-  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
+  a.lib.setPgPool({ pgPool })
 }
 
 const _registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {
