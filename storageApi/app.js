@@ -20,7 +20,7 @@ import output from './output.js'
 import core from './core.js'
 import input from './input.js'
 import action from './action.js'
-import lib from './lib.js'
+import lib from './lib/index.js'
 
 const asocial = {
   setting, output, core, input, action, lib,
@@ -167,8 +167,6 @@ const init = async () => {
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
   a.lib.setPgPool(pgPool)
-
-  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
 }
 
 /**
@@ -191,6 +189,7 @@ const main = async () => {
   startServer(expressApp)
 
   console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
 
 const app = {

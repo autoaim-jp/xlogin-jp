@@ -22,7 +22,7 @@ import output from './output.js'
 import core from './core.js'
 import input from './input.js'
 import action from './action.js'
-import lib from './lib.js'
+import lib from './lib/index.js'
 
 const asocial = {
   setting, output, core, input, action, lib,
@@ -96,14 +96,14 @@ const _getUserApiRouter = () => {
   const userInfoHandler = a.action.getHandlerUserInfo(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleUserInfo],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/user/info`, checkSignature, userInfoHandler)
 
   const userInfoUpdateHandler = a.action.getHandlerUserInfoUpdate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleUserInfoUpdate],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/user/update`, checkSignature, userInfoUpdateHandler)
 
@@ -129,21 +129,21 @@ const _getNotificationApiRouter = () => {
   const notificationListHandler = a.action.getHandlerNotificationList(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleNotificationList],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, notificationListHandler)
 
   const notificationAppendHandler = a.action.getHandlerNotificationAppend(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleNotificationAppend],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/notification/append`, checkSignature, notificationAppendHandler)
 
   const notificationOpenHandler = a.action.getHandlerNotificationOpen(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleNotificationOpen],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/notification/open`, checkSignature, notificationOpenHandler)
 
@@ -173,14 +173,14 @@ const _getFunctionRouter = () => {
   const connectHandler = a.action.getHandlerConnect(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleConnect],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/connect`, connectHandler)
 
   const credentialCheckHandler = a.action.getHandlerCredentialCheck(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleCredentialCheck],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, credentialCheckHandler)
 
@@ -193,7 +193,7 @@ const _getFunctionRouter = () => {
   const permissionCheckHandler = a.action.getHandlerPermissionCheck(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleConfirm],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, permissionCheckHandler)
 
@@ -224,7 +224,7 @@ const _getFunctionRouter = () => {
   const codeHandler = a.action.getHandlerCode(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleCode],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/code`, checkSignature, codeHandler)
 
@@ -276,16 +276,14 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid)
+  a.lib.commonServerLib.monkeyPatch()
+  a.lib.init({ crypto, ulid })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
   a.lib.setPgPool(pgPool)
-
-  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
 }
 
 /**
@@ -310,6 +308,7 @@ const main = async () => {
   startServer(expressApp)
 
   console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
 
 const app = {

@@ -10,7 +10,7 @@ import output from '../output.js'
 import core from '../core.js'
 import input from '../input.js'
 import action from '../action.js'
-import lib from '../lib.js'
+import lib from '../lib/index.js'
 
 const asocial = {
   app: null, setting, output, core, input, action, lib,

@@ -9,7 +9,7 @@ import output from '../output.js'
 import core from '../core.js'
 import input from '../input.js'
 import action from '../action.js'
-import lib from '../lib.js'
+import lib from '../lib/index.js'
 
 const asocial = {
   app: null, setting, output, core, input, action, lib,
@@ -18,8 +18,8 @@ const a = asocial
 
 const init = async () => {
   dotenv.config({ path: './.testenv' })
-  a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid)
+  a.lib.commonServerLib.monkeyPatch()
+  a.lib.init({ crypto, ulid })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
