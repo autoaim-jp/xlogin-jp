@@ -90,7 +90,8 @@ const _getErrorResponse = (status, error, isServerRedirect, response = null, ses
 const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
   const contentHash = mod.lib.backendServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
   const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel, mod.lib.backendServerLib.calcSha256HmacAsB64)
+  const { execQuery, paramSnakeToCamel, calcSha256HmacAsB64 } = mod.lib.backendServerLib
+  const isValidSignatureResult = await mod.input.backendServerInput.isValidSignature({ clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64 })
   if (!isValidSignatureResult) {
     return { signatureCheckResult: false }
   }
@@ -113,7 +114,11 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 const handleJsonUpdate = async ({
   clientId, accessToken, owner, jsonPath, content,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -142,7 +147,13 @@ const handleJsonUpdate = async ({
 const handleJsonContent = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -150,7 +161,7 @@ const handleJsonContent = async ({
     return _getErrorResponse(status, error, null)
   }
 
-  const jsonContent = await mod.input.getJsonContent(emailAddress, clientId, owner, jsonPath)
+  const jsonContent = await mod.input.getJsonContent({ emailAddress, clientId, owner, jsonPath })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -172,7 +183,11 @@ const handleJsonContent = async ({
 const handleJsonDelete = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -200,7 +215,11 @@ const handleJsonDelete = async ({
  * @memberof core
  */
 const handleFileList = async (clientId, accessToken, owner, fileDir) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -208,7 +227,7 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
     return _getErrorResponse(status, error, null)
   }
 
-  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const fileList = await mod.input.getFileList({ clientId, fileDir, execQuery, paramSnakeToCamel })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -229,7 +248,12 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
  * @memberof core
  */
 const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
@@ -237,11 +261,11 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
     return _getErrorResponse(status, error, null)
   }
 
-  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const diskFilePath = await mod.input.getDiskFilePath({ owner, fileDir, fileLabel, execQuery, paramSnakeToCamel })
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
-  const fileContent = mod.input.getFileContent(diskFileFullPath)
+  const fileContent = mod.input.getFileContent({ filePath: diskFileFullPath })
 
   return fileContent
 }
@@ -266,7 +290,12 @@ const handleFileCreate = async ({
   const uploadResult = await mod.lib.parseMultipartFileUpload({ req, formKey: FORM_UPLOAD })
   const { owner, filePath } = mod.lib.backendServerLib.paramSnakeToCamel({ paramList: req.body })
 
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -289,7 +318,7 @@ const handleFileCreate = async ({
     fileName = 'r'
   }
 
-  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.backendServerLib.execQuery, mod.lib.backendServerLib.paramSnakeToCamel)
+  const user = await mod.input.getUserSerialIdByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
   if (!user || !user.userSerialId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_user'

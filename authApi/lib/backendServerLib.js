@@ -188,6 +188,47 @@ const execQuery = async ({ query, paramList }) => {
   })
 }
 
+/**
+ * checkPermission.
+ *
+ * @param {} splitPermissionList
+ * @param {} operationKey
+ * @param {} range
+ * @param {} dataType
+ * @return {boolean} 権限があるかどうか
+ * @memberof input
+ */
+const checkPermission = ({ splitPermissionList, operationKey, range, dataType }) => {
+  const { required, optional } = splitPermissionList
+  const permissionList = { ...required, ...optional }
+  const isAuthorized = Object.entries(permissionList).some(([key, isChecked]) => {
+    if (!isChecked) {
+      return false
+    }
+    const keySplit = key.split(':')
+    if (keySplit.length !== 3) {
+      console.log('[warn] invalid key:', key)
+      return false
+    }
+
+    if (keySplit[0].indexOf(operationKey) < 0) {
+      return false
+    }
+
+    if (keySplit[1] !== range) {
+      return false
+    }
+
+    if (keySplit[2] !== dataType) {
+      return false
+    }
+
+    return true
+  })
+
+  return isAuthorized
+}
+
 
 /**
  * 名前付きの引数を展開する
@@ -251,6 +292,8 @@ export default {
   setPgPool,
   closePgPool,
   execQuery,
+
+  checkPermission,
 
   monkeyPatch,
 }

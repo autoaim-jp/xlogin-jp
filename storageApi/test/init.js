@@ -8,7 +8,7 @@ import pg from 'pg'
 import setting from '../setting/index.js'
 import output from '../output.js'
 import core from '../core.js'
-import input from '../input.js'
+import input from '../input/index.js'
 import action from '../action.js'
 import lib from '../lib/index.js'
 
@@ -25,7 +25,7 @@ const init = async () => {
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
-  a.input.init(setting, fs)
+  a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool(pg)
   a.lib.backendServerLib.setPgPool({ pgPool })
 }
