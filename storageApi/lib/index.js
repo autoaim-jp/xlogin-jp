@@ -1,5 +1,5 @@
 /* /lib/index.js */
-import commonServerLib from './commonServerLib.js'
+import backendServerLib from './backendServerLib.js'
 /**
  * @file
  * @name アプリケーション全体で共通で使用するライブラリ
@@ -20,7 +20,7 @@ const init = ({ crypto, ulid, multer }) => {
   mod.crypto = crypto
   mod.ulid = ulid
   mod.multer = multer
-  commonServerLib.init({ crypto, ulid })
+  backendServerLib.init({ crypto, ulid })
 }
 
 const parseMultipartFileUpload = ({ req, formKey }) => {
@@ -43,7 +43,7 @@ const parseMultipartFileUpload = ({ req, formKey }) => {
 }
 
 export default {
-  commonServerLib,
+  backendServerLib,
 
   init,
 

@@ -60,34 +60,34 @@ const _getFileRouter = () => {
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonUpdate],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonContent],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
   const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonDelete],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleFileList],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
   const fileContentHandler = a.action.getHandlerFileContent(argNamed({
     core: [a.core.handleFileContent],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
 
@@ -159,14 +159,14 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.commonServerLib.monkeyPatch()
+  a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.commonServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.setPgPool({ pgPool })
 }
 
 /**
