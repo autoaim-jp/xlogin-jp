@@ -1,9 +1,7 @@
 [submodule "staticWeb/xdevkit"]
-	path = staticWeb/xdevkit
+	path = common/xdevkit
 	url = https://github.com/autoaim-jp/xdevkit.git
-[submodule "authApi/xdevkit"]
-	path = authApi/xdevkit
-	url = https://github.com/autoaim-jp/xdevkit.git
-[submodule "storageApi/xdevkit"]
-	path = storageApi/xdevkit
-	url = https://github.com/autoaim-jp/xdevkit.git
+
+[submodule "common/xdevkit-setting"]
+	path = common/xdevkit-setting
+	url = git@github.com:/autoaim-jp/xdevkit-setting
