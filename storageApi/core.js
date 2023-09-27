@@ -91,7 +91,9 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
   const contentHash = mod.lib.backendServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
   const dataToSign = `${timestamp}:${path}:${contentHash}`
   const { execQuery, paramSnakeToCamel, calcSha256HmacAsB64 } = mod.lib.backendServerLib
-  const isValidSignatureResult = await mod.input.backendServerInput.isValidSignature({ clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64 })
+  const isValidSignatureResult = await mod.input.backendServerInput.isValidSignature({
+    clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64,
+  })
   if (!isValidSignatureResult) {
     return { signatureCheckResult: false }
   }
@@ -118,7 +120,9 @@ const handleJsonUpdate = async ({
   const operationKey = 'w'
   const range = owner
   const dataType = 'json_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -151,8 +155,9 @@ const handleJsonContent = async ({
   const operationKey = 'r'
   const range = owner
   const dataType = 'json_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
-
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
 
   if (!emailAddress) {
@@ -161,7 +166,9 @@ const handleJsonContent = async ({
     return _getErrorResponse(status, error, null)
   }
 
-  const jsonContent = await mod.input.getJsonContent({ emailAddress, clientId, owner, jsonPath })
+  const jsonContent = await mod.input.getJsonContent({
+    emailAddress, clientId, owner, jsonPath,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -187,7 +194,9 @@ const handleJsonDelete = async ({
   const operationKey = 'w'
   const range = owner
   const dataType = 'json_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -219,7 +228,9 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
   const operationKey = 'w'
   const range = owner
   const dataType = 'file_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
@@ -227,7 +238,9 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
     return _getErrorResponse(status, error, null)
   }
 
-  const fileList = await mod.input.getFileList({ clientId, fileDir, execQuery, paramSnakeToCamel })
+  const fileList = await mod.input.getFileList({
+    clientId, fileDir, execQuery, paramSnakeToCamel,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -252,7 +265,9 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
   const operationKey = 'r'
   const range = owner
   const dataType = 'file_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
 
   if (!emailAddress) {
@@ -261,7 +276,9 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
     return _getErrorResponse(status, error, null)
   }
 
-  const diskFilePath = await mod.input.getDiskFilePath({ owner, fileDir, fileLabel, execQuery, paramSnakeToCamel })
+  const diskFilePath = await mod.input.getDiskFilePath({
+    owner, fileDir, fileLabel, execQuery, paramSnakeToCamel,
+  })
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
@@ -294,7 +311,9 @@ const handleFileCreate = async ({
   const operationKey = 'w'
   const range = owner
   const dataType = 'file_v1'
-  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission })
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
 
   if (!emailAddress) {
