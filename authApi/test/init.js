@@ -5,7 +5,7 @@ import { ulid } from 'ulid'
 import pg from 'pg'
 
 import setting from '../setting/index.js'
-import output from '../output.js'
+import output from '../output/index.js'
 import core from '../core.js'
 import input from '../input/index.js'
 import action from '../action.js'
@@ -21,7 +21,7 @@ const init = async () => {
   a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
+  a.output.init({ setting, fs })
   a.core.init(setting, output, input, lib)
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool(pg)
@@ -34,7 +34,7 @@ const insertTestData = async () => {
   const saltHex = '54db99ef94ad1c03bed54cd8bce1bb2f3de102f787c672a701313203e40d5fc037adb63728e3217fc79eda2bc6bee5682ea10956159a053cd0fa0f41038ac96e'
   const userName = 'test user'
   const execQuery = a.lib.backendServerLib.execQuery
-  await a.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, execQuery)
+  await a.output.registerUserByEmailAddress({ emailAddress, passPbkdf2, saltHex, userName, execQuery })
 }
 
 const deleteAllData = async ({ cleanupTableList }) => {

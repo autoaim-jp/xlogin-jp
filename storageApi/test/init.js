@@ -6,7 +6,7 @@ import multer from 'multer'
 import pg from 'pg'
 
 import setting from '../setting/index.js'
-import output from '../output.js'
+import output from '../output/index.js'
 import core from '../core.js'
 import input from '../input/index.js'
 import action from '../action.js'
@@ -23,7 +23,7 @@ const init = async () => {
   a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
+  a.output.init({ setting, fs })
   a.core.init(setting, output, input, lib)
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool(pg)

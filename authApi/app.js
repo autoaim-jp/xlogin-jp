@@ -18,7 +18,7 @@ import expressUseragent from 'express-useragent'
 import pg from 'pg'
 
 import setting from './setting/index.js'
-import output from './output.js'
+import output from './output/index.js'
 import core from './core.js'
 import input from './input/index.js'
 import action from './action.js'
@@ -89,19 +89,19 @@ const _getUserApiRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.isValidSignature],
   }))
 
   const userInfoHandler = a.action.getHandlerUserInfo(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleUserInfo],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/user/info`, checkSignature, userInfoHandler)
 
   const userInfoUpdateHandler = a.action.getHandlerUserInfoUpdate(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleUserInfoUpdate],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
@@ -121,27 +121,27 @@ const _getNotificationApiRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.isValidSignature],
   }))
 
 
   const notificationListHandler = a.action.getHandlerNotificationList(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleNotificationList],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, notificationListHandler)
 
   const notificationAppendHandler = a.action.getHandlerNotificationAppend(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleNotificationAppend],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/notification/append`, checkSignature, notificationAppendHandler)
 
   const notificationOpenHandler = a.action.getHandlerNotificationOpen(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleNotificationOpen],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
@@ -161,7 +161,7 @@ const _getFunctionRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.isValidSignature],
   }))
 
@@ -171,47 +171,47 @@ const _getFunctionRouter = () => {
    * @memberof feature
    */
   const connectHandler = a.action.getHandlerConnect(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleConnect],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/connect`, connectHandler)
 
   const credentialCheckHandler = a.action.getHandlerCredentialCheck(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleCredentialCheck],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/login/credential/check`, credentialCheckHandler)
 
   const throughCheckHandler = a.action.getHandlerThroughCheck(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleThrough],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/confirm/through/check`, throughCheckHandler)
 
   const permissionCheckHandler = a.action.getHandlerPermissionCheck(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleConfirm],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/confirm/permission/check`, permissionCheckHandler)
 
   const userAddHandler = a.action.getHandlerUserAdd(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleUserAdd],
   }))
   expressRouter.post(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/login/user/add`, userAddHandler)
 
   const scopeListHandler = a.action.getHandlerScopeList(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleScope],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/confirm/scope/list`, scopeListHandler)
 
   const globalNotificationHandler = a.action.getHandlerGlobalNotification(argNamed({
     setting: a.setting.getList('notification.ALL_NOTIFICATION'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleGlobalNotification],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/notification/global/list`, globalNotificationHandler)
@@ -222,14 +222,14 @@ const _getFunctionRouter = () => {
    * @memberof feature
    */
   const codeHandler = a.action.getHandlerCode(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleCode],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/auth/code`, checkSignature, codeHandler)
 
   const handleLogoutHandler = a.action.getHandlerHandleLogout(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleLogout],
   }))
   expressRouter.get(`${a.setting.browserServerSetting.getValue('apiEndpoint')}/logout`, handleLogoutHandler)
@@ -279,7 +279,7 @@ const init = async () => {
   a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
+  a.output.init({ setting, fs })
   a.core.init(setting, output, input, lib)
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool(pg)

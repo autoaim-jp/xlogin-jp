@@ -24,7 +24,7 @@ const getHandlerJsonUpdate = ({ paramSnakeToCamel, handleJsonUpdate, endResponse
     const resultHandleJsonUpdate = await handleJsonUpdate({
       clientId, accessToken, owner, jsonPath, content,
     })
-    endResponse(req, res, resultHandleJsonUpdate)
+    endResponse({ req, res, handleResult: resultHandleJsonUpdate })
   }
 }
 
@@ -46,7 +46,7 @@ const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endRespon
     const resultHandleJsonContent = await handleJsonContent({
       clientId, accessToken, owner, jsonPath,
     })
-    endResponse(req, res, resultHandleJsonContent)
+    endResponse({ req, res, handleResult: resultHandleJsonContent })
   }
 }
 
@@ -68,7 +68,7 @@ const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse
     const resultHandleJsonDelete = await handleJsonDelete({
       clientId, accessToken, owner, jsonPath,
     })
-    endResponse(req, res, resultHandleJsonDelete)
+    endResponse({ req, res, handleResult: resultHandleJsonDelete })
   }
 }
 
@@ -90,7 +90,7 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
     const { owner, fileDir } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleFileList = await handleFileList(clientId, accessToken, owner, fileDir)
-    endResponse(req, res, resultHandleFileList)
+    endResponse({ req, res, handleResult: resultHandleFileList })
   }
 }
 
@@ -132,7 +132,7 @@ const getHandlerFileCreate = ({
     const resultHandleFileCreate = await handleFileCreate({
       req, clientId, accessToken,
     })
-    endResponse(req, res, resultHandleFileCreate)
+    endResponse({ req, res, handleResult: resultHandleFileCreate })
   }
 }
 
@@ -168,7 +168,7 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
       const resultGetCheckSignature = {
         status, error, response: false, session: null,
       }
-      return endResponse(req, res, resultGetCheckSignature)
+      return endResponse({ req, res, handleResult: resultGetCheckSignature })
     }
     return next()
   }

@@ -16,7 +16,7 @@ import pg from 'pg'
 import multer from 'multer'
 
 import setting from './setting/index.js'
-import output from './output.js'
+import output from './output/index.js'
 import core from './core.js'
 import input from './input/index.js'
 import action from './action.js'
@@ -53,33 +53,33 @@ const _getFileRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.isValidSignature],
   }))
 
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonUpdate],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonContent],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
   const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonDelete],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleFileList],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
@@ -106,12 +106,12 @@ const _getFormRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.isValidSignature],
   }))
 
   const formCreateHandler = a.action.getHandlerFileCreate(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleFileCreate],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/create`, checkSignature, formCreateHandler)
@@ -162,7 +162,7 @@ const init = async () => {
   a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
+  a.output.init({ setting, fs })
   a.core.init(setting, output, input, lib)
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool(pg)

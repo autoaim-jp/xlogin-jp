@@ -1,4 +1,4 @@
-/* /common/server/lib.js */
+/* /common/backend-server/lib.js */
 const mod = {}
 /**
  * init.

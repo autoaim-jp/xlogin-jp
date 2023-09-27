@@ -130,7 +130,9 @@ const handleJsonUpdate = async ({
     return _getErrorResponse(status, error, null)
   }
 
-  const updateJsonResult = await mod.output.updateJson(emailAddress, clientId, owner, jsonPath, content)
+  const updateJsonResult = await mod.output.updateJson({
+    emailAddress, clientId, owner, jsonPath, content,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -204,7 +206,9 @@ const handleJsonDelete = async ({
     return _getErrorResponse(status, error, null)
   }
 
-  const deleteJsonResult = await mod.output.deleteJson(emailAddress, clientId, owner, jsonPath)
+  const deleteJsonResult = await mod.output.deleteJson({
+    emailAddress, clientId, owner, jsonPath,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -345,7 +349,10 @@ const handleFileCreate = async ({
   }
 
   const fileLabel = mod.lib.backendServerLib.getUlid()
-  const createFileResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.backendServerLib.execQuery)
+  const { userSerialId } = user
+  const createFileResult = await mod.output.createFile({
+    fileLabel, userSerialId, clientId, fileDir, fileName, diskFilePath, execQuery,
+  })
   console.log({ createFileResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')

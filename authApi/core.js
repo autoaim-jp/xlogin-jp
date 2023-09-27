@@ -220,7 +220,10 @@ const handleCode = async ({
   const newUserSession = { condition: mod.setting.getValue('condition.USER_INFO') }
 
   const splitPermissionList = JSON.parse(authSession.splitPermissionList)
-  const resultRegisterAccessToken = await mod.output.registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList, mod.lib.backendServerLib.execQuery)
+  const { emailAddress } = authSession
+  const resultRegisterAccessToken = await mod.output.registerAccessToken({
+    clientId, accessToken, emailAddress, splitPermissionList, execQuery,
+  })
   if (!resultRegisterAccessToken) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_code_access_token'
@@ -287,7 +290,7 @@ const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) =
     const error = 'handle_user_update_backup_email_address'
     return _getErrorResponse(status, error, null)
   }
-  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.backendServerLib.execQuery)
+  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken({ emailAddress, backupEmailAddress, execQuery })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -359,7 +362,10 @@ const handleNotificationAppend = async (clientId, accessToken, notificationRange
   }
 
   const notificationId = mod.lib.backendServerLib.getUlid()
-  const notificationAppendResult = await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.backendServerLib.execQuery, mod.lib.getMaxIdInList)
+  const { getMaxIdInList } = mod.lib
+  const notificationAppendResult = await mod.output.appendNotification({
+    notificationId, clientId, emailAddress, subject, detail, execQuery, getMaxIdInList,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -393,7 +399,10 @@ const handleNotificationOpen = async (clientId, accessToken, notificationRange, 
     return _getErrorResponse(status, error, null)
   }
 
-  const notificationOpenResult = await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.backendServerLib.execQuery, mod.lib.getMaxIdInList)
+  const { getMaxIdInList } = mod.lib
+  const notificationOpenResult = await mod.output.openNotification({
+    notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -458,11 +467,21 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
   detail += ` from ${ipAddress}`
 
   const notificationId = mod.lib.backendServerLib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), authSession.user.emailAddress, subject, detail, mod.lib.backendServerLib.execQuery)
-
+  const { emailAddress } = authSession.user
+  const { getMaxIdInList } = mod.lib
+  const notificationRange = mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID')
+  const { execQuery } = mod.lib.backendServerLib
+  // :TODO 引数整理
+  const notificationAppendResult = await mod.output.appendNotification({
+    notificationId, clientId: notificationRange, emailAddress, subject, detail, execQuery, getMaxIdInList,
+  })
+  console.log({ notificationAppendResult })
 
   const serviceUserId = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('user.SERVICE_USER_ID_L') })
-  await mod.output.registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId, serviceUserId, mod.lib.backendServerLib.execQuery)
+  const { clientId } = authSession.oidc
+  await mod.output.registerServiceUserId({
+    emailAddress, clientId, serviceUserId, execQuery,
+  })
 
   const code = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('oidc.CODE_L') })
 
@@ -472,7 +491,7 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CODE'), code, splitPermissionList }) })
 
-  await mod.output.registerAuthSession(newUserSession, mod.lib.backendServerLib.execQuery)
+  await mod.output.registerAuthSession({ authSession: newUserSession, execQuery })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -636,7 +655,9 @@ const handleUserAdd = async ({
   }
 
   const userName = mod.setting.getValue('user.DEFAULT_USER_NAME')
-  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.backendServerLib.execQuery)
+  await mod.output.registerUserByEmailAddress({
+    emailAddress, passPbkdf2, saltHex, userName, execQuery,
+  })
 
   const user = await mod.input.getUserByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
 
