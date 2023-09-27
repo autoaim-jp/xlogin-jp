@@ -46,7 +46,7 @@ describe('success login', () => {
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
-  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnect({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnectWithoutUser({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A3000-2
@@ -107,7 +107,7 @@ describe('success through', () => {
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
-  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnect({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnectWithoutUser({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A3000-2
@@ -143,7 +143,7 @@ describe('success through', () => {
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
-  test('A1000-3,A1000-4 handleConnect 2', coreLogin.handleConnect({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  test('A1000-3,A1000-4 handleConnect 2', coreLogin.handleConnectWithUser({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A3000-2
@@ -206,7 +206,7 @@ describe('success register', () => {
    * testId: A1000-3,A1000-4
    * function: handleConnect
    */
-  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnect({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
+  test('A1000-3,A1000-4 handleConnect', coreLogin.handleConnectWithoutUser({ core, TEST_PARAM, EXPECTED_PARAM }), 10 * 1000)
 
   /**
    * testId: A3000-2

@@ -16,8 +16,7 @@
 		"compile": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile",
 		"compile-minify": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command compile --minify",
 		"watch": "node ./xdevkit/tool/src/compile.js --js ./view/src/js/ --css ./view/src/css/ --ejs ./view/src/ejs/page/ --ejs-component ./view/src/ejs/component/ --out ./view/build/ --ejs-config ../../../view/src/config/ejs.config.js --tailwindcss-config ./view/src/config/tailwind.config.cjs --tailwindcss-file ./view/src/css/tailwind.css --js-ignore _lib,_setting --command watch",
-		"gendoc": "yarn jsdoc -c doc/jsdoc/config.json",
-		"gendoc-deploy": "yarn gendoc && gh-pages -d doc/jsdoc/html -m \"update: --skip-ci\""
+		"doc-generate": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
 	},
 	"type": "module",
 	"devDependencies": {
@@ -34,7 +33,6 @@
 		"eslint-config-airbnb-base": "^15.0.0",
 		"eslint-plugin-import": "^2.25.2",
 		"eslint-plugin-jest": "^26.8.2",
-		"gh-pages": "^6.0.0",
 		"html-minifier": "^4.0.0",
 		"jest": "^29.6.1",
 		"js-beautify": "^1.14.7",
@@ -42,4 +40,3 @@
 		"uglify-js": "^3.17.4"
 	}
 }
-

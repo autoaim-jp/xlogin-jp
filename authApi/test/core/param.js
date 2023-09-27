@@ -11,6 +11,8 @@ const TEST_PARAM_COMMON = {
   requestScope: '',
   passHmac2: 'de9c2c84cc67f30892d2f6f3f8b8c11f11ffcb2cf4d6a9b669a46147c0db437656b7c42a8098c99fb4ad7ced651b64be0aee78eab62e625be1b8fbac894521cc',
 
+  iss: 'http://localhost:3333',
+
   newEmailAddress: 'awesome@example.com',
   defaultUserName: 'no name',
   saltHex: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -110,6 +112,9 @@ export const EXPECTED_PARAM = {
     },
     user: TEST_PARAM.user
   },
+
+  // handleThrough, handleConfirm
+  iss: TEST_PARAM_COMMON.iss,
 
   // handleCode, handleThroughReturnRedirect
   splitPermissionList: TEST_PARAM_COMMON.splitPermissionList,

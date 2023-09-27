@@ -1,7 +1,10 @@
 .idea
 
+id_rsa_deploy_key_xlogin_jp
+
 node_modules/
 .env
+.htpasswd
 
 log/
 
@@ -9,7 +12,8 @@ authApi/data/accessTokenList.json
 authApi/data/authSessionList.json
 authApi/data/notificationList.json
 
-authApi/doc/jsdoc/html/
+*/doc/jsdoc/html/
+doc/jsdoc/html/
 
 data/redis/
 storageApi/data/upload/

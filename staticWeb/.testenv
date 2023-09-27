@@ -1,7 +1,7 @@
 SESSION_SECRET='secretsecretsecretsecret'
 
-SERVER_PORT=3000
-SERVER_ORIGIN='http://localhost:3000'
+SERVER_PORT=3333
+SERVER_ORIGIN='http://localhost:3333'
 
 DB_HOST='psql_container'
 DB_PORT=5432

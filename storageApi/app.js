@@ -6,7 +6,7 @@
  */
 import fs from 'fs'
 import crypto from 'crypto'
-import ulid from 'ulid'
+import { ulid } from 'ulid'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
@@ -20,7 +20,7 @@ import output from './output.js'
 import core from './core.js'
 import input from './input.js'
 import action from './action.js'
-import lib from './lib.js'
+import lib from './lib/index.js'
 
 const asocial = {
   setting, output, core, input, action, lib,
@@ -60,34 +60,34 @@ const _getFileRouter = () => {
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonUpdate],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonContent],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
   const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleJsonDelete],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
     output: [a.output.endResponse],
     core: [a.core.handleFileList],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
   const fileContentHandler = a.action.getHandlerFileContent(argNamed({
     core: [a.core.handleFileContent],
-    lib: [a.lib.paramSnakeToCamel],
+    lib: [a.lib.commonServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
 
@@ -110,11 +110,11 @@ const _getFormRouter = () => {
     core: [a.core.isValidSignature],
   }))
 
-  const formCreateHandler = a.action.getHandlerFormCreate(argNamed({
+  const formCreateHandler = a.action.getHandlerFileCreate(argNamed({
     output: [a.output.endResponse],
-    core: [a.core.handleFormCreate],
+    core: [a.core.handleFileCreate],
   }))
-  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/form/create`, checkSignature, formCreateHandler)
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/create`, checkSignature, formCreateHandler)
 
   return expressRouter
 }
@@ -159,16 +159,14 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.monkeyPatch()
-  a.lib.init(crypto, ulid, multer)
+  a.lib.commonServerLib.monkeyPatch()
+  a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
   a.output.init(setting, fs)
   a.core.init(setting, output, input, lib)
   a.input.init(setting, fs)
   const pgPool = a.core.createPgPool(pg)
-  a.lib.setPgPool(pgPool)
-
-  await a.lib.waitForPsql(a.setting.getValue('startup.MAX_RETRY_PSQL_CONNECT_N'))
+  a.lib.commonServerLib.setPgPool({ pgPool })
 }
 
 /**
@@ -191,6 +189,7 @@ const main = async () => {
   startServer(expressApp)
 
   console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
 
 const app = {

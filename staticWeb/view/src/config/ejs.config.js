@@ -118,5 +118,6 @@ export const ejsConfig = {
     inlineScriptList: [],
     externalScriptList: [],
   },
+
 }
 

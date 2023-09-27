@@ -1,0 +1,11 @@
+{
+	"homepage": "https://autoaim-jp.github.io/xlogin-jp",
+	"scripts": {
+		"doc-generate": "echo \"doc-generate Complete.\" && echo \"Run below command to start document server locally.\" && echo \"pushd doc/jsdoc/html/ && python3 -m http.server && popd\"",
+		"doc-publish": "gh-pages -d html -m \"update: --skip-ci\""
+	},
+	"type": "module",
+	"dependencies": {
+		"gh-pages": "^6.0.0"
+	}
+}

@@ -7,6 +7,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 
 import setting from './setting/index.js'
 
@@ -90,7 +91,9 @@ const main = async () => {
   startServer(expressApp)
 
   console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
+
 
 const app = {
   init,

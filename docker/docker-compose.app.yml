@@ -8,6 +8,8 @@ services:
       dockerfile: ./docker/redisContainer/Dockerfile
     volumes:
       - xlapp-volume-rc-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
 
   psql_container:
     container_name: xlapp-container-psql
@@ -18,8 +20,13 @@ services:
       - xlapp-volume-pc-psql:/var/lib/postgresql/data
       - ../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_USER=psqladmin
-      - POSTGRES_PASSWORD=psqlpass
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "xl_admin", "-d", "xl_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   static_web_container:
     container_name: xlapp-container-static-web
@@ -32,7 +39,12 @@ services:
       - xlapp-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run start-watch"
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
 
   auth_api_container:
     container_name: xlapp-container-auth-api
@@ -45,10 +57,17 @@ services:
       - xlapp-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run start-watch"
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     depends_on:
-      - redis_container
-      - psql_container
+      redis_container: 
+        condition: service_healthy
+      psql_container:
+        condition: service_healthy
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
 
   storage_api_container:
     container_name: xlapp-container-storage-api
@@ -61,11 +80,15 @@ services:
       - xlapp-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
-    command: sh -c "yarn run start-watch"
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     depends_on:
-      - redis_container
-      - psql_container
-
+      auth_api_container: 
+        condition: service_healthy
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
 
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
@@ -73,14 +96,16 @@ services:
       context: ../
       dockerfile: ./docker/reverseProxyContainer/Dockerfile
     ports:
-      - 3000:80
+      - 3333:80
     volumes:
       - ../reverseProxy/nginx.conf:/etc/nginx/nginx.conf
+      - ../setting/.htpasswd:/etc/nginx/.htpasswd
       - ../reverseProxy/log:/var/log/nginx
     depends_on:
-      - auth_api_container
-      - storage_api_container
-      - static_web_container
+      static_web_container:
+        condition: service_healthy
+      storage_api_container:
+        condition: service_healthy
 
 volumes:
   xlapp-volume-rc-redis:

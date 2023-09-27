@@ -1,4 +1,4 @@
-import { handleConnect } from './login/handleConnect.js'
+import { handleConnectWithoutUser, handleConnectWithUser } from './login/handleConnect.js'
 import { handleCredentialCheck } from './login/handleCredentialCheck.js'
 import { handleConfirm } from './login/handleConfirm.js'
 import { handleCode } from './login/handleCode.js'
@@ -9,7 +9,9 @@ import { handleUserAdd } from './login/handleUserAdd.js'
 import { handleUserInfo } from './login/handleUserInfo.js'
 
 export default {
-  handleConnect,
+  handleConnectWithoutUser,
+  handleConnectWithUser,
+
   handleCredentialCheck,
   handleConfirm,
   handleCode,
