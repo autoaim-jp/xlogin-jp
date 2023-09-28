@@ -1,4 +1,7 @@
-/* /core.js */
+/* /core/index.js */
+
+import backendServerCore from './backendServerCore.js'
+
 /**
  * @file
  * @name コア機能を集約したファイル
@@ -20,11 +23,13 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof core
  */
-const init = (setting, output, input, lib) => {
+const init = ({ setting, output, input, lib }) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
   mod.lib = lib
+
+  backendServerCore.init({ setting, input, lib })
 }
 
 /**
@@ -34,7 +39,7 @@ const init = (setting, output, input, lib) => {
  * @return {pg.Pool} DBの接続プール
  * @memberof core
  */
-const createPgPool = (pg) => {
+const createPgPool = ({ pg }) => {
   const dbCredential = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -47,58 +52,6 @@ const createPgPool = (pg) => {
   }
 
   return new pg.Pool(dbCredential)
-}
-
-/**
- * <pre>
- * _getErrorResponse.
- * エラーを返したいときに呼び出す。
- * パラメータを渡すと、エラーレスポンスを作成する。
- * </pre>
- *
- * @return {HandleResult} エラー処理された結果
- * @memberof core
- */
-const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return {
-      status, session, response, redirect, error,
-    }
-  }
-  if (response) {
-    return {
-      status, session, response, error,
-    }
-  }
-  return {
-    status, session, response: { status, error, redirect }, error,
-  }
-}
-
-/**
- * isValidSignature.
- *
- * @param {} clientId
- * @param {} timestamp
- * @param {} path
- * @param {} requestBody
- * @param {} signature
- * @return {signatureCheckResult} クライアントの署名が正しいかどうか
- * @memberof core
- */
-const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
-  const contentHash = mod.lib.backendServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
-  const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const { execQuery, paramSnakeToCamel, calcSha256HmacAsB64 } = mod.lib.backendServerLib
-  const isValidSignatureResult = await mod.input.backendServerInput.isValidSignature({
-    clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64,
-  })
-  if (!isValidSignatureResult) {
-    return { signatureCheckResult: false }
-  }
-
-  return { signatureCheckResult: true }
 }
 
 /* POST /api/$apiVersion/json/update */
@@ -127,7 +80,7 @@ const handleJsonUpdate = async ({
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_update_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const updateJsonResult = await mod.output.updateJson({
@@ -165,7 +118,7 @@ const handleJsonContent = async ({
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_content_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const jsonContent = await mod.input.getJsonContent({
@@ -203,7 +156,7 @@ const handleJsonDelete = async ({
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_delete_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const deleteJsonResult = await mod.output.deleteJson({
@@ -227,7 +180,7 @@ const handleJsonDelete = async ({
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
-const handleFileList = async (clientId, accessToken, owner, fileDir) => {
+const handleFileList = async ({ clientId, accessToken, owner, fileDir }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
   const range = owner
@@ -239,7 +192,7 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_list_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   // :TODO 引数確認
@@ -265,7 +218,7 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
  * @return {Buffer} ファイルの中身
  * @memberof core
  */
-const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
+const handleFileContent = async ({ clientId, accessToken, owner, fileDir, fileLabel }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
   const range = owner
@@ -278,7 +231,7 @@ const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabe
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
     const error = 'handle_file_content_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const diskFilePath = await mod.input.getDiskFilePath({
@@ -324,7 +277,7 @@ const handleFileCreate = async ({
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
@@ -334,7 +287,7 @@ const handleFileCreate = async ({
   if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID')
     const error = 'handle_file_create_invalid_filePath'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
   const fileDir = filePathSplitList.slice(0, filePathSplitList.length - 1).join('/')
   let fileName = filePathSplitList[filePathSplitList.length - 1]
@@ -346,7 +299,7 @@ const handleFileCreate = async ({
   if (!user || !user.userSerialId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_user'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const fileLabel = mod.lib.backendServerLib.getUlid()
@@ -364,10 +317,10 @@ const handleFileCreate = async ({
 
 
 export default {
+  backendServerCore,
+
   init,
   createPgPool,
-
-  isValidSignature,
 
   handleJsonUpdate,
   handleJsonContent,

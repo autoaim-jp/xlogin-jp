@@ -19,7 +19,7 @@ import pg from 'pg'
 
 import setting from './setting/index.js'
 import output from './output/index.js'
-import core from './core.js'
+import core from './core/index.js'
 import input from './input/index.js'
 import action from './action.js'
 import lib from './lib/index.js'
@@ -90,7 +90,7 @@ const _getUserApiRouter = () => {
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.backendServerOutput.endResponse],
-    core: [a.core.isValidSignature],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   const userInfoHandler = a.action.getHandlerUserInfo(argNamed({
@@ -122,7 +122,7 @@ const _getNotificationApiRouter = () => {
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.backendServerOutput.endResponse],
-    core: [a.core.isValidSignature],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
 
@@ -162,7 +162,7 @@ const _getFunctionRouter = () => {
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.backendServerOutput.endResponse],
-    core: [a.core.isValidSignature],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   /**
@@ -280,9 +280,9 @@ const init = async () => {
   a.lib.init({ crypto, ulid })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
-  a.core.init(setting, output, input, lib)
+  a.core.init({ setting, output, input, lib })
   a.input.init({ setting, fs })
-  const pgPool = a.core.createPgPool(pg)
+  const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
 }
 

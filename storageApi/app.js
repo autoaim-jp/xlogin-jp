@@ -17,7 +17,7 @@ import multer from 'multer'
 
 import setting from './setting/index.js'
 import output from './output/index.js'
-import core from './core.js'
+import core from './core/index.js'
 import input from './input/index.js'
 import action from './action.js'
 import lib from './lib/index.js'
@@ -54,7 +54,7 @@ const _getFileRouter = () => {
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.backendServerOutput.endResponse],
-    core: [a.core.isValidSignature],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
@@ -107,7 +107,7 @@ const _getFormRouter = () => {
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
     output: [a.output.backendServerOutput.endResponse],
-    core: [a.core.isValidSignature],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   const formCreateHandler = a.action.getHandlerFileCreate(argNamed({
@@ -163,9 +163,9 @@ const init = async () => {
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
-  a.core.init(setting, output, input, lib)
+  a.core.init({ setting, output, input, lib })
   a.input.init({ setting, fs })
-  const pgPool = a.core.createPgPool(pg)
+  const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
 }
 

@@ -238,7 +238,8 @@ const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
  */
 const getHandlerScopeList = ({ handleScope, endResponse }) => {
   return async (req, res) => {
-    const resultHandleScope = await handleScope(req.session.auth)
+    const authSession = req.session.auth
+    const resultHandleScope = await handleScope({ authSession })
     endResponse({ req, res, handleResult: resultHandleScope })
   }
 }
@@ -254,7 +255,9 @@ const getHandlerScopeList = ({ handleScope, endResponse }) => {
  */
 const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATION, endResponse }) => {
   return async (req, res) => {
-    const resultHandleNotification = await handleGlobalNotification(req.session.auth, ALL_NOTIFICATION)
+    const authSession = req.session.auth
+    const notificationRange = ALL_NOTIFICATION
+    const resultHandleNotification = await handleGlobalNotification({ authSession, notificationRange })
     endResponse({ req, res, handleResult: resultHandleNotification })
   }
 }
@@ -293,7 +296,7 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     const requestBody = req.body
     const signature = req.headers['x-xlogin-signature']
 
-    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, requestBody, signature)
+    const isValidSignatureResult = await isValidSignature({ clientId, timestamp, path, requestBody, signature })
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'

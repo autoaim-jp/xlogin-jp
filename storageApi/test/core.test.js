@@ -2,7 +2,7 @@ import init from './init.js'
 import ulid from 'ulid'
 import pg from 'pg'
 
-import core from '../core.js'
+import core from '../core/index.js'
 
 import { TEST_PARAM as _TEST_PARAM, EXPECTED_PARAM as _EXPECTED_PARAM } from './core/param.js'
 import coreJson from './core/json.js'
