@@ -89,7 +89,9 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, fileDir } = paramSnakeToCamel({ paramList: req.query })
 
-    const resultHandleFileList = await handleFileList({ clientId, accessToken, owner, fileDir })
+    const resultHandleFileList = await handleFileList({
+      clientId, accessToken, owner, fileDir,
+    })
     endResponse({ req, res, handleResult: resultHandleFileList })
   }
 }
@@ -108,7 +110,9 @@ const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent }) => {
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, fileDir, fileLabel } = paramSnakeToCamel({ paramList: req.query })
 
-    const resultHandleFileContent = await handleFileContent({ clientId, accessToken, owner, fileDir, fileLabel })
+    const resultHandleFileContent = await handleFileContent({
+      clientId, accessToken, owner, fileDir, fileLabel,
+    })
     res.end(resultHandleFileContent)
   }
 }
@@ -162,7 +166,9 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     const signature = req.headers['x-xlogin-signature']
 
     // :TODO 引数確認
-    const isValidSignatureResult = await isValidSignature({ clientId, timestamp, path, requestBody: content, signature })
+    const isValidSignatureResult = await isValidSignature({
+      clientId, timestamp, path, requestBody: content, signature,
+    })
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'

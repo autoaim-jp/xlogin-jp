@@ -296,7 +296,9 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     const requestBody = req.body
     const signature = req.headers['x-xlogin-signature']
 
-    const isValidSignatureResult = await isValidSignature({ clientId, timestamp, path, requestBody, signature })
+    const isValidSignatureResult = await isValidSignature({
+      clientId, timestamp, path, requestBody, signature,
+    })
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'
