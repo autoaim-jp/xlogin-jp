@@ -107,6 +107,37 @@ services:
       storage_api_container:
         condition: service_healthy
 
+  prometheus:
+    container_name: xlapp-container-prometheus
+    image: prom/prometheus
+    volumes:
+      - ../prometheus/prometheus:/etc/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - 9090:9090
+
+  node-exporter:
+    container_name: xlapp-container-node-exporter
+    image: quay.io/prometheus/node-exporter
+    ports:
+      - 9100:9100
+
+  grafana:
+    container_name: xlapp-container-grafana
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+
+  alertmanager:
+    container_name: xlapp-container-alertmanager
+    image: prom/alertmanager
+    volumes:
+      - ../prometheus/alertmanager:/etc/alertmanager
+    command: "--config.file=/etc/alertmanager/config.yml"
+    ports:
+      - 9093:9093
+    restart: always
+
 volumes:
   xlapp-volume-rc-redis:
   xlapp-volume-pc-psql:
