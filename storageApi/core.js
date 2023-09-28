@@ -229,7 +229,7 @@ const handleJsonDelete = async ({
  */
 const handleFileList = async (clientId, accessToken, owner, fileDir) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
-  const operationKey = 'w'
+  const operationKey = 'r'
   const range = owner
   const dataType = 'file_v1'
   const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
@@ -242,8 +242,9 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
     return _getErrorResponse(status, error, null)
   }
 
+  // :TODO 引数確認
   const fileList = await mod.input.getFileList({
-    clientId, fileDir, execQuery, paramSnakeToCamel,
+    owner: clientId, fileDir, execQuery, paramSnakeToCamel,
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')

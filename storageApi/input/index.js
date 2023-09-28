@@ -90,6 +90,7 @@ const getFileList = async ({ owner, fileDir, execQuery, paramSnakeToCamel }) => 
 
   const { err, result } = await execQuery({ query, paramList })
   const { rowCount } = result
+
   if (err || rowCount === 0) {
     return null
   }
