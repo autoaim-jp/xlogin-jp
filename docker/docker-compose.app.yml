@@ -33,6 +33,8 @@ services:
     build:
       context: ../
       dockerfile: ./docker/staticWebContainer/Dockerfile
+    ports:
+      - 9091:9090
     tty: true
     volumes:
       - ../staticWeb:/app

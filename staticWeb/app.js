@@ -72,14 +72,14 @@ const _getErrorRouter = () => {
 /**
  * startServer.
  *
- * @param {} expressApp
+ * @param {} app
  *
  * @return {undefined} 戻り値なし
  * @memberof app
  */
-const startServer = (expressApp) => {
-  expressApp.listen(a.setting.getValue('env.SERVER_PORT'), () => {
-    console.log(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
+const startServer = ({ app, port, origin }) => {
+  app.listen(port, () => {
+    console.log(`xlogin.jp listen to port: ${port}, origin: ${origin}`)
   })
 }
 
@@ -105,16 +105,20 @@ const init = async () => {
 const main = async () => {
   await a.app.init()
   const expressApp = express()
-
-  expressApp.use(_getMetricsRouter())
+  const portApp = a.setting.getValue('env.SERVER_PORT')
+  const serverOriginApp = a.setting.getValue('env.SERVER_PORT')
 
   expressApp.use(_getStaticRouter())
-
   expressApp.use(_getErrorRouter())
+  startServer({ app: expressApp, port: portApp, serverOrigin: serverOriginApp })
 
-  startServer(expressApp)
+  const expressMetrics = express()
+  const portMetrics = a.setting.getValue('env.METRICS_SERVER_PORT')
+  const serverOriginMetrics = a.setting.getValue('env.METRICS_SERVER_PORT')
 
-  console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
+  expressMetrics.use(_getMetricsRouter())
+  startServer({ app: expressMetrics, port: portMetrics, serverOrigin: serverOriginMetrics })
+
   fs.writeFileSync('/tmp/setup.done', '0')
 }
 
