@@ -12,6 +12,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.0.1",
     "pg": "^8.8.0",
+    "prom-client": "^14.2.0",
     "ulid": "^2.3.0"
   },
   "scripts": {
@@ -20,8 +21,8 @@
     "lint-server": "eslint *.js setting/",
     "lint": "yarn lint-server",
     "lint-fix": "yarn lint-server --fix",
-		"test": "yarn jest --roots test/",
-		"doc-generate": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
+    "test": "yarn jest --roots test/",
+    "doc-generate": "rm -rf ./doc/jsdoc/html/ && yarn jsdoc -c doc/jsdoc/config.json"
   },
   "type": "module",
   "devDependencies": {
