@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
+PHONY=default app-rebuild app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
 XDEVKIT_SETTING_VERSION=v0.24
 XDEVKIT_VERSION=v0.24
 
@@ -8,6 +8,7 @@ XDEVKIT_VERSION=v0.24
 
 default: app-up
 
+app-rebuild: app-down app-build
 app-build: init-xdevkit docker-compose-build-app
 app-up: init-common docker-compose-up-app
 app-down: docker-compose-down-app
@@ -30,12 +31,13 @@ doc-publish: docker-compose-up-doc-publish
 clean: app-down test-down
 
 help:
-	@echo "Usage: make (app|test)-(build|up|down)"
+	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
 	@echo "Usage: make view-(build|compile|compile-minify|watch)"
 	@echo "Usage: make doc-(generate|publish)"
 	@echo "Usage: make (init|lint|clean)"
 	@echo "Example:"
-	@echo "  make app-build             # Recreate image"
+	@echo "  make app-rebuild           # Recreate image"
+	@echo "  make app-build             # Create image"
 	@echo "  make app-up                # Start server"
 	@echo "  make app-down              # Clean app container/volume"
 	@echo "------------------------------"

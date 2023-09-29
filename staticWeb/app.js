@@ -8,6 +8,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import { collectDefaultMetrics, register } from 'prom-client'
 
 import setting from './setting/index.js'
 
@@ -15,6 +16,25 @@ const asocial = {
   setting,
 }
 const a = asocial
+
+/**
+ * _getMetricsRouter.
+ *
+ * @return {Express.Router()} Prometheusにmetricsを返すルーター
+ * @memberof app
+ */
+const _getMetricsRouter = () => {
+  const expressRouter = express.Router()
+  expressRouter.get('/metrics', async (_req, res) => {
+    try {
+      res.set('Content-Type', register.contentType)
+      res.end(await register.metrics())
+    } catch (err) {
+      res.status(500).end(err)
+    }
+  })
+  return expressRouter
+}
 
 /**
  * _getStaticRouter.
@@ -72,6 +92,8 @@ const startServer = (expressApp) => {
 const init = async () => {
   dotenv.config()
   a.setting.init(process.env)
+
+  collectDefaultMetrics()
 }
 
 /**
@@ -83,6 +105,8 @@ const init = async () => {
 const main = async () => {
   await a.app.init()
   const expressApp = express()
+
+  expressApp.use(_getMetricsRouter())
 
   expressApp.use(_getStaticRouter())
 
