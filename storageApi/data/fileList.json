@@ -9,6 +9,13 @@
         "clientId": "sample_localhost",
         "content": "kjhgf"
       }
+    },
+    "sample_xlogin_jp": {
+      "/message.txt": {
+        "dateUpdated": 1696041462583,
+        "clientId": "sample_xlogin_jp",
+        "content": "aaaaaaaaaaaaaaaaaaavvvvaa"
+      }
     }
   }
 }
