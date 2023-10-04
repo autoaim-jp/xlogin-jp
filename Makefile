@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
 XDEVKIT_SETTING_VERSION=v0.24
 XDEVKIT_VERSION=v0.24
 
@@ -11,6 +11,7 @@ default: app-up
 app-rebuild: app-down app-build
 app-build: init-xdevkit docker-compose-build-app
 app-up: init-common docker-compose-up-app
+app-up-d: init-common docker-compose-up-app-d
 app-down: docker-compose-down-app
 
 test-build: init-xdevkit docker-compose-build-test
@@ -39,6 +40,7 @@ help:
 	@echo "  make app-rebuild           # Recreate image"
 	@echo "  make app-build             # Create image"
 	@echo "  make app-up                # Start server"
+	@echo "  make app-up-d              # Start server and detatch"
 	@echo "  make app-down              # Clean app container/volume"
 	@echo "------------------------------"
 	@echo "  make test-build            # Recreate test image"
@@ -101,6 +103,8 @@ docker-compose-build-view:
 # up
 docker-compose-up-app:
 	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up
+docker-compose-up-app-d:
+	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up -d
 docker-compose-up-test:
 	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down
 	docker volume rm xlogin-jp-test_xltest-volume-pc-psql || true

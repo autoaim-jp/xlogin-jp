@@ -29,6 +29,9 @@ const init = ({ setting, output, input, lib }) => {
   mod.input = input
   mod.lib = lib
 
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  output.createUploadDir({ uploadDirDiskPath: FORM_UPLOAD_DIR })
+
   backendServerCore.init({ setting, input, lib })
 }
 

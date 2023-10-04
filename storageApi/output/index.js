@@ -99,6 +99,18 @@ const createFile = async ({ fileLabel, userSerialId, clientId, fileDir, fileName
   return rowCount
 }
 
+/**
+ * createUploadDir.
+ *
+ * @param {String} uploadDirDiskPath
+ *
+ * @return {undefined} 戻り値なし
+ * @memberof output
+ */
+const createUploadDir = ({ uploadDirDiskPath }) => {
+  mod.fs.mkdirSync(uploadDirDiskPath, { recursive: true })
+}
+
 export default {
   backendServerOutput,
 
@@ -108,5 +120,7 @@ export default {
   deleteJson,
 
   createFile,
+
+  createUploadDir,
 }
 
