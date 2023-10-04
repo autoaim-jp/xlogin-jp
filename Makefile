@@ -1,8 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
 PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
-XDEVKIT_SETTING_VERSION=v0.24
-XDEVKIT_VERSION=v0.24
 
 .PHONY: $(PHONY)
 
