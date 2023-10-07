@@ -4,4 +4,4 @@
 
 [submodule "common/xdevkit-setting"]
 	path = common/xdevkit-setting
-	url = https://github.com/autoaim-jp/xdevkit-setting.git
+	url = https://github.com/autoaim-jp/xdevkit-setting
