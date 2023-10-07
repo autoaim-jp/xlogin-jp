@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean add-client show-client help
 
 .PHONY: $(PHONY)
 
@@ -29,6 +29,9 @@ doc-publish: docker-compose-up-doc-publish
 
 clean: app-down test-down
 
+add-client: psql-add-client
+show-client: psql-show-client
+
 help:
 	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
 	@echo "Usage: make view-(build|compile|compile-minify|watch)"
@@ -56,6 +59,9 @@ help:
 	@echo "  make init                  # Update xdevkit, common"
 	@echo "------------------------------"
 	@echo "  make lint     		          # lint"
+	@echo "------------------------------"
+	@echo "  make add-client	          # add client after container up"
+	@echo "  make show-client	          # show client after container up"
 	@echo "------------------------------"
 	@echo "  make clean                 # Clean app, test container/volume"
 
@@ -130,7 +136,11 @@ docker-compose-up-doc-generate:
 docker-compose-up-doc-publish:
 	BUILD_COMMAND="doc-publish" docker compose -p xlogin-jp-doc -f ./docker/docker-compose.doc.yml up
 
+psql-add-client:
+	./psql/addNewClient.sh
 
+psql-show-client:
+	./psql/showClientInfo.sh
 
 %:
 	@echo "Target '$@' does not exist."
