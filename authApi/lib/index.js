@@ -1,5 +1,5 @@
 /* /lib/index.js */
-import commonServerLib from './commonServerLib.js'
+import backendServerLib from './backendServerLib.js'
 
 /**
  * @file
@@ -18,7 +18,7 @@ const mod = {}
  */
 const init = ({ crypto, ulid }) => {
   mod.crypto = crypto
-  commonServerLib.init({ crypto, ulid })
+  backendServerLib.init({ crypto, ulid })
 }
 
 /**
@@ -80,7 +80,7 @@ const getMaxIdInList = ({ list }) => {
 }
 
 export default {
-  commonServerLib,
+  backendServerLib,
 
   init,
 

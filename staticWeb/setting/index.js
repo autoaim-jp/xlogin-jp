@@ -7,6 +7,9 @@ const init = (env) => {
   setting.env.TLS_KEY_PATH = env.TLS_KEY_PATH
   setting.env.TLS_CERT_PATH = env.TLS_CERT_PATH
   setting.env.SERVER_PORT = env.SERVER_PORT
+
+  setting.env.METRICS_SERVER_PORT = env.METRICS_SERVER_PORT
+  setting.env.METRICS_SERVER_ORIGIN = env.METRICS_SERVER_ORIGIN
 }
 
 setting.static = {}

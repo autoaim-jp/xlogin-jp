@@ -23,7 +23,7 @@ const getHandlerConnect = ({ paramSnakeToCamel, handleConnect, endResponse }) =>
     const resultHandleConnect = await handleConnect({
       user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
     })
-    endResponse(req, res, resultHandleConnect)
+    endResponse({ req, res, handleResult: resultHandleConnect })
   }
 }
 
@@ -44,7 +44,7 @@ const getHandlerCode = ({ paramSnakeToCamel, handleCode, endResponse }) => {
     const resultHandleCode = await handleCode({
       clientId, code, codeVerifier,
     })
-    endResponse(req, res, resultHandleCode)
+    endResponse({ req, res, handleResult: resultHandleCode })
   }
 }
 
@@ -65,7 +65,7 @@ const getHandlerUserInfo = ({ paramSnakeToCamel, handleUserInfo, endResponse }) 
     const { filterKeyListStr } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleUserInfo = await handleUserInfo({ clientId, accessToken, filterKeyListStr })
-    endResponse(req, res, resultHandleUserInfo)
+    endResponse({ req, res, handleResult: resultHandleUserInfo })
   }
 }
 
@@ -85,7 +85,7 @@ const getHandlerUserInfoUpdate = ({ paramSnakeToCamel, handleUserInfoUpdate, end
     const { backupEmailAddress } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleUserInfoUpdate = await handleUserInfoUpdate(clientId, accessToken, backupEmailAddress)
-    endResponse(req, res, resultHandleUserInfoUpdate)
+    endResponse({ req, res, handleResult: resultHandleUserInfoUpdate })
   }
 }
 
@@ -107,7 +107,7 @@ const getHandlerNotificationList = ({ paramSnakeToCamel, handleNotificationList,
     const { notificationRange } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleNotification = await handleNotificationList(clientId, accessToken, notificationRange)
-    endResponse(req, res, resultHandleNotification)
+    endResponse({ req, res, handleResult: resultHandleNotification })
   }
 }
 
@@ -127,7 +127,7 @@ const getHandlerNotificationAppend = ({ paramSnakeToCamel, handleNotificationApp
     const { notificationRange, subject, detail } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleNotificationAppend = await handleNotificationAppend(clientId, accessToken, notificationRange, subject, detail)
-    endResponse(req, res, resultHandleNotificationAppend)
+    endResponse({ req, res, handleResult: resultHandleNotificationAppend })
   }
 }
 
@@ -147,7 +147,7 @@ const getHandlerNotificationOpen = ({ paramSnakeToCamel, handleNotificationOpen,
     const { notificationRange, notificationIdList } = paramSnakeToCamel({ paramList: req.body })
 
     const resultHandleNotificationOpen = await handleNotificationOpen(clientId, accessToken, notificationRange, notificationIdList)
-    endResponse(req, res, resultHandleNotificationOpen)
+    endResponse({ req, res, handleResult: resultHandleNotificationOpen })
   }
 }
 
@@ -165,7 +165,7 @@ const getHandlerCredentialCheck = ({ paramSnakeToCamel, handleCredentialCheck, e
   return async (req, res) => {
     const { emailAddress, passHmac2 } = paramSnakeToCamel({ paramList: req.body })
     const resultHandleCredentialCheck = await handleCredentialCheck({ emailAddress, passHmac2, authSession: req.session.auth })
-    endResponse(req, res, resultHandleCredentialCheck)
+    endResponse({ req, res, handleResult: resultHandleCredentialCheck })
   }
 }
 
@@ -183,7 +183,7 @@ const getHandlerThroughCheck = ({ handleThrough, endResponse }) => {
     const ipAddress = req.headers['x-forwarded-for'] || req.ip
     const authSession = req.session.auth
     const resultHandleThrough = await handleThrough({ ipAddress, useragent, authSession })
-    endResponse(req, res, resultHandleThrough)
+    endResponse({ req, res, handleResult: resultHandleThrough })
   }
 }
 
@@ -204,7 +204,7 @@ const getHandlerPermissionCheck = ({ paramSnakeToCamel, handleConfirm, endRespon
     const resultHandleConfirm = await handleConfirm({
       ipAddress, useragent, permissionList, authSession: req.session.auth,
     })
-    endResponse(req, res, resultHandleConfirm)
+    endResponse({ req, res, handleResult: resultHandleConfirm })
   }
 }
 
@@ -224,7 +224,7 @@ const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
     const resultHandleUserAdd = await handleUserAdd({
       emailAddress, passPbkdf2, saltHex, isTosChecked, isPrivacyPolicyChecked, authSession: req.session.auth,
     })
-    endResponse(req, res, resultHandleUserAdd)
+    endResponse({ req, res, handleResult: resultHandleUserAdd })
   }
 }
 
@@ -238,8 +238,9 @@ const getHandlerUserAdd = ({ handleUserAdd, endResponse }) => {
  */
 const getHandlerScopeList = ({ handleScope, endResponse }) => {
   return async (req, res) => {
-    const resultHandleScope = await handleScope(req.session.auth)
-    endResponse(req, res, resultHandleScope)
+    const authSession = req.session.auth
+    const resultHandleScope = await handleScope({ authSession })
+    endResponse({ req, res, handleResult: resultHandleScope })
   }
 }
 
@@ -254,8 +255,10 @@ const getHandlerScopeList = ({ handleScope, endResponse }) => {
  */
 const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATION, endResponse }) => {
   return async (req, res) => {
-    const resultHandleNotification = await handleGlobalNotification(req.session.auth, ALL_NOTIFICATION)
-    endResponse(req, res, resultHandleNotification)
+    const authSession = req.session.auth
+    const notificationRange = ALL_NOTIFICATION
+    const resultHandleNotification = await handleGlobalNotification({ authSession, notificationRange })
+    endResponse({ req, res, handleResult: resultHandleNotification })
   }
 }
 
@@ -270,7 +273,7 @@ const getHandlerGlobalNotification = ({ handleGlobalNotification, ALL_NOTIFICATI
 const getHandlerHandleLogout = ({ handleLogout, endResponse }) => {
   return async (req, res) => {
     const resultHandleLogout = await handleLogout()
-    endResponse(req, res, resultHandleLogout)
+    endResponse({ req, res, handleResult: resultHandleLogout })
   }
 }
 
@@ -293,14 +296,16 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     const requestBody = req.body
     const signature = req.headers['x-xlogin-signature']
 
-    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, requestBody, signature)
+    const isValidSignatureResult = await isValidSignature({
+      clientId, timestamp, path, requestBody, signature,
+    })
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'
       const resultGetCheckSignature = {
         status, error, response: false, session: null,
       }
-      return endResponse(req, res, resultGetCheckSignature)
+      return endResponse({ req, res, handleResult: resultGetCheckSignature })
     }
     return next()
   }

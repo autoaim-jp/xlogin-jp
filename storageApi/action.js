@@ -24,7 +24,7 @@ const getHandlerJsonUpdate = ({ paramSnakeToCamel, handleJsonUpdate, endResponse
     const resultHandleJsonUpdate = await handleJsonUpdate({
       clientId, accessToken, owner, jsonPath, content,
     })
-    endResponse(req, res, resultHandleJsonUpdate)
+    endResponse({ req, res, handleResult: resultHandleJsonUpdate })
   }
 }
 
@@ -46,7 +46,7 @@ const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endRespon
     const resultHandleJsonContent = await handleJsonContent({
       clientId, accessToken, owner, jsonPath,
     })
-    endResponse(req, res, resultHandleJsonContent)
+    endResponse({ req, res, handleResult: resultHandleJsonContent })
   }
 }
 
@@ -68,7 +68,7 @@ const getHandlerJsonDelete = ({ paramSnakeToCamel, handleJsonDelete, endResponse
     const resultHandleJsonDelete = await handleJsonDelete({
       clientId, accessToken, owner, jsonPath,
     })
-    endResponse(req, res, resultHandleJsonDelete)
+    endResponse({ req, res, handleResult: resultHandleJsonDelete })
   }
 }
 
@@ -89,8 +89,10 @@ const getHandlerFileList = ({ paramSnakeToCamel, handleFileList, endResponse }) 
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, fileDir } = paramSnakeToCamel({ paramList: req.query })
 
-    const resultHandleFileList = await handleFileList(clientId, accessToken, owner, fileDir)
-    endResponse(req, res, resultHandleFileList)
+    const resultHandleFileList = await handleFileList({
+      clientId, accessToken, owner, fileDir,
+    })
+    endResponse({ req, res, handleResult: resultHandleFileList })
   }
 }
 
@@ -108,7 +110,9 @@ const getHandlerFileContent = ({ paramSnakeToCamel, handleFileContent }) => {
     const clientId = req.headers['x-xlogin-client-id']
     const { owner, fileDir, fileLabel } = paramSnakeToCamel({ paramList: req.query })
 
-    const resultHandleFileContent = await handleFileContent(clientId, accessToken, owner, fileDir, fileLabel)
+    const resultHandleFileContent = await handleFileContent({
+      clientId, accessToken, owner, fileDir, fileLabel,
+    })
     res.end(resultHandleFileContent)
   }
 }
@@ -132,7 +136,7 @@ const getHandlerFileCreate = ({
     const resultHandleFileCreate = await handleFileCreate({
       req, clientId, accessToken,
     })
-    endResponse(req, res, resultHandleFileCreate)
+    endResponse({ req, res, handleResult: resultHandleFileCreate })
   }
 }
 
@@ -161,14 +165,17 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
     }
     const signature = req.headers['x-xlogin-signature']
 
-    const isValidSignatureResult = await isValidSignature(clientId, timestamp, path, content, signature)
+    // :TODO 引数確認
+    const isValidSignatureResult = await isValidSignature({
+      clientId, timestamp, path, requestBody: content, signature,
+    })
     if (isValidSignatureResult.signatureCheckResult !== true) {
       const status = INVALID_CREDENTIAL
       const error = 'check_signature'
       const resultGetCheckSignature = {
         status, error, response: false, session: null,
       }
-      return endResponse(req, res, resultGetCheckSignature)
+      return endResponse({ req, res, handleResult: resultGetCheckSignature })
     }
     return next()
   }

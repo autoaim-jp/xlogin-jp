@@ -33,6 +33,8 @@ services:
     build:
       context: ../
       dockerfile: ./docker/staticWebContainer/Dockerfile
+    ports:
+      - 127.0.0.1:59091:9090
     tty: true
     volumes:
       - ../staticWeb:/app
@@ -106,6 +108,37 @@ services:
         condition: service_healthy
       storage_api_container:
         condition: service_healthy
+
+  prometheus:
+    container_name: xlapp-container-prometheus
+    image: prom/prometheus
+    volumes:
+      - ../prometheus/prometheus:/etc/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - 127.0.0.1:56002:9090
+
+  node-exporter:
+    container_name: xlapp-container-node-exporter
+    image: quay.io/prometheus/node-exporter
+    ports:
+      - 127.0.0.1:59100:9100
+
+  grafana:
+    container_name: xlapp-container-grafana
+    image: grafana/grafana
+    ports:
+      - 127.0.0.1:56001:3000
+
+  alertmanager:
+    container_name: xlapp-container-alertmanager
+    image: prom/alertmanager
+    volumes:
+      - ../prometheus/alertmanager:/etc/alertmanager
+    command: "--config.file=/etc/alertmanager/config.yml"
+    ports:
+      - 127.0.0.1:9093:9093
+    restart: always
 
 volumes:
   xlapp-volume-rc-redis:

@@ -6,6 +6,9 @@ node_modules/
 .env
 .htpasswd
 
+prometheus.yml
+config.yml
+
 log/
 
 authApi/data/accessTokenList.json

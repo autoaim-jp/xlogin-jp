@@ -1,4 +1,7 @@
-/* /core.js */
+/* /core/index.js */
+
+import backendServerCore from './backendServerCore.js'
+
 /**
  * @file
  * @name コア機能を集約したファイル
@@ -18,11 +21,13 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof core
  */
-const init = (setting, output, input, lib) => {
+const init = ({ setting, output, input, lib }) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
   mod.lib = lib
+
+  backendServerCore.init({ setting, input, lib })
 }
 
 /**
@@ -32,7 +37,7 @@ const init = (setting, output, input, lib) => {
  * @return {pg.Pool} DBの接続プール
  * @memberof core
  */
-const createPgPool = (pg) => {
+const createPgPool = ({ pg }) => {
   const dbCredential = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -47,56 +52,6 @@ const createPgPool = (pg) => {
   return new pg.Pool(dbCredential)
 }
 
-/**
- * <pre>
- * _getErrorResponse.
- * エラーを返したいときに呼び出す。
- * パラメータを渡すと、エラーレスポンスを作成する。
- * </pre>
- *
- * @return {HandleResult} エラー処理された結果
- * @memberof core
- */
-const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return {
-      status, session, response, redirect, error,
-    }
-  }
-  if (response) {
-    return {
-      status, session, response, error,
-    }
-  }
-  return {
-    status, session, response: { status, error, redirect }, error,
-  }
-}
-
-/**
- * isValidSignature.
- *
- * @param {} clientId
- * @param {} timestamp
- * @param {} path
- * @param {} requestBody
- * @param {} signature
- * @return {signatureCheckResult} クライアントの署名が正しいかどうか
- * @memberof core
- */
-const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
-  const contentHash = mod.lib.commonServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
-  const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.commonServerLib.calcSha256HmacAsB64)
-  if (!isValidSignatureResult) {
-    return { signatureCheckResult: false }
-  }
-
-  return { signatureCheckResult: true }
-}
-
-
 /* user */
 /**
  * _credentialCheck.
@@ -106,13 +61,17 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
  * @return {credentialCheckResult} メールアドレスとパスワードの組み合わせが正しいかどうか
  * @memberof core
  */
-const _credentialCheck = async (emailAddress, passHmac2) => {
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+const _credentialCheck = async ({ emailAddress, passHmac2 }) => {
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const user = await mod.input.getUserByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
   if (!user) {
     return { credentialCheckResult: false }
   }
 
-  const isValidCredential = await mod.input.isValidCredential(emailAddress, passHmac2, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.calcPbkdf2)
+  const { calcPbkdf2 } = mod.lib
+  const isValidCredential = await mod.input.isValidCredential({
+    emailAddress, passHmac2, execQuery, paramSnakeToCamel, calcPbkdf2,
+  })
 
   if (!isValidCredential) {
     return { credentialCheckResult: false }
@@ -141,11 +100,12 @@ const _credentialCheck = async (emailAddress, passHmac2) => {
 const handleConnect = async ({
   user, clientId, redirectUri, state, scope, responseType, codeChallenge, codeChallengeMethod, requestScope,
 }) => {
-  const isValidClientResult = await mod.input.isValidClient(clientId, redirectUri, mod.lib.commonServerLib.execQuery)
+  const { execQuery } = mod.lib.backendServerLib
+  const isValidClientResult = await mod.input.backendServerInput.isValidClient({ clientId, redirectUri, execQuery })
   if (!isValidClientResult) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
     const error = 'handle_connect_client'
-    return _getErrorResponse(status, error, true)
+    return backendServerCore.getErrorResponse({ status, error, isServerRedirect: true })
   }
 
   const newUserSession = {
@@ -185,17 +145,18 @@ const handleConnect = async ({
 const handleCode = async ({
   clientId, code, codeVerifier,
 }) => {
-  const authSession = await mod.input.getAuthSessionByCode(code, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const authSession = await mod.input.getAuthSessionByCode({ code, execQuery, paramSnakeToCamel })
   if (!authSession || authSession.condition !== mod.setting.getValue('condition.CODE')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_code_session'
-    return _getErrorResponse(status, error, true)
+    return backendServerCore.getErrorResponse({ status, error, isServerRedirect: true })
   }
 
   if (clientId !== authSession.clientId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CLIENT')
     const error = 'handle_code_client'
-    return _getErrorResponse(status, error, true)
+    return backendServerCore.getErrorResponse({ status, error, isServerRedirect: true })
   }
 
   const { codeChallengeMethod } = authSession
@@ -203,19 +164,22 @@ const handleCode = async ({
   if (authSession.codeChallenge !== generatedCodeChallenge) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CODE_VERIFIER')
     const error = 'handle_code_challenge'
-    return _getErrorResponse(status, error, true)
+    return backendServerCore.getErrorResponse({ status, error, isServerRedirect: true })
   }
 
-  const accessToken = mod.lib.commonServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('oidc.ACCESS_TOKEN_L') })
+  const accessToken = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('oidc.ACCESS_TOKEN_L') })
 
   const newUserSession = { condition: mod.setting.getValue('condition.USER_INFO') }
 
   const splitPermissionList = JSON.parse(authSession.splitPermissionList)
-  const resultRegisterAccessToken = await mod.output.registerAccessToken(clientId, accessToken, authSession.emailAddress, splitPermissionList, mod.lib.commonServerLib.execQuery)
+  const { emailAddress } = authSession
+  const resultRegisterAccessToken = await mod.output.registerAccessToken({
+    clientId, accessToken, emailAddress, splitPermissionList, execQuery,
+  })
   if (!resultRegisterAccessToken) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_code_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -236,12 +200,15 @@ const handleCode = async ({
  */
 const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
   const filterKeyList = filterKeyListStr.split(',')
-  const userInfo = await mod.input.getUserByAccessToken(clientId, accessToken, filterKeyList, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const userInfo = await mod.input.getUserByAccessToken({
+    clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!userInfo) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_user_info_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
 
@@ -262,14 +229,20 @@ const handleUserInfo = async ({ clientId, accessToken, filterKeyListStr }) => {
  * @memberof core
  */
 const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), 'backupEmailAddress', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID')
+  const dataType = 'backupEmailAddress'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_user_update_backup_email_address'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
-  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken(emailAddress, backupEmailAddress, mod.lib.commonServerLib.execQuery)
+  const userInfoUpdateResult = await mod.output.updateBackupEmailAddressByAccessToken({ emailAddress, backupEmailAddress, execQuery })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -289,15 +262,23 @@ const handleUserInfoUpdate = async (clientId, accessToken, backupEmailAddress) =
  * @memberof core
  */
 const handleNotificationList = async (clientId, accessToken, notificationRange) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', notificationRange, 'notification', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const operationKey = 'r'
+  const range = notificationRange
+  const dataType = 'notification'
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_notification_list_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const notificationList = await mod.input.getNotification(emailAddress, notificationRange, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const notificationList = await mod.input.getNotification({
+    emailAddress, notificationRange, execQuery, paramSnakeToCamel,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -318,16 +299,25 @@ const handleNotificationList = async (clientId, accessToken, notificationRange) 
  * @memberof core
  */
 const handleNotificationAppend = async (clientId, accessToken, notificationRange, subject, detail) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const operationKey = 'w'
+  const range = notificationRange
+  const dataType = 'notification'
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_notification_append_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const notificationId = mod.lib.commonServerLib.getUlid()
-  const notificationAppendResult = await mod.output.appendNotification(notificationId, notificationRange, emailAddress, subject, detail, mod.lib.commonServerLib.execQuery, mod.lib.getMaxIdInList)
+  const notificationId = mod.lib.backendServerLib.getUlid()
+  const { getMaxIdInList } = mod.lib
+  const notificationAppendResult = await mod.output.appendNotification({
+    notificationId, clientId, emailAddress, subject, detail, execQuery, getMaxIdInList,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -347,15 +337,24 @@ const handleNotificationAppend = async (clientId, accessToken, notificationRange
  * @memberof core
  */
 const handleNotificationOpen = async (clientId, accessToken, notificationRange, notificationIdList) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', notificationRange, 'notification', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const operationKey = 'w'
+  const range = notificationRange
+  const dataType = 'notification'
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_notification_open_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const notificationOpenResult = await mod.output.openNotification(notificationIdList, notificationRange, emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.getMaxIdInList)
+  const { getMaxIdInList } = mod.lib
+  const notificationOpenResult = await mod.output.openNotification({
+    notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -377,17 +376,18 @@ const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) =
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_credential_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const resultCredentialCheck = await _credentialCheck(emailAddress, passHmac2)
+  const resultCredentialCheck = await _credentialCheck({ emailAddress, passHmac2 })
   if (resultCredentialCheck.credentialCheckResult !== true) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CREDENTIAL')
     const error = 'handle_credential_credential'
-    return _getErrorResponse(status, error, false, null, authSession)
+    return backendServerCore.getErrorResponse({ status, error, session: authSession })
   }
 
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const user = await mod.input.getUserByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
@@ -410,7 +410,7 @@ const handleCredentialCheck = async ({ emailAddress, passHmac2, authSession }) =
  * @memberof core
  */
 const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPermissionList) => {
-  const dateStr = mod.lib.commonServerLib.formatDate({ format: mod.setting.browserServerSetting.getValue('userReadableDateFormat.full') })
+  const dateStr = mod.lib.backendServerLib.formatDate({ format: mod.setting.browserServerSetting.getValue('userReadableDateFormat.full') })
   let detail = 'Login'
   detail += ` at ${dateStr}`
   const subject = detail
@@ -418,22 +418,32 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
   detail += ` by ${authSession.oidc.clientId}`
   detail += ` from ${ipAddress}`
 
-  const notificationId = mod.lib.commonServerLib.getUlid()
-  await mod.output.appendNotification(notificationId, mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID'), authSession.user.emailAddress, subject, detail, mod.lib.commonServerLib.execQuery)
+  const notificationId = mod.lib.backendServerLib.getUlid()
+  const { emailAddress } = authSession.user
+  const { getMaxIdInList } = mod.lib
+  const notificationRange = mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID')
+  const { execQuery } = mod.lib.backendServerLib
+  // :TODO 引数整理
+  const notificationAppendResult = await mod.output.appendNotification({
+    notificationId, clientId: notificationRange, emailAddress, subject, detail, execQuery, getMaxIdInList,
+  })
+  console.log({ notificationAppendResult })
 
+  const serviceUserId = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('user.SERVICE_USER_ID_L') })
+  const { clientId } = authSession.oidc
+  await mod.output.registerServiceUserId({
+    emailAddress, clientId, serviceUserId, execQuery,
+  })
 
-  const serviceUserId = mod.lib.commonServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('user.SERVICE_USER_ID_L') })
-  await mod.output.registerServiceUserId(authSession.user.emailAddress, authSession.oidc.clientId, serviceUserId, mod.lib.commonServerLib.execQuery)
-
-  const code = mod.lib.commonServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('oidc.CODE_L') })
+  const code = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('oidc.CODE_L') })
 
   const iss = mod.setting.getValue('env.SERVER_ORIGIN')
   const { redirectUri, state } = authSession.oidc
-  const redirect = mod.lib.commonServerLib.addQueryStr({ url: decodeURIComponent(redirectUri), queryStr: mod.lib.commonServerLib.objToQuery({ obj: { state, code, iss } }) })
+  const redirect = mod.lib.backendServerLib.addQueryStr({ url: decodeURIComponent(redirectUri), queryStr: mod.lib.backendServerLib.objToQuery({ obj: { state, code, iss } }) })
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CODE'), code, splitPermissionList }) })
 
-  await mod.output.registerAuthSession(newUserSession, mod.lib.commonServerLib.execQuery)
+  await mod.output.registerAuthSession({ authSession: newUserSession, execQuery })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -455,10 +465,15 @@ const handleThrough = async ({ ipAddress, useragent, authSession }) => {
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const permissionList = await mod.input.getCheckedRequiredPermissionList(authSession.oidc.clientId, authSession.user.emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { clientId } = authSession.oidc
+  const { emailAddress } = authSession.user
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const permissionList = await mod.input.getCheckedRequiredPermissionList({
+    clientId, emailAddress, execQuery, paramSnakeToCamel,
+  })
   const { scope, requestScope } = authSession.oidc
 
   if (!permissionList) {
@@ -523,7 +538,7 @@ const handleConfirm = async ({
   if (!authSession || !authSession.oidc || authSession.oidc.condition !== mod.setting.getValue('condition.CONFIRM')) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_confirm_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const { scope } = authSession.oidc
@@ -573,27 +588,30 @@ const handleUserAdd = async ({
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_user_add_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   if (isTosChecked !== true || isPrivacyPolicyChecked !== true) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_CHECK')
     const error = 'handle_user_add_checkbox'
-    return _getErrorResponse(status, error, false, null, authSession)
+    return backendServerCore.getErrorResponse({ status, error, session: authSession })
   }
 
-  const userExists = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const userExists = await mod.input.getUserByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
 
   if (userExists) {
     const status = mod.setting.browserServerSetting.getValue('statusList.REGISTER_FAIL')
     const error = 'handle_user_add_register'
-    return _getErrorResponse(status, error, false, null, authSession)
+    return backendServerCore.getErrorResponse({ status, error, session: authSession })
   }
 
   const userName = mod.setting.getValue('user.DEFAULT_USER_NAME')
-  await mod.output.registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, mod.lib.commonServerLib.execQuery)
+  await mod.output.registerUserByEmailAddress({
+    emailAddress, passPbkdf2, saltHex, userName, execQuery,
+  })
 
-  const user = await mod.input.getUserByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const user = await mod.input.getUserByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
 
   const newUserSession = Object.assign(authSession, { oidc: Object.assign(authSession.oidc, { condition: mod.setting.getValue('condition.CONFIRM') }) }, { user })
   const redirect = mod.setting.getValue('url.AFTER_CHECK_CREDENTIAL')
@@ -612,11 +630,11 @@ const handleUserAdd = async ({
  * @return {HandleResult} スコープ一覧
  * @memberof core
  */
-const handleScope = async (authSession) => {
+const handleScope = async ({ authSession }) => {
   if (!authSession || !authSession.oidc) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_permission_list_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const { scope } = authSession.oidc
@@ -636,14 +654,18 @@ const handleScope = async (authSession) => {
  * @return {HandleResult} 全サービスの通知一覧
  * @memberof core
  */
-const handleGlobalNotification = async (authSession, ALL_NOTIFICATION) => {
+const handleGlobalNotification = async ({ authSession, notificationRange }) => {
   if (!authSession) {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID_SESSION')
     const error = 'handle_notification_list_session'
-    return _getErrorResponse(status, error, false)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const globalNotificationList = await mod.input.getNotification(authSession.user.emailAddress, ALL_NOTIFICATION, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { emailAddress } = authSession.user
+  const { execQuery, paramSnakeToCamel } = mod.lib.backendServerLib
+  const globalNotificationList = await mod.input.getNotification({
+    emailAddress, notificationRange, execQuery, paramSnakeToCamel,
+  })
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
 
   return {
@@ -665,10 +687,10 @@ const handleLogout = async () => {
 }
 
 export default {
+  backendServerCore,
+
   init,
   createPgPool,
-
-  isValidSignature,
 
   handleConnect,
   handleCode,

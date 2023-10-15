@@ -16,9 +16,9 @@ import pg from 'pg'
 import multer from 'multer'
 
 import setting from './setting/index.js'
-import output from './output.js'
-import core from './core.js'
-import input from './input.js'
+import output from './output/index.js'
+import core from './core/index.js'
+import input from './input/index.js'
 import action from './action.js'
 import lib from './lib/index.js'
 
@@ -53,41 +53,41 @@ const _getFileRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
-    core: [a.core.isValidSignature],
+    output: [a.output.backendServerOutput.endResponse],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   const jsonUpdateHandler = a.action.getHandlerJsonUpdate(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonUpdate],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonContent],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/content`, checkSignature, jsonContentHandler)
 
   const jsonDeleteHandler = a.action.getHandlerJsonDelete(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonDelete],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/delete`, checkSignature, jsonDeleteHandler)
 
   const fileListHandler = a.action.getHandlerFileList(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleFileList],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/list`, checkSignature, fileListHandler)
 
   const fileContentHandler = a.action.getHandlerFileContent(argNamed({
     core: [a.core.handleFileContent],
-    lib: [a.lib.commonServerLib.paramSnakeToCamel],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/file/content`, checkSignature, fileContentHandler)
 
@@ -106,12 +106,12 @@ const _getFormRouter = () => {
 
   const checkSignature = a.action.getHandlerCheckSignature(argNamed({
     browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
-    output: [a.output.endResponse],
-    core: [a.core.isValidSignature],
+    output: [a.output.backendServerOutput.endResponse],
+    core: [a.core.backendServerCore.isValidSignature],
   }))
 
   const formCreateHandler = a.action.getHandlerFileCreate(argNamed({
-    output: [a.output.endResponse],
+    output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleFileCreate],
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/file/create`, checkSignature, formCreateHandler)
@@ -159,14 +159,16 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.commonServerLib.monkeyPatch()
+  a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
-  a.core.init(setting, output, input, lib)
-  a.input.init(setting, fs)
-  const pgPool = a.core.createPgPool(pg)
-  a.lib.commonServerLib.setPgPool({ pgPool })
+  a.output.init({ setting, fs })
+  a.core.init({
+    setting, output, input, lib,
+  })
+  a.input.init({ setting, fs })
+  const pgPool = a.core.createPgPool({ pg })
+  a.lib.backendServerLib.setPgPool({ pgPool })
 }
 
 /**

@@ -6,9 +6,9 @@ import multer from 'multer'
 import pg from 'pg'
 
 import setting from '../setting/index.js'
-import output from '../output.js'
-import core from '../core.js'
-import input from '../input.js'
+import output from '../output/index.js'
+import core from '../core/index.js'
+import input from '../input/index.js'
 import action from '../action.js'
 import lib from '../lib/index.js'
 
@@ -20,14 +20,14 @@ const a = asocial
 const init = async () => {
   const ulid = { ulid: () => { return '01ARZ3NDEKTSV4RRFFQ69G5FAV' } }
   dotenv.config({ path: './.testenv' })
-  a.lib.commonServerLib.monkeyPatch()
+  a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ crypto, ulid, multer })
   a.setting.init(process.env)
-  a.output.init(setting, fs)
-  a.core.init(setting, output, input, lib)
-  a.input.init(setting, fs)
-  const pgPool = a.core.createPgPool(pg)
-  a.lib.commonServerLib.setPgPool({ pgPool })
+  a.output.init({ setting, fs })
+  a.core.init({ setting, output, input, lib })
+  a.input.init({ setting, fs })
+  const pgPool = a.core.createPgPool({ pg })
+  a.lib.backendServerLib.setPgPool({ pgPool })
 }
 
 const _registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {
@@ -60,7 +60,7 @@ const insertTestData = async () => {
   const passPbkdf2 = '608df625890a932e8b3a8f98de97c67be27de458ea0d47d386c0cbe9cc6da634217bb38e68ffd70c0d19795beaea1526d259798fb8f3523ff35818ade13ec43d'
   const saltHex = '54db99ef94ad1c03bed54cd8bce1bb2f3de102f787c672a701313203e40d5fc037adb63728e3217fc79eda2bc6bee5682ea10956159a053cd0fa0f41038ac96e'
   const userName = 'test user'
-  const execQuery = a.lib.commonServerLib.execQuery
+  const execQuery = a.lib.backendServerLib.execQuery
   await _registerUserByEmailAddress(emailAddress, passPbkdf2, saltHex, userName, execQuery)
 
   const accessToken = 'HREQxaXKQCvI4pMOJ4MA209-rQXbS0gr1sl4ENAdPLK5iAEHKWCrpHFy_jMJ8Qgt'
@@ -83,7 +83,7 @@ const insertTestData = async () => {
 }
 
 const deleteAllData = async ({ cleanupTableList }) => {
-  const execQuery = a.lib.commonServerLib.execQuery
+  const execQuery = a.lib.backendServerLib.execQuery
   const queryList = cleanupTableList.map((tableName) => {
     return `truncate table ${tableName}`
   })
@@ -93,7 +93,7 @@ const deleteAllData = async ({ cleanupTableList }) => {
 }
 
 const end = async () => {
-  await a.lib.commonServerLib.closePgPool()
+  await a.lib.backendServerLib.closePgPool()
 }
 
 

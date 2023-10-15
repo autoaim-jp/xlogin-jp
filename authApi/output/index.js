@@ -1,9 +1,11 @@
-/* /output.js */
+/* /output/index.js */
 /**
  * @file
  * @name アプリケーションからのデータ出力に関するファイル
  * @memberof output
  */
+
+import backendServerOutput from './backendServerOutput.js'
 
 const mod = {}
 
@@ -15,10 +17,11 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof input
  */
-const init = (setting, fs) => {
+const init = ({ setting, fs }) => {
   mod.setting = setting
-
   mod.fs = fs
+
+  backendServerOutput.init({ setting })
 }
 
 /* to userList */
@@ -33,7 +36,7 @@ const init = (setting, fs) => {
  * @return {boolean} 新規ユーザをDBに登録した結果
  * @memberof output
  */
-const registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {
+const registerUserByEmailAddress = async ({ emailAddress, passPbkdf2, saltHex, userName, execQuery }) => {
   const queryAddUser = 'insert into user_info.user_list (email_address, user_name) values ($1, $2)'
   const paramListAddUser = [emailAddress, userName]
 
@@ -57,7 +60,7 @@ const registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, use
  * @return {int} DBに新規登録したサービスのサービスID
  * @memberof output
  */
-const registerServiceUserId = async (emailAddress, clientId, serviceUserId, execQuery) => {
+const registerServiceUserId = async ({ emailAddress, clientId, serviceUserId, execQuery }) => {
   const query = 'insert into user_info.service_user_list (email_address, client_id, service_user_id) values ($1, $2, $3)'
   const paramList = [emailAddress, clientId, serviceUserId]
 
@@ -75,7 +78,7 @@ const registerServiceUserId = async (emailAddress, clientId, serviceUserId, exec
  * @return {int} DBのバックアップメールアドレスを更新できた件数
  * @memberof output
  */
-const updateBackupEmailAddressByAccessToken = async (emailAddress, backupEmailAddress, execQuery) => {
+const updateBackupEmailAddressByAccessToken = async ({ emailAddress, backupEmailAddress, execQuery }) => {
   const query = 'insert into user_info.personal_data_list (email_address, backup_email_address) values ($1, $2) on conflict(email_address) do update set backup_email_address = $2'
   const paramList = [emailAddress, backupEmailAddress]
 
@@ -93,7 +96,7 @@ const updateBackupEmailAddressByAccessToken = async (emailAddress, backupEmailAd
  * @return {int} SessionをDBに登録できた件数
  * @memberof output
  */
-const registerAuthSession = async (authSession, execQuery) => {
+const registerAuthSession = async ({ authSession, execQuery }) => {
   const query = 'insert into access_info.auth_session_list (code, client_id, condition, code_challenge_method, code_challenge, email_address, split_permission_list) values ($1, $2, $3, $4, $5, $6, $7)'
   const {
     code, clientId, condition, codeChallengeMethod, codeChallenge, splitPermissionList,
@@ -118,7 +121,7 @@ const registerAuthSession = async (authSession, execQuery) => {
  * @return {int} DBでアクセストークンを作成できた件数
  * @memberof output
  */
-const registerAccessToken = async (clientId, accessToken, emailAddress, splitPermissionList, execQuery) => {
+const registerAccessToken = async ({ clientId, accessToken, emailAddress, splitPermissionList, execQuery }) => {
   const splitPermissionListStr = JSON.stringify(splitPermissionList)
   const query = 'insert into access_info.access_token_list (access_token, client_id, email_address, split_permission_list) values ($1, $2, $3, $4)'
   const paramList = [accessToken, clientId, emailAddress, splitPermissionListStr]
@@ -142,7 +145,7 @@ const registerAccessToken = async (clientId, accessToken, emailAddress, splitPer
  * @return {int} DBに通知を登録した件数
  * @memberof output
  */
-const appendNotification = async (notificationId, clientId, emailAddress, subject, detail, execQuery) => {
+const appendNotification = async ({ notificationId, clientId, emailAddress, subject, detail, execQuery }) => {
   const dateRegistered = Date.now()
   const isOpened = 0
   const notificationRange = clientId
@@ -166,7 +169,7 @@ const appendNotification = async (notificationId, clientId, emailAddress, subjec
  * @return {int} DBの通知をオープンした件数
  * @memberof output
  */
-const openNotification = async (notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList) => {
+const openNotification = async ({ notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList }) => {
   const lastOpendNoticationId = getMaxIdInList({ list: notificationIdList })
   const notificationRange = clientId
   const queryUpdateLastOpenedNotificationId = 'insert into notification_info.opened_notification_list (email_address, notification_range, notification_id) values ($1, $2, $3) on conflict(email_address, notification_range) do update set notification_id = $3'
@@ -182,44 +185,9 @@ const openNotification = async (notificationIdList, clientId, emailAddress, exec
   return rowCountUpdateNotificationIsOpened
 }
 
-/* to http client */
-/**
- * endResponse.
- *
- * @param {} req
- * @param {} res
- * @param {} handleResult
- * @return {res.json} ExpressでJSONのレスポンスを返すres.json()の戻り値
- * @memberof output
- */
-const endResponse = (req, res, handleResult) => {
-  console.log('endResponse:', req.url, handleResult.error)
-  if (req.session) {
-    req.session.auth = handleResult.session
-  }
-
-  if (handleResult.response) {
-    if (mod.setting.getValue('api.deprecated')[req.path]) {
-      handleResult.response.api = handleResult.response.api || {}
-      Object.assign(handleResult.response.api, mod.setting.getValue('api.deprecated')[req.path])
-    }
-
-    return res.json(handleResult.response)
-  }
-
-  if (req.method === 'GET') {
-    if (handleResult.redirect) {
-      return res.redirect(handleResult.redirect)
-    }
-    return res.redirect(mod.setting.getValue('url.ERROR_PAGE'))
-  }
-  if (handleResult.redirect) {
-    return res.json({ redirect: handleResult.redirect })
-  }
-  return res.json({ redirect: mod.setting.getValue('url.ERROR_PAGE') })
-}
-
 export default {
+  backendServerOutput,
+
   init,
 
   registerUserByEmailAddress,
@@ -229,7 +197,5 @@ export default {
   registerAccessToken,
   appendNotification,
   openNotification,
-
-  endResponse,
 }
 

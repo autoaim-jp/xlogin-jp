@@ -5,9 +5,16 @@
   "user@example.com": {
     "sample_localhost": {
       "/message.txt": {
-        "dateUpdated": 1695536207893,
+        "dateUpdated": 1695911246399,
         "clientId": "sample_localhost",
-        "content": "zzzzzz"
+        "content": "kjhgf"
+      }
+    },
+    "sample_xlogin_jp": {
+      "/message.txt": {
+        "dateUpdated": 1696041462583,
+        "clientId": "sample_xlogin_jp",
+        "content": "aaaaaaaaaaaaaaaaaaavvvvaa"
       }
     }
   }

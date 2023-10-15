@@ -1,4 +1,7 @@
-/* /core.js */
+/* /core/index.js */
+
+import backendServerCore from './backendServerCore.js'
+
 /**
  * @file
  * @name コア機能を集約したファイル
@@ -20,11 +23,16 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof core
  */
-const init = (setting, output, input, lib) => {
+const init = ({ setting, output, input, lib }) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
   mod.lib = lib
+
+  const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
+  output.createUploadDir({ uploadDirDiskPath: FORM_UPLOAD_DIR })
+
+  backendServerCore.init({ setting, input, lib })
 }
 
 /**
@@ -34,7 +42,7 @@ const init = (setting, output, input, lib) => {
  * @return {pg.Pool} DBの接続プール
  * @memberof core
  */
-const createPgPool = (pg) => {
+const createPgPool = ({ pg }) => {
   const dbCredential = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -47,55 +55,6 @@ const createPgPool = (pg) => {
   }
 
   return new pg.Pool(dbCredential)
-}
-
-/**
- * <pre>
- * _getErrorResponse.
- * エラーを返したいときに呼び出す。
- * パラメータを渡すと、エラーレスポンスを作成する。
- * </pre>
- *
- * @return {HandleResult} エラー処理された結果
- * @memberof core
- */
-const _getErrorResponse = (status, error, isServerRedirect, response = null, session = {}) => {
-  const redirect = `${mod.setting.getValue('url.ERROR_PAGE')}?error=${encodeURIComponent(error)}`
-  if (isServerRedirect) {
-    return {
-      status, session, response, redirect, error,
-    }
-  }
-  if (response) {
-    return {
-      status, session, response, error,
-    }
-  }
-  return {
-    status, session, response: { status, error, redirect }, error,
-  }
-}
-
-/**
- * isValidSignature.
- *
- * @param {} clientId
- * @param {} timestamp
- * @param {} path
- * @param {} requestBody
- * @param {} signature
- * @return {signatureCheckResult} クライアントの署名が正しいかどうか
- * @memberof core
- */
-const isValidSignature = async (clientId, timestamp, path, requestBody, signature) => {
-  const contentHash = mod.lib.commonServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
-  const dataToSign = `${timestamp}:${path}:${contentHash}`
-  const isValidSignatureResult = await mod.input.isValidSignature(clientId, dataToSign, signature, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel, mod.lib.commonServerLib.calcSha256HmacAsB64)
-  if (!isValidSignatureResult) {
-    return { signatureCheckResult: false }
-  }
-
-  return { signatureCheckResult: true }
 }
 
 /* POST /api/$apiVersion/json/update */
@@ -113,15 +72,23 @@ const isValidSignature = async (clientId, timestamp, path, requestBody, signatur
 const handleJsonUpdate = async ({
   clientId, accessToken, owner, jsonPath, content,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_update_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const updateJsonResult = await mod.output.updateJson(emailAddress, clientId, owner, jsonPath, content)
+  const updateJsonResult = await mod.output.updateJson({
+    emailAddress, clientId, owner, jsonPath, content,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -142,15 +109,24 @@ const handleJsonUpdate = async ({
 const handleJsonContent = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_content_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const jsonContent = await mod.input.getJsonContent(emailAddress, clientId, owner, jsonPath)
+  const jsonContent = await mod.input.getJsonContent({
+    emailAddress, clientId, owner, jsonPath,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -172,15 +148,23 @@ const handleJsonContent = async ({
 const handleJsonDelete = async ({
   clientId, accessToken, owner, jsonPath,
 }) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'json_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_json_delete_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const deleteJsonResult = await mod.output.deleteJson(emailAddress, clientId, owner, jsonPath)
+  const deleteJsonResult = await mod.output.deleteJson({
+    emailAddress, clientId, owner, jsonPath,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -199,16 +183,25 @@ const handleJsonDelete = async ({
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
-const handleFileList = async (clientId, accessToken, owner, fileDir) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+const handleFileList = async ({ clientId, accessToken, owner, fileDir }) => {
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_list_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const fileList = await mod.input.getFileList(clientId, fileDir, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  // :TODO 引数確認
+  const fileList = await mod.input.getFileList({
+    owner: clientId, fileDir, execQuery, paramSnakeToCamel,
+  })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
@@ -228,20 +221,29 @@ const handleFileList = async (clientId, accessToken, owner, fileDir) => {
  * @return {Buffer} ファイルの中身
  * @memberof core
  */
-const handleFileContent = async (clientId, accessToken, owner, fileDir, fileLabel) => {
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'r', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+const handleFileContent = async ({ clientId, accessToken, owner, fileDir, fileLabel }) => {
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusContent.SERVER_ERROR')
     const error = 'handle_file_content_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const diskFilePath = await mod.input.getDiskFilePath(clientId, fileDir, fileLabel, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const diskFilePath = await mod.input.getDiskFilePath({
+    owner, fileDir, fileLabel, execQuery, paramSnakeToCamel,
+  })
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   const diskFileFullPath = `${FORM_UPLOAD_DIR}${diskFilePath}`
-  const fileContent = mod.input.getFileContent(diskFileFullPath)
+  const fileContent = mod.input.getFileContent({ filePath: diskFileFullPath })
 
   return fileContent
 }
@@ -264,14 +266,21 @@ const handleFileCreate = async ({
 
   const FORM_UPLOAD = mod.setting.getValue('key.FORM_UPLOAD')
   const uploadResult = await mod.lib.parseMultipartFileUpload({ req, formKey: FORM_UPLOAD })
-  const { owner, filePath } = mod.lib.commonServerLib.paramSnakeToCamel({ paramList: req.body })
+  const { owner, filePath } = mod.lib.backendServerLib.paramSnakeToCamel({ paramList: req.body })
 
-  const emailAddress = await mod.input.checkPermissionAndGetEmailAddress(accessToken, clientId, 'w', owner, 'file_v1', mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'w'
+  const range = owner
+  const dataType = 'file_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
+
 
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_access_token'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
@@ -281,7 +290,7 @@ const handleFileCreate = async ({
   if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {
     const status = mod.setting.browserServerSetting.getValue('statusList.INVALID')
     const error = 'handle_file_create_invalid_filePath'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
   const fileDir = filePathSplitList.slice(0, filePathSplitList.length - 1).join('/')
   let fileName = filePathSplitList[filePathSplitList.length - 1]
@@ -289,15 +298,18 @@ const handleFileCreate = async ({
     fileName = 'r'
   }
 
-  const user = await mod.input.getUserSerialIdByEmailAddress(emailAddress, mod.lib.commonServerLib.execQuery, mod.lib.commonServerLib.paramSnakeToCamel)
+  const user = await mod.input.getUserSerialIdByEmailAddress({ emailAddress, execQuery, paramSnakeToCamel })
   if (!user || !user.userSerialId) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_file_create_user'
-    return _getErrorResponse(status, error, null)
+    return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const fileLabel = mod.lib.commonServerLib.getUlid()
-  const createFileResult = await mod.output.createFile(fileLabel, user.userSerialId, clientId, fileDir, fileName, diskFilePath, mod.lib.commonServerLib.execQuery)
+  const fileLabel = mod.lib.backendServerLib.getUlid()
+  const { userSerialId } = user
+  const createFileResult = await mod.output.createFile({
+    fileLabel, userSerialId, clientId, fileDir, fileName, diskFilePath, execQuery,
+  })
   console.log({ createFileResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -308,10 +320,10 @@ const handleFileCreate = async ({
 
 
 export default {
+  backendServerCore,
+
   init,
   createPgPool,
-
-  isValidSignature,
 
   handleJsonUpdate,
   handleJsonContent,
