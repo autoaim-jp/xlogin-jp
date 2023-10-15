@@ -98,43 +98,43 @@ init-common:
 
 # build
 docker-compose-build-app:
-	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml build
+	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml build
 docker-compose-build-test:
-	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml build
+	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml build
 docker-compose-build-view:
-	docker compose -p xlogin-jp-view -f ./docker/docker-compose.view.yml build
+	docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml build
 
 # up
 docker-compose-up-app:
-	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up
+	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml up
 docker-compose-up-app-d:
-	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml up -d
+	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml up -d
 docker-compose-up-test:
-	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down
+	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down
 	docker volume rm xlogin-jp-test_xltest-volume-pc-psql || true
 	docker volume rm xlogin-jp-test_xltest-volume-rc-redis || true
-	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml up --abort-on-container-exit
+	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
 docker-compose-up-view-compile:
-	BUILD_COMMAND="compile" docker compose -p xlogin-jp-view -f ./docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
-	BUILD_COMMAND="compile-minify" docker compose -p xlogin-jp-view -f ./docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile-minify" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-watch:
-	BUILD_COMMAND="watch" docker compose -p xlogin-jp-view -f ./docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="watch" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 
 # down
 docker-compose-down-app:
-	docker compose -p xlogin-jp-app -f ./docker/docker-compose.app.yml down --volumes
+	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml down --volumes
 docker-compose-down-test:
-	docker compose -p xlogin-jp-test -f ./docker/docker-compose.test.yml down --volumes
+	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down --volumes
 
 # devtool
 docker-compose-up-lint:
-	docker compose -p xlogin-jp-lint -f ./docker/docker-compose.lint.yml up --abort-on-container-exit
+	docker compose -p xlogin-jp-lint -f ./app/docker/docker-compose.lint.yml up --abort-on-container-exit
 docker-compose-up-doc-generate:
-	BUILD_COMMAND="doc-generate" docker compose -p xlogin-jp-doc -f ./docker/docker-compose.doc.yml up
+	BUILD_COMMAND="doc-generate" docker compose -p xlogin-jp-doc -f ./app/docker/docker-compose.doc.yml up
 docker-compose-up-doc-publish:
-	BUILD_COMMAND="doc-publish" docker compose -p xlogin-jp-doc -f ./docker/docker-compose.doc.yml up
+	BUILD_COMMAND="doc-publish" docker compose -p xlogin-jp-doc -f ./app/docker/docker-compose.doc.yml up
 
 psql-add-client:
 	./psql/addNewClient.sh

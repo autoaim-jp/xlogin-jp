@@ -1,7 +1,3 @@
-[submodule "staticWeb/xdevkit"]
-	path = common/xdevkit
-	url = https://github.com/autoaim-jp/xdevkit.git
-
 [submodule "common/xdevkit-setting"]
 	path = common/xdevkit-setting
 	url = https://github.com/autoaim-jp/xdevkit-setting
