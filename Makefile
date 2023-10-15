@@ -129,18 +129,11 @@ docker-compose-down-test:
 	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down --volumes
 
 # devtool
-docker-compose-up-lint:
-	docker compose -p xlogin-jp-lint -f ./app/docker/docker-compose.lint.yml up --abort-on-container-exit
-docker-compose-up-doc-generate:
-	BUILD_COMMAND="doc-generate" docker compose -p xlogin-jp-doc -f ./app/docker/docker-compose.doc.yml up
-docker-compose-up-doc-publish:
-	BUILD_COMMAND="doc-publish" docker compose -p xlogin-jp-doc -f ./app/docker/docker-compose.doc.yml up
-
 psql-add-client:
-	./psql/addNewClient.sh
+	./service/postgresql/bin/addNewClient.sh
 
 psql-show-client:
-	./psql/showClientInfo.sh
+	./service/postgresql/bin/showClientInfo.sh
 
 %:
 	@echo "Target '$@' does not exist."
