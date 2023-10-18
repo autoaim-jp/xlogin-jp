@@ -18,7 +18,7 @@ services:
       dockerfile: ./service/postgresql/docker/Dockerfile
     volumes:
       - xltest-volume-pc-postgresql:/var/lib/postgresql/data
-      - ../postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ../../service/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -35,7 +35,7 @@ services:
       dockerfile: ./service/authApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../authApi:/app
+      - ../../service/authApi/src:/app
       - xltest-volume-aac-nm:/app/node_modules
     command: sh -c "rm /tmp/test.done || true && yarn run test && echo 0 > /tmp/test.done && sleep infinity"
     healthcheck:
@@ -56,7 +56,7 @@ services:
       dockerfile: ./service/storageApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../storageApi:/app
+      - ../../service/storageApi/src:/app
       - xltest-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=true
