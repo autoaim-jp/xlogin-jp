@@ -1,3 +1,6 @@
 [submodule "xdevkit-backend/common/xdevkit-setting"]
 	path = xdevkit-backend/common/xdevkit-setting
 	url = https://github.com/autoaim-jp/xdevkit-setting
+[submodule "xdevkit-backend/common/xdevkit-view-component"]
+	path = xdevkit-backend/common/xdevkit-view-component
+	url = https://github.com/autoaim-jp/xdevkit-view-component
