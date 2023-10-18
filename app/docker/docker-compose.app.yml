@@ -5,20 +5,20 @@ services:
     container_name: xlapp-container-redis
     build:
       context: ../../
-      dockerfile: ./docker/redisContainer/Dockerfile
+      dockerfile: ./service/redis/docker/Dockerfile
     volumes:
       - xlapp-volume-rc-redis:/data
     healthcheck:
       test: ["CMD", "redis-cli","ping"]
 
-  psql_container:
-    container_name: xlapp-container-psql
+  postgresql_container:
+    container_name: xlapp-container-postgresql
     build:
       context: ../../
-      dockerfile: ./docker/psqlContainer/Dockerfile
+      dockerfile: ./service/postgresql/docker/Dockerfile
     volumes:
-      - xlapp-volume-pc-psql:/var/lib/postgresql/data
-      - ../../psql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - xlapp-volume-pc-postgresql:/var/lib/postgresql/data
+      - ../../service/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -32,12 +32,12 @@ services:
     container_name: xlapp-container-static-web
     build:
       context: ../../
-      dockerfile: ./docker/staticWebContainer/Dockerfile
+      dockerfile: ./service/staticWeb/docker/Dockerfile
     ports:
       - 127.0.0.1:59091:9090
     tty: true
     volumes:
-      - ../../staticWeb:/app
+      - ../../service/staticWeb:/app
       - xlapp-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
@@ -52,10 +52,10 @@ services:
     container_name: xlapp-container-auth-api
     build:
       context: ../../
-      dockerfile: ./docker/authApiContainer/Dockerfile
+      dockerfile: ./service/authApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../../authApi:/app
+      - ../../service/authApi:/app
       - xlapp-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
@@ -63,7 +63,7 @@ services:
     depends_on:
       redis_container: 
         condition: service_healthy
-      psql_container:
+      postgresql_container:
         condition: service_healthy
     healthcheck:
       test: ls /tmp/setup.done
@@ -75,10 +75,10 @@ services:
     container_name: xlapp-container-storage-api
     build:
       context: ../../
-      dockerfile: ./docker/storageApiContainer/Dockerfile
+      dockerfile: ./service/storageApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../../storageApi:/app
+      - ../../service/storageApi:/app
       - xlapp-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
@@ -96,13 +96,13 @@ services:
     container_name: xlapp-container-reverse-proxy
     build:
       context: ../../
-      dockerfile: ./docker/reverseProxyContainer/Dockerfile
+      dockerfile: ./service/reverseProxy/docker/Dockerfile
     ports:
       - 3333:80
     volumes:
-      - ../../reverseProxy/nginx.conf:/etc/nginx/nginx.conf
+      - ../../service/reverseProxy/nginx.conf:/etc/nginx/nginx.conf
       - ../../setting/.htpasswd:/etc/nginx/.htpasswd
-      - ../../reverseProxy/log:/var/log/nginx
+      - ../../service/reverseProxy/log:/var/log/nginx
     depends_on:
       static_web_container:
         condition: service_healthy
@@ -113,7 +113,7 @@ services:
     container_name: xlapp-container-prometheus
     image: prom/prometheus
     volumes:
-      - ../../prometheus/prometheus:/etc/prometheus
+      - ../../service/prometheus/prometheus:/etc/prometheus
     command: "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 127.0.0.1:56002:9090
@@ -134,7 +134,7 @@ services:
     container_name: xlapp-container-alertmanager
     image: prom/alertmanager
     volumes:
-      - ../../prometheus/alertmanager:/etc/alertmanager
+      - ../../service/prometheus/alertmanager:/etc/alertmanager
     command: "--config.file=/etc/alertmanager/config.yml"
     ports:
       - 127.0.0.1:9093:9093
@@ -142,7 +142,7 @@ services:
 
 volumes:
   xlapp-volume-rc-redis:
-  xlapp-volume-pc-psql:
+  xlapp-volume-pc-postgresql:
   xlapp-volume-aac-nm:
   xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:

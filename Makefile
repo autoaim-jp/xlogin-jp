@@ -29,8 +29,8 @@ doc-publish: docker-compose-up-doc-publish
 
 clean: app-down test-down
 
-add-client: psql-add-client
-show-client: psql-show-client
+add-client: postgresql-add-client
+show-client: postgresql-show-client
 
 help:
 	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
@@ -68,13 +68,13 @@ help:
 
 # init
 init-xdevkit:
-	git submodule update -i && pushd ./xdevkit-backend/common/xdevkit-setting/ && git checkout master && git pull && git checkout ${XDEVKIT_SETTING_VERSION} && git pull origin ${XDEVKIT_SETTING_VERSION} && yarn install && popd
+	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-setting/ && git checkout master && git pull && git checkout ${XDEVKIT_SETTING_VERSION} && git pull origin ${XDEVKIT_SETTING_VERSION} && yarn install && popd
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/view/src/js/_setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/authApi/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/storageApi/src/setting/browserServerSetting.js
 	
-	git submodule update -i && pushd ./xdevkit-backend/common/xdevkit-view-component/ && git checkout master && git pull && git checkout ${XDEVKIT_VIEW_COMPONENT_VERSION} && git pull origin ${XDEVKIT_VIEW_COMPONENT_VERSION} && yarn install && popd
+	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-view-component/ && git checkout master && git pull && git checkout ${XDEVKIT_VIEW_COMPONENT_VERSION} && git pull origin ${XDEVKIT_VIEW_COMPONENT_VERSION} && yarn install && popd
 	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/js/_xdevkit ./service/staticWeb/src/view/src/js/_lib/
  
 init-common:
@@ -112,7 +112,7 @@ docker-compose-up-app-d:
 	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml up -d
 docker-compose-up-test:
 	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down
-	docker volume rm xlogin-jp-test_xltest-volume-pc-psql || true
+	docker volume rm xlogin-jp-test_xltest-volume-pc-postgresql || true
 	docker volume rm xlogin-jp-test_xltest-volume-rc-redis || true
 	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
@@ -130,10 +130,10 @@ docker-compose-down-test:
 	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down --volumes
 
 # devtool
-psql-add-client:
+postgresql-add-client:
 	./service/postgresql/bin/addNewClient.sh
 
-psql-show-client:
+postgresql-show-client:
 	./service/postgresql/bin/showClientInfo.sh
 
 %:
