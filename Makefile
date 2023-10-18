@@ -68,13 +68,13 @@ help:
 
 # init
 init-xdevkit:
-	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-setting/ && git checkout master && git pull && git checkout ${XDEVKIT_SETTING_VERSION} && git pull origin ${XDEVKIT_SETTING_VERSION} && yarn install && popd
+	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-setting/ && git checkout master && git pull && git checkout ${XDEVKIT_SETTING_VERSION} && git pull origin ${XDEVKIT_SETTING_VERSION} && popd
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/view/src/js/_setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/authApi/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/storageApi/src/setting/browserServerSetting.js
 	
-	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-view-component/ && git checkout master && git pull && git checkout ${XDEVKIT_VIEW_COMPONENT_VERSION} && git pull origin ${XDEVKIT_VIEW_COMPONENT_VERSION} && yarn install && popd
+	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-view-component/ && git checkout master && git pull && git checkout ${XDEVKIT_VIEW_COMPONENT_VERSION} && git pull origin ${XDEVKIT_VIEW_COMPONENT_VERSION} && popd
 	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/js/_xdevkit ./service/staticWeb/src/view/src/js/_lib/
  
 init-common:

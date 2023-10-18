@@ -4,8 +4,8 @@ services:
   redis_container:
     container_name: xltest-container-redis
     build:
-      context: ../
-      dockerfile: ./docker/redisContainer/Dockerfile
+      context: ../../
+      dockerfile: ./service/redis/docker/Dockerfile
     volumes:
       - xltest-volume-rc-redis:/data
     healthcheck:
@@ -14,8 +14,8 @@ services:
   postgresql_container:
     container_name: xltest-container-postgresql
     build:
-      context: ../
-      dockerfile: ./docker/postgresqlContainer/Dockerfile
+      context: ../../
+      dockerfile: ./service/postgresql/docker/Dockerfile
     volumes:
       - xltest-volume-pc-postgresql:/var/lib/postgresql/data
       - ../postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -31,8 +31,8 @@ services:
   auth_api_container:
     container_name: xltest-container-auth-api
     build:
-      context: ../
-      dockerfile: ./docker/authApiContainer/Dockerfile
+      context: ../../
+      dockerfile: ./service/authApi/docker/Dockerfile
     tty: true
     volumes:
       - ../authApi:/app
@@ -52,8 +52,8 @@ services:
   storage_api_container:
     container_name: xltest-container-storage-api
     build:
-      context: ../
-      dockerfile: ./docker/storageApiContainer/Dockerfile
+      context: ../../
+      dockerfile: ./service/storageApi/docker/Dockerfile
     tty: true
     volumes:
       - ../storageApi:/app
