@@ -16,8 +16,8 @@ CLIENT_SECRET=$RND
 setRandom 32
 SESSION_SECRET=$RND
 
-docker exec -it xlapp-container-psql psql -U xl_admin xl_db -c "insert into access_info.client_list (client_id, service_name, redirect_uri, user_serial_id) values ('${CLIENT_ID}', '${SERVICE_NAME}', '${CALLBACK_URL}', ${USER_ID});"
-docker exec -it xlapp-container-psql psql -U xl_admin xl_db -c "insert into access_info.secret_list (client_id, client_secret) values ('${CLIENT_ID}', '${CLIENT_SECRET}');"
+docker exec -it xlapp-container-postgresql psql -U xl_admin xl_db -c "insert into access_info.client_list (client_id, service_name, redirect_uri, user_serial_id) values ('${CLIENT_ID}', '${SERVICE_NAME}', '${CALLBACK_URL}', ${USER_ID});"
+docker exec -it xlapp-container-postgresql psql -U xl_admin xl_db -c "insert into access_info.secret_list (client_id, client_secret) values ('${CLIENT_ID}', '${CLIENT_SECRET}');"
 
 echo "CLIENT_ID: $CLIENT_ID"
 echo "CLIENT_SECRET: $CLIENT_SECRET"

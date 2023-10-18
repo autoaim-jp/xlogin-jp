@@ -37,7 +37,7 @@ services:
       - 127.0.0.1:59091:9090
     tty: true
     volumes:
-      - ../../service/staticWeb:/app
+      - ../../service/staticWeb/src:/app
       - xlapp-volume-swc-nm:/app/node_modules
     environment:
      - IS_TEST=false
@@ -55,7 +55,7 @@ services:
       dockerfile: ./service/authApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../../service/authApi:/app
+      - ../../service/authApi/src:/app
       - xlapp-volume-aac-nm:/app/node_modules
     environment:
      - IS_TEST=false
@@ -78,7 +78,7 @@ services:
       dockerfile: ./service/storageApi/docker/Dockerfile
     tty: true
     volumes:
-      - ../../service/storageApi:/app
+      - ../../service/storageApi/src:/app
       - xlapp-volume-sac-nm:/app/node_modules
     environment:
      - IS_TEST=false
