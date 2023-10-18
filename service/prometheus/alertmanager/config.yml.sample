@@ -1,0 +1,12 @@
+global:
+  slack_api_url: 'https://hooks.slack.com/services/deadbeef/deadbeef/deadbeef'
+
+route:
+  receiver: 'slack'
+
+receivers:
+  - name: 'slack'
+    slack_configs:
+    - channel: '#prometheus'
+
+
