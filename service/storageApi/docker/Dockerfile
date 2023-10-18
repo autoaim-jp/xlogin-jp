@@ -2,9 +2,9 @@ FROM node:20-slim
 
 WORKDIR /app
 
-COPY ./storageApi/package.json /app/
+COPY ./service/storageApi/src/package.json /app/
 
 RUN yarn install
 
-COPY ./storageApi /app
+COPY ./service/storageApi/src /app
 
