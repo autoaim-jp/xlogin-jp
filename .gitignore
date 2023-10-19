@@ -9,6 +9,8 @@ node_modules/
 prometheus.yml
 config.yml
 
+datasource.yml
+
 log/
 
 authApi/data/accessTokenList.json

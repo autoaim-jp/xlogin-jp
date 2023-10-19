@@ -127,6 +127,8 @@ services:
   grafana:
     container_name: xlapp-container-grafana
     image: grafana/grafana
+    volumes:
+      - ../../service/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     ports:
       - 127.0.0.1:56001:3000
 
