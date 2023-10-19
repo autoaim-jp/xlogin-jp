@@ -129,8 +129,10 @@ services:
     image: grafana/grafana
     volumes:
       - ../../service/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - xlapp-volume-gc-grafana:/var/lib/grafana
     ports:
       - 127.0.0.1:56001:3000
+    user: "$PID:$GID"
 
   alertmanager:
     container_name: xlapp-container-alertmanager
@@ -148,5 +150,6 @@ volumes:
   xlapp-volume-aac-nm:
   xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:
+  xlapp-volume-gc-grafana:
 
 
