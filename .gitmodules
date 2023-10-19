@@ -4,3 +4,6 @@
 [submodule "xdevkit-backend/common/xdevkit-setting"]
 	path = xdevkit-backend/common/xdevkit-setting
 	url = https://github.com/autoaim-jp/xdevkit-setting
+[submodule "xdevkit-backend/standalone/xdevkit-htpasswd"]
+	path = xdevkit-backend/standalone/xdevkit-htpasswd
+	url = https://github.com/autoaim-jp/xdevkit-htpasswd

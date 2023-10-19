@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean add-client show-client help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean add-client show-client create-htpasswd help
 
 .PHONY: $(PHONY)
 
@@ -31,6 +31,8 @@ clean: app-down test-down
 
 add-client: postgresql-add-client
 show-client: postgresql-show-client
+
+create-htpasswd: docker-run-htpasswd
 
 help:
 	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
@@ -64,6 +66,8 @@ help:
 	@echo "  make show-client	          # show client after container up"
 	@echo "------------------------------"
 	@echo "  make clean                 # Clean app, test container/volume"
+	@echo "------------------------------"
+	@echo "  make create-htpasswd       # create setting/.htpasswd with docker"
 
 
 # init
@@ -132,9 +136,14 @@ docker-compose-down-test:
 # devtool
 postgresql-add-client:
 	./service/postgresql/bin/addNewClient.sh
-
 postgresql-show-client:
 	./service/postgresql/bin/showClientInfo.sh
+
+
+# deploytool
+docker-run-htpasswd:
+	pushd ./xdevkit-backend/standalone/xdevkit-htpasswd/ && make generate && popd
+	mv ./xdevkit-backend/standalone/xdevkit-htpasswd/.htpasswd ./setting/.htpasswd
 
 %:
 	@echo "Target '$@' does not exist."
