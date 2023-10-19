@@ -11,4 +11,10 @@ datasources:
     basicAuth: true
     basicAuthUser: basicauthuser
     basicAuthPassword: basicauthpass
-
+    jsonData:
+      httpHeaderName1: 'HeaderName'
+      httpHeaderName2: 'Authorization'
+    secureJsonData:
+      httpHeaderValue1: 'HeaderValue'
+      httpHeaderValue2: 'Basic base64urlencodedbasicauthuserandpass'
+    
