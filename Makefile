@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix doc-generate doc-publish clean add-client show-client create-htpasswd help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix init-doc doc-rebuild doc-generate doc-publish clean add-client show-client create-htpasswd help
 
 .PHONY: $(PHONY)
 
@@ -26,6 +26,8 @@ init: init-xdevkit init-common
 lint: docker-compose-up-lint
 lint-fix: docker-compose-up-lint-fix
 
+init-doc: init-doc-deploy-key
+doc-rebuild: docker-compose-rebuild-doc
 doc-generate: docker-compose-up-doc-generate
 doc-publish: docker-compose-up-doc-publish
 
@@ -39,7 +41,7 @@ create-htpasswd: docker-run-htpasswd
 help:
 	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
 	@echo "Usage: make view-(build|compile|compile-minify|watch)"
-	@echo "Usage: make doc-(generate|publish)"
+	@echo "Usage: make doc-(rebuild|generate|publish)"
 	@echo "Usage: make (init|lint|clean)"
 	@echo "Example:"
 	@echo "  make app-rebuild           # Recreate image"
@@ -57,6 +59,7 @@ help:
 	@echo "  make view-compile-minify   # compile minify"
 	@echo "  make view-watch            # watch"
 	@echo "------------------------------"
+	@echo "  make doc-rebuild     		  # Recreate image"
 	@echo "  make doc-generate     		  # doc-generate"
 	@echo "  make doc-deploy     		    # doc-deploy"
 	@echo "------------------------------"
@@ -146,6 +149,27 @@ docker-compose-up-lint:
 	docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 docker-compose-up-lint-fix:
 	FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+
+init-doc-deploy-key:
+	mkdir -p ./secret/
+	ssh-keygen -t rsa -b 4096 -f ./secret/id_rsa_deploy_key -N ""
+	echo "info: register this as a deploy key at github"
+	cat ./secret/id_rsa_deploy_key.pub
+docker-compose-rebuild-doc:
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
+docker-compose-up-doc-publish:
+	JSDOC_COMMAND="generate-publish" \
+	GIT_USER_NAME="${GIT_USER_NAME}" \
+	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
+	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
+docker-compose-up-doc-generate:
+	JSDOC_COMMAND="generate" \
+	GIT_USER_NAME="${GIT_USER_NAME}" \
+	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
+	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 
 
 # deploytool
