@@ -9,6 +9,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
+      - name: Run init
+        run: make init
       - name: Run lint
         run: make lint
 

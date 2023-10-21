@@ -1,14 +1,25 @@
 [submodule "xdevkit-backend/common/xdevkit-view-component"]
 	path = xdevkit-backend/common/xdevkit-view-component
 	url = https://github.com/autoaim-jp/xdevkit-view-component
+	update = rebase
+	branch = master
 [submodule "xdevkit-backend/common/xdevkit-setting"]
 	path = xdevkit-backend/common/xdevkit-setting
 	url = https://github.com/autoaim-jp/xdevkit-setting
+	update = rebase
+	branch = master
 [submodule "xdevkit-backend/standalone/xdevkit-htpasswd"]
 	path = xdevkit-backend/standalone/xdevkit-htpasswd
 	url = https://github.com/autoaim-jp/xdevkit-htpasswd
+	update = rebase
+	branch = master
 [submodule "xdevkit-backend/standalone/xdevkit-eslint"]
 	path = xdevkit-backend/standalone/xdevkit-eslint
 	url = https://github.com/autoaim-jp/xdevkit-eslint
+	update = rebase
+	branch = v0.24
+[submodule "xdevkit-backend/standalone/xdevkit-view-compiler"]
+	path = xdevkit-backend/standalone/xdevkit-view-compiler
+	url = https://github.com/autoaim-jp/xdevkit-view-compiler
 	update = rebase
 	branch = v0.24
