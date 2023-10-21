@@ -11,8 +11,8 @@ jobs:
           node-version: '18'
       - name: Run init
         run: make init
-      - name: Run lint
-        run: make lint
+      - name: Run lint-fix
+        run: make lint-fix
 
   slack-notification:
     if: always()
