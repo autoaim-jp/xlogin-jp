@@ -11,6 +11,8 @@ config.yml
 
 datasource.yml
 
+grafana.ini
+
 log/
 
 authApi/data/accessTokenList.json
