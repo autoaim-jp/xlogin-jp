@@ -1,0 +1,18 @@
+init-xdevkit:
+	#git submodule foreach git pull
+	git config -f .gitmodules submodule."xdevkit-backend/common/xdevkit-view-component".branch ${XDEVKIT_VIEW_COMPONENT_VERSION}
+	git config -f .gitmodules submodule."xdevkit-backend/common/xdevkit-setting".branch ${XDEVKIT_SETTING_VERSION}
+	git config -f .gitmodules submodule."xdevkit-backend/standalone/xdevkit-htpasswd".branch ${XDEVKIT_HTPASSWD_VERSION}
+	git config -f .gitmodules submodule."xdevkit-backend/standalone/xdevkit-eslint".branch ${XDEVKIT_ESLINT_VERSION}
+	git config -f .gitmodules submodule."xdevkit-backend/standalone/xdevkit-view-compiler".branch ${XDEVKIT_VIEW_COMPILER_VERSION}
+	git config -f .gitmodules submodule."xdevkit-backend/standalone/xdevkit-jsdoc".branch ${XDEVKIT_JSDOC_VERSION}
+	git submodule update --remote
+
+	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/view/src/js/_setting/browserServerSetting.js
+	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/setting/browserServerSetting.js
+	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/authApi/src/setting/browserServerSetting.js
+	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/storageApi/src/setting/browserServerSetting.js
+	
+	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/js/_xdevkit ./service/staticWeb/src/view/src/js/_lib/
+	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/ejs ./service/staticWeb/src/view/src/ejs/_xdevkit
+ 
