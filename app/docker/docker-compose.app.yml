@@ -131,7 +131,7 @@ services:
       - ../../service/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ../../service/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ../../service/grafana/dashboards:/var/lib/grafana/dashboards
-      - ../../service/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ../../service/grafana/setting/grafana.ini:/etc/grafana/grafana.ini
       - xlapp-volume-gc-grafana:/var/lib/grafana
     ports:
       - 127.0.0.1:56001:3000

@@ -61,7 +61,7 @@ help:
 	@echo "------------------------------"
 	@echo "  make doc-rebuild     		  # Recreate image"
 	@echo "  make doc-generate     		  # doc-generate"
-	@echo "  make doc-deploy     		    # doc-deploy"
+	@echo "  make doc-publish   		    # doc-publish"
 	@echo "------------------------------"
 	@echo "  make init                  # Update xdevkit, common"
 	@echo "------------------------------"
@@ -156,20 +156,20 @@ init-doc-deploy-key:
 	echo "info: register this as a deploy key at github"
 	cat ./secret/id_rsa_deploy_key.pub
 docker-compose-rebuild-doc:
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
 docker-compose-up-doc-publish:
 	JSDOC_COMMAND="generate-publish" \
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
 	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 docker-compose-up-doc-generate:
 	JSDOC_COMMAND="generate" \
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
 	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 
 
 # deploytool
