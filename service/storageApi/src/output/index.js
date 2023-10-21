@@ -37,7 +37,9 @@ const init = ({ setting, fs }) => {
  * @return {boolean} ファイルを更新できたかどうか
  * @memberof output
  */
-const updateJson = async ({ emailAddress, clientId, owner, jsonPath, content }) => {
+const updateJson = async ({
+  emailAddress, clientId, owner, jsonPath, content,
+}) => {
   const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!jsonList[emailAddress]) {
     jsonList[emailAddress] = {}
@@ -58,13 +60,14 @@ const updateJson = async ({ emailAddress, clientId, owner, jsonPath, content }) 
  * deleteJson.
  *
  * @param {} emailAddress
- * @param {} clientId
  * @param {} owner
  * @param {} jsonPath
  * @return {boolean} ファイルを削除できたかどうか
  * @memberof output
  */
-const deleteJson = async ({ emailAddress, clientId, owner, jsonPath }) => {
+const deleteJson = async ({
+  emailAddress, owner, jsonPath,
+}) => {
   const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner][jsonPath]) {
     return false
@@ -88,7 +91,9 @@ const deleteJson = async ({ emailAddress, clientId, owner, jsonPath }) => {
  * @return {int} 作成した行数
  * @memberof output
  */
-const createFile = async ({ fileLabel, userSerialId, clientId, fileDir, fileName, diskFilePath, execQuery }) => {
+const createFile = async ({
+  fileLabel, userSerialId, clientId, fileDir, fileName, diskFilePath, execQuery,
+}) => {
   const dateRegistered = Date.now()
   const query = 'insert into file_info.file_list (file_label, client_id, user_serial_id, date_registered, file_dir, file_name, disk_file_path) values ($1, $2, $3, $4, $5, $6, $7)'
   const paramList = [fileLabel, clientId, userSerialId, dateRegistered, fileDir, fileName, diskFilePath]

@@ -1,5 +1,6 @@
 /* /core/index.js */
 
+import fs from 'fs'
 import backendServerCore from './backendServerCore.js'
 
 /**
@@ -8,7 +9,6 @@ import backendServerCore from './backendServerCore.js'
  * @memberof core
  */
 // debug
-import fs from 'fs'
 
 /* local setting */
 const mod = {}
@@ -23,7 +23,9 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof core
  */
-const init = ({ setting, output, input, lib }) => {
+const init = ({
+  setting, output, input, lib,
+}) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
@@ -125,7 +127,7 @@ const handleJsonContent = async ({
   }
 
   const jsonContent = await mod.input.getJsonContent({
-    emailAddress, clientId, owner, jsonPath,
+    emailAddress, owner, jsonPath,
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -163,7 +165,7 @@ const handleJsonDelete = async ({
   }
 
   const deleteJsonResult = await mod.output.deleteJson({
-    emailAddress, clientId, owner, jsonPath,
+    emailAddress, owner, jsonPath,
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
@@ -183,7 +185,9 @@ const handleJsonDelete = async ({
  * @return {HandleResult} 取得したファイル一覧
  * @memberof core
  */
-const handleFileList = async ({ clientId, accessToken, owner, fileDir }) => {
+const handleFileList = async ({
+  clientId, accessToken, owner, fileDir,
+}) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
   const range = owner
@@ -221,7 +225,9 @@ const handleFileList = async ({ clientId, accessToken, owner, fileDir }) => {
  * @return {Buffer} ファイルの中身
  * @memberof core
  */
-const handleFileContent = async ({ clientId, accessToken, owner, fileDir, fileLabel }) => {
+const handleFileContent = async ({
+  clientId, accessToken, owner, fileDir, fileLabel,
+}) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
   const range = owner

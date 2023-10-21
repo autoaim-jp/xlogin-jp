@@ -61,7 +61,9 @@ const getUserByEmailAddress = async ({ emailAddress, execQuery, paramSnakeToCame
  * @return {boolean} ユーザ名とパスワードが正しいかどうか
  * @memberof input
  */
-const isValidCredential = async ({ emailAddress, passHmac2, execQuery, paramSnakeToCamel, calcPbkdf2 }) => {
+const isValidCredential = async ({
+  emailAddress, passHmac2, execQuery, paramSnakeToCamel, calcPbkdf2,
+}) => {
   const query = 'select * from user_info.credential_list where email_address = $1'
   const paramList = [emailAddress]
 
@@ -118,7 +120,9 @@ const getAuthSessionByCode = async ({ code, execQuery, paramSnakeToCamel }) => {
  * @return {User} アクセストークンでDBから取得したユーザ情報
  * @memberof input
  */
-const getUserByAccessToken = async ({ clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel, checkPermission }) => {
+const getUserByAccessToken = async ({
+  clientId, accessToken, filterKeyList, execQuery, paramSnakeToCamel, checkPermission,
+}) => {
   /* clientId, accessToken => emailAddress */
   const queryGetEmailAddress = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
   const paramListGetEmailAddress = [clientId, accessToken]
@@ -142,7 +146,9 @@ const getUserByAccessToken = async ({ clientId, accessToken, filterKeyList, exec
     }
     const operationKey = 'r'
     const [range, dataType] = keySplit
-    if (checkPermission({ splitPermissionList, operationKey, range, dataType })) {
+    if (checkPermission({
+      splitPermissionList, operationKey, range, dataType,
+    })) {
       if (keySplit[0] === mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID') && keySplit[1] === 'userName') {
         const queryGetUserInfo = 'select * from user_info.user_list where email_address = $1'
         const paramListGetUserInfo = [emailAddress]
@@ -201,7 +207,9 @@ const getUserByAccessToken = async ({ clientId, accessToken, filterKeyList, exec
  * @return {Array} 必須の権限をDBから取得した結果
  * @memberof input
  */
-const getCheckedRequiredPermissionList = async ({ clientId, emailAddress, execQuery, paramSnakeToCamel }) => {
+const getCheckedRequiredPermissionList = async ({
+  clientId, emailAddress, execQuery, paramSnakeToCamel,
+}) => {
   const query = 'select * from access_info.access_token_list where client_id = $1 and email_address = $2'
   const paramList = [clientId, emailAddress]
 
@@ -230,7 +238,9 @@ const getCheckedRequiredPermissionList = async ({ clientId, emailAddress, execQu
  * @return {Array} メールアドレスでDBから取得した通知一覧
  * @memberof input
  */
-const getNotification = async ({ emailAddress, notificationRange, execQuery, paramSnakeToCamel }) => {
+const getNotification = async ({
+  emailAddress, notificationRange, execQuery, paramSnakeToCamel,
+}) => {
   const queryGetLastOpenedNotificationId = 'select * from notification_info.opened_notification_list where email_address = $1 and notification_range = $2'
   const paramListGetLastOpenedNotificationId = [emailAddress, notificationRange]
   const { err: errGetLastOpenedNotificationId, result: resultGetLastOpenedNotificationId } = await execQuery({ query: queryGetLastOpenedNotificationId, paramList: paramListGetLastOpenedNotificationId })

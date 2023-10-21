@@ -21,7 +21,9 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof core
  */
-const init = ({ setting, output, input, lib }) => {
+const init = ({
+  setting, output, input, lib,
+}) => {
   mod.setting = setting
   mod.output = output
   mod.input = input

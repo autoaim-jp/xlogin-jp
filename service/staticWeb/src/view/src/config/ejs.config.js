@@ -11,15 +11,15 @@ const breadcrumbAllList = {
 }
 
 const getBreadcrumbList = (pathList) => {
-  return pathList.map((path) => { return { path, label: breadcrumbAllList[path] } })
+  return pathList.map((_path) => { return { path: _path, label: breadcrumbAllList[_path] } })
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export const ejsConfig = {
+const ejsConfig = {
   _common: {
-    componentPath: __dirname + '/../ejs/component/',
-    xdevkitComponentPath: __dirname + '/../../../xdevkit/view/src/ejs/component/',
+    componentPath: `${__dirname}/../ejs/component/`,
+    xdevkitComponentPath: `${__dirname}/../../../xdevkit/view/src/ejs/component/`,
   },
 
   index: {
@@ -33,7 +33,7 @@ export const ejsConfig = {
     inlineScriptList: ['/js/index/app.js'],
     externalScriptList: [],
   },
-  
+
   login: {
     title: 'login | xlogin.jp',
     description: 'login page',
@@ -121,3 +121,6 @@ export const ejsConfig = {
 
 }
 
+export default {
+  ejsConfig,
+}

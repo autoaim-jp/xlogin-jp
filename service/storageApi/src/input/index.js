@@ -30,13 +30,14 @@ const init = ({ setting, fs }) => {
  * getJsonContent.
  *
  * @param {} emailAddress
- * @param {} clientId
  * @param {} owner
  * @param {} jsonPath
  * @return {Array} メールアドレスとファイルパスで取得したファイル
  * @memberof input
  */
-const getJsonContent = async ({ emailAddress, clientId, owner, jsonPath }) => {
+const getJsonContent = async ({
+  emailAddress, owner, jsonPath,
+}) => {
   const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner][jsonPath]) {
     return null
@@ -49,13 +50,14 @@ const getJsonContent = async ({ emailAddress, clientId, owner, jsonPath }) => {
  * getJsonList.
  *
  * @param {} emailAddress
- * @param {} clientId
  * @param {} owner
  * @param {} jsonPath
  * @return {Array} メールアドレスとファイルパスで取得したファイル内容
  * @memberof input
  */
-const getJsonList = async ({ emailAddress, clientId, owner, jsonPath }) => {
+const getJsonList = async ({
+  emailAddress, owner, jsonPath,
+}) => {
   const jsonList = JSON.parse(mod.fs.readFileSync(mod.setting.getValue('server.FILE_LIST_JSON')))
   if (!jsonList[emailAddress] || !jsonList[emailAddress][owner] || !jsonList[emailAddress][owner]) {
     return null
@@ -84,7 +86,9 @@ const getJsonList = async ({ emailAddress, clientId, owner, jsonPath }) => {
  * @return {Array} ファイルリスト
  * @memberof input
  */
-const getFileList = async ({ owner, fileDir, execQuery, paramSnakeToCamel }) => {
+const getFileList = async ({
+  owner, fileDir, execQuery, paramSnakeToCamel,
+}) => {
   const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 order by file_label desc'
   const paramList = [owner, fileDir]
 
@@ -116,7 +120,9 @@ const getFileList = async ({ owner, fileDir, execQuery, paramSnakeToCamel }) => 
  * @return {String} 物理ファイルパス
  * @memberof input
  */
-const getDiskFilePath = async ({ owner, fileDir, fileLabel, execQuery, paramSnakeToCamel }) => {
+const getDiskFilePath = async ({
+  owner, fileDir, fileLabel, execQuery, paramSnakeToCamel,
+}) => {
   const query = 'select * from file_info.file_list where client_id = $1 and file_dir = $2 and file_label = $3'
   const paramList = [owner, fileDir, fileLabel]
 
@@ -173,7 +179,7 @@ export default {
   backendServerInput,
 
   init,
-  
+
   getJsonContent,
   getJsonList,
 

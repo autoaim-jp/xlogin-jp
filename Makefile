@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint doc-generate doc-publish clean add-client show-client create-htpasswd help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix doc-generate doc-publish clean add-client show-client create-htpasswd help
 
 .PHONY: $(PHONY)
 
@@ -23,7 +23,9 @@ view-watch: docker-compose-up-view-watch
 
 init: init-xdevkit init-common
 
-lint: init-xdevkit init-common docker-compose-up-lint
+lint: docker-compose-up-lint
+lint-fix: docker-compose-up-lint-fix
+
 doc-generate: docker-compose-up-doc-generate
 doc-publish: docker-compose-up-doc-publish
 
@@ -103,41 +105,46 @@ init-common:
 
 # build
 docker-compose-build-app:
-	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-app -f ./app/docker/docker-compose.app.yml build
 docker-compose-build-test:
-	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml build
 docker-compose-build-view:
-	docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./app/docker/docker-compose.view.yml build
 
 # up
 docker-compose-up-app:
-	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml up
+	docker compose -p ${DOCKER_PROJECT_NAME}-app -f ./app/docker/docker-compose.app.yml up
 docker-compose-up-app-d:
-	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml up -d
+	docker compose -p ${DOCKER_PROJECT_NAME}-app -f ./app/docker/docker-compose.app.yml up -d
 docker-compose-up-test:
-	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down
-	docker volume rm xlogin-jp-test_xltest-volume-pc-postgresql || true
-	docker volume rm xlogin-jp-test_xltest-volume-rc-redis || true
-	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
+	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml down
+	docker volume rm ${DOCKER_PROJECT_NAME}-test_xltest-volume-pc-postgresql || true
+	docker volume rm ${DOCKER_PROJECT_NAME}-test_xltest-volume-rc-redis || true
+	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
 docker-compose-up-view-compile:
-	BUILD_COMMAND="compile" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
-	BUILD_COMMAND="compile-minify" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-watch:
-	BUILD_COMMAND="watch" docker compose -p xlogin-jp-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./app/docker/docker-compose.view.yml up --abort-on-container-exit
 
 # down
 docker-compose-down-app:
-	docker compose -p xlogin-jp-app -f ./app/docker/docker-compose.app.yml down --volumes
+	docker compose -p ${DOCKER_PROJECT_NAME}-app -f ./app/docker/docker-compose.app.yml down --volumes
 docker-compose-down-test:
-	docker compose -p xlogin-jp-test -f ./app/docker/docker-compose.test.yml down --volumes
+	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml down --volumes
 
 # devtool
 postgresql-add-client:
 	./service/postgresql/bin/addNewClient.sh
 postgresql-show-client:
 	./service/postgresql/bin/showClientInfo.sh
+
+docker-compose-up-lint:
+	docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+docker-compose-up-lint-fix:
+	FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 
 
 # deploytool

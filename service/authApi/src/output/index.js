@@ -36,7 +36,9 @@ const init = ({ setting, fs }) => {
  * @return {boolean} 新規ユーザをDBに登録した結果
  * @memberof output
  */
-const registerUserByEmailAddress = async ({ emailAddress, passPbkdf2, saltHex, userName, execQuery }) => {
+const registerUserByEmailAddress = async ({
+  emailAddress, passPbkdf2, saltHex, userName, execQuery,
+}) => {
   const queryAddUser = 'insert into user_info.user_list (email_address, user_name) values ($1, $2)'
   const paramListAddUser = [emailAddress, userName]
 
@@ -60,7 +62,9 @@ const registerUserByEmailAddress = async ({ emailAddress, passPbkdf2, saltHex, u
  * @return {int} DBに新規登録したサービスのサービスID
  * @memberof output
  */
-const registerServiceUserId = async ({ emailAddress, clientId, serviceUserId, execQuery }) => {
+const registerServiceUserId = async ({
+  emailAddress, clientId, serviceUserId, execQuery,
+}) => {
   const query = 'insert into user_info.service_user_list (email_address, client_id, service_user_id) values ($1, $2, $3)'
   const paramList = [emailAddress, clientId, serviceUserId]
 
@@ -121,7 +125,9 @@ const registerAuthSession = async ({ authSession, execQuery }) => {
  * @return {int} DBでアクセストークンを作成できた件数
  * @memberof output
  */
-const registerAccessToken = async ({ clientId, accessToken, emailAddress, splitPermissionList, execQuery }) => {
+const registerAccessToken = async ({
+  clientId, accessToken, emailAddress, splitPermissionList, execQuery,
+}) => {
   const splitPermissionListStr = JSON.stringify(splitPermissionList)
   const query = 'insert into access_info.access_token_list (access_token, client_id, email_address, split_permission_list) values ($1, $2, $3, $4)'
   const paramList = [accessToken, clientId, emailAddress, splitPermissionListStr]
@@ -145,7 +151,9 @@ const registerAccessToken = async ({ clientId, accessToken, emailAddress, splitP
  * @return {int} DBに通知を登録した件数
  * @memberof output
  */
-const appendNotification = async ({ notificationId, clientId, emailAddress, subject, detail, execQuery }) => {
+const appendNotification = async ({
+  notificationId, clientId, emailAddress, subject, detail, execQuery,
+}) => {
   const dateRegistered = Date.now()
   const isOpened = 0
   const notificationRange = clientId
@@ -169,7 +177,9 @@ const appendNotification = async ({ notificationId, clientId, emailAddress, subj
  * @return {int} DBの通知をオープンした件数
  * @memberof output
  */
-const openNotification = async ({ notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList }) => {
+const openNotification = async ({
+  notificationIdList, clientId, emailAddress, execQuery, getMaxIdInList,
+}) => {
   const lastOpendNoticationId = getMaxIdInList({ list: notificationIdList })
   const notificationRange = clientId
   const queryUpdateLastOpenedNotificationId = 'insert into notification_info.opened_notification_list (email_address, notification_range, notification_id) values ($1, $2, $3) on conflict(email_address, notification_range) do update set notification_id = $3'
