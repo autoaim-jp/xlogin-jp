@@ -82,6 +82,7 @@ init-xdevkit:
 	
 	git submodule update --init --remote && pushd ./xdevkit-backend/common/xdevkit-view-component/ && git checkout master && git pull && git checkout ${XDEVKIT_VIEW_COMPONENT_VERSION} && git pull origin ${XDEVKIT_VIEW_COMPONENT_VERSION} && popd
 	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/js/_xdevkit ./service/staticWeb/src/view/src/js/_lib/
+	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/ejs ./service/staticWeb/src/view/src/ejs/_xdevkit
  
 init-common:
 	mkdir -p ./service/authApi/src/lib/ && cp ./xdevkit-backend/common/backend-server/lib.js ./service/authApi/src/lib/backendServerLib.js
@@ -109,7 +110,7 @@ docker-compose-build-app:
 docker-compose-build-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml build
 docker-compose-build-view:
-	docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml build
 
 # up
 docker-compose-up-app:
@@ -123,11 +124,11 @@ docker-compose-up-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
 docker-compose-up-view-compile:
-	BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
-	BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-watch:
-	BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 
 # down
 docker-compose-down-app:
