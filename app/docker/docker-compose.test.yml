@@ -1,0 +1,78 @@
+version: '3'
+
+services:
+  redis_container:
+    container_name: xltest-container-redis
+    build:
+      context: ../../
+      dockerfile: ./service/redis/docker/Dockerfile
+    volumes:
+      - xltest-volume-rc-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+
+  postgresql_container:
+    container_name: xltest-container-postgresql
+    build:
+      context: ../../
+      dockerfile: ./service/postgresql/docker/Dockerfile
+    volumes:
+      - xltest-volume-pc-postgresql:/var/lib/postgresql/data
+      - ../../service/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "xl_admin", "-d", "xl_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  auth_api_container:
+    container_name: xltest-container-auth-api
+    build:
+      context: ../../
+      dockerfile: ./service/authApi/docker/Dockerfile
+    tty: true
+    volumes:
+      - ../../service/authApi/src:/app
+      - xltest-volume-aac-nm:/app/node_modules
+    command: sh -c "rm /tmp/test.done || true && yarn run test && echo 0 > /tmp/test.done && sleep infinity"
+    healthcheck:
+      test: ls /tmp/test.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      redis_container: 
+        condition: service_healthy
+      postgresql_container:
+        condition: service_healthy
+
+  storage_api_container:
+    container_name: xltest-container-storage-api
+    build:
+      context: ../../
+      dockerfile: ./service/storageApi/docker/Dockerfile
+    tty: true
+    volumes:
+      - ../../service/storageApi/src:/app
+      - xltest-volume-sac-nm:/app/node_modules
+    environment:
+     - IS_TEST=true
+    command: sh -c "yarn run test"
+    depends_on:
+      redis_container: 
+        condition: service_healthy
+      postgresql_container:
+        condition: service_healthy
+      auth_api_container:
+        condition: service_healthy
+
+volumes:
+  xltest-volume-rc-redis:
+  xltest-volume-pc-postgresql:
+  xltest-volume-aac-nm:
+  xltest-volume-sac-nm:
+
+

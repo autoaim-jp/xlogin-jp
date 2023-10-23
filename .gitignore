@@ -1,13 +1,18 @@
 .idea
 
-id_rsa_deploy_key_xlogin_jp
-
 node_modules/
 .env
 .htpasswd
 
+secret/
+id_rsa_deploy_key
+
 prometheus.yml
 config.yml
+
+datasource.yml
+
+grafana.ini
 
 log/
 

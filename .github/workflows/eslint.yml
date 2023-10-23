@@ -9,8 +9,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Run lint
-        run: make lint
+      - name: Run init
+        run: make init
+      - name: Run lint-fix
+        run: make lint-fix
 
   slack-notification:
     if: always()

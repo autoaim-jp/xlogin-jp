@@ -1,0 +1,20 @@
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    orgId: 1
+    access: proxy 
+    url: https://metrics.source.example.com
+    isDefault: true
+    editable: true
+    withCredentials: true
+    basicAuth: true
+    basicAuthUser: basicauthuser
+    basicAuthPassword: basicauthpass
+    jsonData:
+      httpHeaderName1: 'HeaderName'
+      httpHeaderName2: 'Authorization'
+    secureJsonData:
+      httpHeaderValue1: 'HeaderValue'
+      httpHeaderValue2: 'Basic base64urlencodedbasicauthuserandpass'
+    
