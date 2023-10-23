@@ -1,6 +1,7 @@
 init-xdevkit:
 	git submodule update --init
-	git submodule foreach git pull
+	git submodule foreach git checkout
+	git submodule foreach git pull origin master
 	git config -f .gitmodules submodule."xdevkit-backend/common/xdevkit-view-component".branch ${XDEVKIT_VIEW_COMPONENT_VERSION}
 	git config -f .gitmodules submodule."xdevkit-backend/common/xdevkit-setting".branch ${XDEVKIT_SETTING_VERSION}
 	git config -f .gitmodules submodule."xdevkit-backend/standalone/xdevkit-htpasswd".branch ${XDEVKIT_HTPASSWD_VERSION}
