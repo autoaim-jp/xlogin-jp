@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix init-doc doc-rebuild doc-generate doc-publish clean add-client show-client create-htpasswd help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix init-doc doc-rebuild doc-generate doc-publish clean client-generate client-add client-show create-htpasswd help
 
 .PHONY: $(PHONY)
 
@@ -33,8 +33,9 @@ doc-publish: docker-compose-up-doc-publish
 
 clean: app-down test-down
 
-add-client: postgresql-add-client
-show-client: postgresql-show-client
+client-generate: postgresql-genrate-and-add-client
+client-add: postgresql-add-client
+client-show: postgresql-show-client
 
 create-htpasswd: docker-run-htpasswd
 
@@ -67,8 +68,9 @@ help:
 	@echo "------------------------------"
 	@echo "  make lint     		          # lint"
 	@echo "------------------------------"
-	@echo "  make add-client	          # add client after container up"
-	@echo "  make show-client	          # show client after container up"
+	@echo "  make client-generate       # generate and add client after container up"
+	@echo "  make client-add	          # add client after container up"
+	@echo "  make client-show	          # show client after container up"
 	@echo "------------------------------"
 	@echo "  make clean                 # Clean app, test container/volume"
 	@echo "------------------------------"
@@ -112,6 +114,8 @@ docker-compose-down-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml down --volumes
 
 # devtool
+postgresql-generate-and-add-client:
+	./service/postgresql/bin/generateAndAddNewClient.sh
 postgresql-add-client:
 	./service/postgresql/bin/addNewClient.sh
 postgresql-show-client:
