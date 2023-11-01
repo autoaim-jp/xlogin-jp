@@ -21,15 +21,13 @@ grafana.ini
 
 log/
 
-authApi/data/accessTokenList.json
-authApi/data/authSessionList.json
-authApi/data/notificationList.json
 
 */doc/jsdoc/html/
 doc/jsdoc/html/
 
 data/redis/
-storageApi/data/upload/
+storageApi/src/data/
+storageApi
 
 yarn.lock
 yarn-error.log
