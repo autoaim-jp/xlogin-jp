@@ -1,6 +1,6 @@
 include setting/version.conf
 SHELL=/bin/bash
-PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix init-doc doc-rebuild doc-generate doc-publish clean client-generate client-add client-show create-htpasswd help
+PHONY=default app-rebuild app-build app-up app-up-d app-down test-build test-up test-down view-build view-compile view-compile-minify view-watch init lint lint-fix init-doc doc-rebuild doc-generate doc-publish clean client-generate client-add client-show create-htpasswd backup-postgresql restore-postgresql help
 
 .PHONY: $(PHONY)
 
@@ -36,8 +36,11 @@ clean: app-down test-down
 client-generate: postgresql-genrate-and-add-client
 client-add: postgresql-add-client
 client-show: postgresql-show-client
+backup-postgresql: postgresql-backup
+restore-postgresql: postgresql-restore
 
 create-htpasswd: docker-run-htpasswd
+
 
 help:
 	@echo "Usage: make (app|test)-(rebuild|build|up|down)"
@@ -120,6 +123,10 @@ postgresql-add-client:
 	./service/postgresql/bin/addNewClient.sh
 postgresql-show-client:
 	./service/postgresql/bin/showClientInfo.sh
+postgresql-backup:
+	./service/postgresql/bin/backupPostgresqlData.sh
+postgresql-restore:
+	./service/postgresql/bin/restorePostgresqlData.sh
 
 docker-compose-up-lint:
 	docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit

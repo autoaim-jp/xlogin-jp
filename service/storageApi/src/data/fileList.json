@@ -12,9 +12,18 @@
     },
     "sample_xlogin_jp": {
       "/message.txt": {
-        "dateUpdated": 1697646549950,
+        "dateUpdated": 1698839103447,
         "clientId": "sample_xlogin_jp",
-        "content": "xxxxxxxxx"
+        "content": "text after test\nJSON変更！"
+      }
+    }
+  },
+  "user@example.com2": {
+    "sample_xlogin_jp": {
+      "/message.txt": {
+        "dateUpdated": 1698839201996,
+        "clientId": "sample_xlogin_jp",
+        "content": "協会\n"
       }
     }
   }
