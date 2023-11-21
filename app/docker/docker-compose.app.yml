@@ -147,9 +147,59 @@ services:
       - 127.0.0.1:9093:9093
     restart: always
 
+  rabbitmq:
+    container_name: xlapp-container-rabbitmq
+    image: rabbitmq:3.11-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=chatgptrabmqusr
+      - RABBITMQ_DEFAULT_PASS=klzoioi209kjlkzj1hh1u
+    volumes:
+      - ./service/rabbitmq/data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  api_server:
+    container_name: xlapp-container-api-server
+    build:
+      context: ./
+      dockerfile: ./service/apiServer/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ./service/apiServer/src:/app
+      - xlapp-volume-as-nm:/app/node_modules
+    command: sh -c "yarn run start"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  chatgpt:
+    container_name: xlapp-container-chatgpt
+    build:
+      context: ./
+      dockerfile: ./service/chatgpt/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ./service/chatgpt/src:/app
+      - xlapp-volume-cg-nm:/app/node_modules
+    command: sh -c "yarn run start"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+ 
 volumes:
   xlapp-volume-aac-nm:
   xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:
+  xlapp-volume-as-nm:
+  xlapp-volume-cg-nm:
+
 
 
