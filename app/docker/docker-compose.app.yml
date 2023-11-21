@@ -167,12 +167,12 @@ services:
   api_server:
     container_name: xlapp-container-api-server
     build:
-      context: ./
+      context: ../../
       dockerfile: ./service/apiServer/docker/Dockerfile
     tty: true
     working_dir: /app
     volumes:
-      - ./service/apiServer/src:/app
+      - ../../service/apiServer/src:/app
       - xlapp-volume-as-nm:/app/node_modules
     command: sh -c "yarn run start"
     depends_on:
@@ -182,12 +182,12 @@ services:
   chatgpt:
     container_name: xlapp-container-chatgpt
     build:
-      context: ./
+      context: ../../
       dockerfile: ./service/chatgpt/docker/Dockerfile
     tty: true
     working_dir: /app
     volumes:
-      - ./service/chatgpt/src:/app
+      - ../../service/chatgpt/src:/app
       - xlapp-volume-cg-nm:/app/node_modules
     command: sh -c "yarn run start"
     depends_on:
