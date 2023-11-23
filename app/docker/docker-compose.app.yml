@@ -7,7 +7,7 @@ services:
       context: ../../
       dockerfile: ./service/redis/docker/Dockerfile
     volumes:
-      - xlapp-volume-rc-redis:/data
+      - ../../secret/data-redis:/data
     healthcheck:
       test: ["CMD", "redis-cli","ping"]
 
@@ -17,7 +17,7 @@ services:
       context: ../../
       dockerfile: ./service/postgresql/docker/Dockerfile
     volumes:
-      - xlapp-volume-pc-postgresql:/var/lib/postgresql/data
+      - ../../secret/data-postgresql:/var/lib/postgresql/data
       - ../../service/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=postgres
@@ -92,23 +92,6 @@ services:
       timeout : 5s
       retries: 10
 
-  reverse_proxy_container:
-    container_name: xlapp-container-reverse-proxy
-    build:
-      context: ../../
-      dockerfile: ./service/reverseProxy/docker/Dockerfile
-    ports:
-      - 3333:80
-    volumes:
-      - ../../setting/.htpasswd:/etc/nginx/.htpasswd
-      - ../../service/reverseProxy/nginx.conf:/etc/nginx/nginx.conf
-      - ../../service/reverseProxy/log:/var/log/nginx
-    depends_on:
-      static_web_container:
-        condition: service_healthy
-      storage_api_container:
-        condition: service_healthy
-
   prometheus:
     container_name: xlapp-container-prometheus
     image: prom/prometheus
@@ -132,7 +115,7 @@ services:
       - ../../service/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ../../service/grafana/dashboards:/var/lib/grafana/dashboards
       - ../../service/grafana/setting/grafana.ini:/etc/grafana/grafana.ini
-      - xlapp-volume-gc-grafana:/var/lib/grafana
+      - ../../secret/data-grafana:/var/lib/grafana
     ports:
       - 127.0.0.1:56001:3000
     user: "$PID:$GID"
@@ -147,12 +130,88 @@ services:
       - 127.0.0.1:9093:9093
     restart: always
 
+  rabbitmq:
+    container_name: xlapp-container-rabbitmq
+    image: rabbitmq:3.11-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=chatgptrabmqusr
+      - RABBITMQ_DEFAULT_PASS=klzoioi209kjlkzj1hh1u
+    volumes:
+      - ./service/rabbitmq/data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  chatgpt:
+    container_name: xlapp-container-chatgpt
+    build:
+      context: ../../
+      dockerfile: ./service/chatgpt/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/chatgpt/src:/app
+      - xlapp-volume-cg-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+ 
+  api_server:
+    container_name: xlapp-container-api-server
+    build:
+      context: ../../
+      dockerfile: ./service/apiServer/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/apiServer/src:/app
+      - xlapp-volume-as-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      chatgpt:
+        condition: service_healthy
+
+  reverse_proxy_container:
+    container_name: xlapp-container-reverse-proxy
+    build:
+      context: ../../
+      dockerfile: ./service/reverseProxy/docker/Dockerfile
+    ports:
+      - 3333:80
+    volumes:
+      - ../../setting/.htpasswd:/etc/nginx/.htpasswd
+      - ../../service/reverseProxy/nginx.conf:/etc/nginx/nginx.conf
+      - ../../service/reverseProxy/log:/var/log/nginx
+    depends_on:
+      static_web_container:
+        condition: service_healthy
+      storage_api_container:
+        condition: service_healthy
+      api_server:
+        condition: service_healthy
+
 volumes:
-  xlapp-volume-rc-redis:
-  xlapp-volume-pc-postgresql:
   xlapp-volume-aac-nm:
   xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:
-  xlapp-volume-gc-grafana:
+  xlapp-volume-as-nm:
+  xlapp-volume-cg-nm:
+
 
 
