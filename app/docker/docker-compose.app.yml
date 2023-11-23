@@ -140,7 +140,7 @@ services:
       - RABBITMQ_DEFAULT_USER=chatgptrabmqusr
       - RABBITMQ_DEFAULT_PASS=klzoioi209kjlkzj1hh1u
     volumes:
-      - ./service/rabbitmq/data:/var/lib/rabbitmq
+      - ../../service/rabbitmq/data:/var/lib/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 5s
