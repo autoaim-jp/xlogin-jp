@@ -1,9 +1,12 @@
 const getHandlerRegisterPrompt = ({ handleRegisterPrompt }) => {
   return async (req, res) => {
     const { prompt } = req.body
-    console.log({ debug: true, request: 'ok!', prompt })
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+ 
+    console.log({ debug: true, prompt, accessToken, clientId })
 
-    const handleResult = await handleRegisterPrompt({ prompt })
+    const handleResult = await handleRegisterPrompt({ prompt, accessToken, clientId })
 
     res.json({ result: handleResult })
   }
@@ -11,9 +14,15 @@ const getHandlerRegisterPrompt = ({ handleRegisterPrompt }) => {
 
 const getHandlerLookupChatgptResponse = ({ handleLookupChatgptResponse }) => {
   return async (req, res) => {
-    const { requestId } = req.query
+    const { requestIdListStr } = req.query
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
 
-    const handleResult = handleLookupChatgptResponse({ requestId })
+    const requestIdList = requestIdListStr.split(',')
+ 
+    console.log({ debug: true, requestIdList, clientId, accessToken })
+
+    const handleResult = await handleLookupChatgptResponse({ clientId, accessToken, requestIdList })
 
     res.json({ result: handleResult })
   }

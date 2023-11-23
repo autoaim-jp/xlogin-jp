@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import crypto from 'crypto'
 import { ulid } from 'ulid'
+import pg from 'pg'
 import express from 'express'
 import amqplib from 'amqplib'
 import bodyParser from 'body-parser'
@@ -85,6 +86,8 @@ const init = async () => {
   const amqpConnection = await a.lib.createAmqpConnection({ amqplib, user, pass, host, port })
   await core.init({ setting, input, lib, amqpConnection })
   a.input.init({ setting, fs })
+  const pgPool = a.core.createPgPool({ pg })
+  a.lib.backendServerLib.setPgPool({ pgPool })
 }
 
 const main = async () => {
