@@ -1,3 +1,4 @@
+import fs from 'fs'
 import dotenv from 'dotenv'
 import amqplib from 'amqplib'
 import OpenAI from 'openai'
@@ -22,6 +23,7 @@ const init = async () => {
 const main = async () => {
   await a.app.init()
   a.core.startConsumer()
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
 
 const app = {

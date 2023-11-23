@@ -1,50 +1,59 @@
+import fs from 'fs'
 import dotenv from 'dotenv'
 import path from 'path'
+import crypto from 'crypto'
 import { ulid } from 'ulid'
 import express from 'express'
 import amqplib from 'amqplib'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
+import expressUseragent from 'express-useragent'
 
-import setting from './setting.js'
+import setting from './setting/index.js'
+import output from './output/index.js'
+import core from './core/index.js'
+import input from './input/index.js'
 import action from './action.js'
-import core from './core.js'
-import lib from './lib.js'
+import lib from './lib/index.js'
 
 const asocial = {
-  setting, core, action, lib
+  setting, output, core, input, action, lib,
 }
 const a = asocial
 
-const _getDefaultRouter = () => {
+/**
+ * _getExpressMiddlewareRouter.
+ *
+ * @return {Express.Router()} 基本のミドルウェアを含むルーター
+ * @memberof app
+ */
+const _getExpressMiddlewareRouter = () => {
   const expressRouter = express.Router()
-
-  const appPath = `${path.dirname(new URL(import.meta.url).pathname)}/`
-  expressRouter.use(express.static(appPath + a.setting.getValue('static.PUBLIC_STATIC_DIR'), { index: 'index.html', extensions: ['html'] }))
-
   expressRouter.use(bodyParser.urlencoded({ extended: true }))
   expressRouter.use(bodyParser.json())
   expressRouter.use(cookieParser())
-
+  expressRouter.use(expressUseragent.express())
   return expressRouter
 }
 
 const _getFunctionRouter = () => {
   const expressRouter = express.Router()
 
-  const { REGISTER_PROMPT, LOOKUP_CHATGPT_RESPONSE } = a.setting.getList('api.REGISTER_PROMPT', 'api.LOOKUP_CHATGPT_RESPONSE')
+  const checkSignature = a.action.getHandlerCheckSignature(argNamed({
+    browserServerSetting: a.setting.browserServerSetting.getList('statusList.INVALID_CREDENTIAL'),
+    output: [a.output.backendServerOutput.endResponse],
+    core: [a.core.backendServerCore.isValidSignature],
+  }))
 
   const registerPromptHandler = a.action.getHandlerRegisterPrompt({
     handleRegisterPrompt: a.core.handleRegisterPrompt
   })
-  expressRouter.post(REGISTER_PROMPT, registerPromptHandler)
+  expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/chatgpt/prompt`, checkSignature, registerPromptHandler)
 
   const lookupChatgptResponseHandler = a.action.getHandlerLookupChatgptResponse({
     handleLookupChatgptResponse: a.core.handleLookupChatgptResponse
   })
-  expressRouter.get(LOOKUP_CHATGPT_RESPONSE, lookupChatgptResponseHandler)
-
-
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/chatgpt/response`, checkSignature, lookupChatgptResponseHandler)
 
   return expressRouter
 }
@@ -68,11 +77,14 @@ const startServer = ({ app, port }) => {
 
 const init = async () => {
   dotenv.config()
+  a.lib.backendServerLib.monkeyPatch()
+  a.lib.init({ ulid, crypto })
   a.setting.init({ env: process.env })
+  a.output.init({ setting })
   const { AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port } = a.setting.getList('env.AMQP_USER', 'env.AMQP_PASS', 'env.AMQP_HOST', 'env.AMQP_PORT')
   const amqpConnection = await a.lib.createAmqpConnection({ amqplib, user, pass, host, port })
-  await core.init({ setting, lib, amqpConnection })
-  lib.init({ ulid })
+  await core.init({ setting, input, lib, amqpConnection })
+  a.input.init({ setting, fs })
 }
 
 const main = async () => {
@@ -80,7 +92,7 @@ const main = async () => {
   const expressApp = express()
   expressApp.disable('x-powered-by')
 
-  expressApp.use(_getDefaultRouter())
+  expressApp.use(_getExpressMiddlewareRouter())
 
   expressApp.use(_getFunctionRouter())
 
@@ -89,6 +101,7 @@ const main = async () => {
   startServer({ app: expressApp, port: a.setting.getValue('env.SERVER_PORT') })
 
   a.core.startConsumer()
+  fs.writeFileSync('/tmp/setup.done', '0')
 }
 
 const app = {
