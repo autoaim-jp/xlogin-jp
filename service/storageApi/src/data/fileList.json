@@ -1,0 +1,30 @@
+{
+  "user2@example.com": {
+    "sample_localhost": {}
+  },
+  "user@example.com": {
+    "sample_localhost": {
+      "/message.txt": {
+        "dateUpdated": 1695911246399,
+        "clientId": "sample_localhost",
+        "content": "kjhgf"
+      }
+    },
+    "sample_xlogin_jp": {
+      "/message.txt": {
+        "dateUpdated": 1698839103447,
+        "clientId": "sample_xlogin_jp",
+        "content": "text after test\nJSON変更！"
+      }
+    }
+  },
+  "user@example.com2": {
+    "sample_xlogin_jp": {
+      "/message.txt": {
+        "dateUpdated": 1698839201996,
+        "clientId": "sample_xlogin_jp",
+        "content": "協会\n"
+      }
+    }
+  }
+}
