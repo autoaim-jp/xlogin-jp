@@ -21,7 +21,9 @@ const init = ({ crypto, ulid }) => {
 }
 
 
-const createAmqpConnection = async ({ amqplib, user, pass, host, port }) => {
+const createAmqpConnection = async ({
+  amqplib, user, pass, host, port,
+}) => {
   const conn = await amqplib.connect(`amqp://${user}:${pass}@${host}:${port}`)
   return conn
 }

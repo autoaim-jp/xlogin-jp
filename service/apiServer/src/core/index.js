@@ -1,8 +1,11 @@
 import backendServerCore from './backendServerCore.js'
+
 const mod = {}
 const responseList = {}
 
-const init = async ({ setting, input, lib, amqpConnection }) => {
+const init = async ({
+  setting, input, lib, amqpConnection,
+}) => {
   const amqpChannel = await amqpConnection.createChannel()
   mod.amqpChannel = amqpChannel
 
@@ -35,10 +38,6 @@ const createPgPool = ({ pg }) => {
   return new pg.Pool(dbCredential)
 }
 
-const _generateResponseListKey = ({ requestId, emailAddress }) => {
-  return `${requestId}:${emailAddress}`
-}
-
 const handleRegisterPrompt = async ({ clientId, accessToken, prompt }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'w'
@@ -54,7 +53,7 @@ const handleRegisterPrompt = async ({ clientId, accessToken, prompt }) => {
     return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const queue = mod.setting.getValue('amqp.CHATGPT_PROMPT_QUEUE') 
+  const queue = mod.setting.getValue('amqp.CHATGPT_PROMPT_QUEUE')
   await mod.amqpChannel.assertQueue(queue)
 
   const requestId = mod.lib.getUlid()
@@ -88,7 +87,7 @@ const handleLookupChatgptResponse = async ({ clientId, accessToken, requestIdLis
   }
 
   const handleResult = {}
-  
+
   requestIdList.forEach((requestId) => {
     const responseObj = responseList[requestId]
     if (responseObj && responseObj.response && responseObj.response.response && responseObj.emailAddress === emailAddress) {
@@ -102,7 +101,7 @@ const handleLookupChatgptResponse = async ({ clientId, accessToken, requestIdLis
 }
 
 const startConsumer = async () => {
-  const queue = mod.setting.getValue('amqp.CHATGPT_RESPONSE_QUEUE') 
+  const queue = mod.setting.getValue('amqp.CHATGPT_RESPONSE_QUEUE')
   await mod.amqpChannel.assertQueue(queue)
 
   mod.amqpChannel.consume(queue, (msg) => {

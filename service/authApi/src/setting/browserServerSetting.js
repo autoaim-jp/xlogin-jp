@@ -23,7 +23,7 @@ const labelList = {
       chatgpt: {
         label: 'ChatGPT',
         summary: 'ChatGPTを使用する機能です。',
-      }
+      },
     },
     service: {
       serviceUserId: {

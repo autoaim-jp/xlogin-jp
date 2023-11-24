@@ -1,6 +1,5 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
-import path from 'path'
 import crypto from 'crypto'
 import { ulid } from 'ulid'
 import pg from 'pg'
@@ -47,12 +46,12 @@ const _getFunctionRouter = () => {
   }))
 
   const registerPromptHandler = a.action.getHandlerRegisterPrompt({
-    handleRegisterPrompt: a.core.handleRegisterPrompt
+    handleRegisterPrompt: a.core.handleRegisterPrompt,
   })
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/chatgpt/prompt`, checkSignature, registerPromptHandler)
 
   const lookupChatgptResponseHandler = a.action.getHandlerLookupChatgptResponse({
-    handleLookupChatgptResponse: a.core.handleLookupChatgptResponse
+    handleLookupChatgptResponse: a.core.handleLookupChatgptResponse,
   })
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/chatgpt/response`, checkSignature, lookupChatgptResponseHandler)
 
@@ -82,9 +81,15 @@ const init = async () => {
   a.lib.init({ ulid, crypto })
   a.setting.init({ env: process.env })
   a.output.init({ setting })
-  const { AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port } = a.setting.getList('env.AMQP_USER', 'env.AMQP_PASS', 'env.AMQP_HOST', 'env.AMQP_PORT')
-  const amqpConnection = await a.lib.createAmqpConnection({ amqplib, user, pass, host, port })
-  await core.init({ setting, input, lib, amqpConnection })
+  const {
+    AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port,
+  } = a.setting.getList('env.AMQP_USER', 'env.AMQP_PASS', 'env.AMQP_HOST', 'env.AMQP_PORT')
+  const amqpConnection = await a.lib.createAmqpConnection({
+    amqplib, user, pass, host, port,
+  })
+  await core.init({
+    setting, input, lib, amqpConnection,
+  })
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
