@@ -1,4 +1,7 @@
 digraph G {
+  graph [charset="UTF-8" fontname = "Meiryo"]
+  node [fontname = "Meiryo"]
+  edge [fontname = "Meiryo"]
   rankdir="LR"
   label="graph_001_グラフの全体像"
   
