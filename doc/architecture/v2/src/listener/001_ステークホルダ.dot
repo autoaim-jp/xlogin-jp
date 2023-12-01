@@ -1,0 +1,46 @@
+digraph G {
+  rankdir="TB"
+  label="listener_001_ステークホルダ"
+ 
+  # stakeholder
+  {
+    rank=same
+    user [label="ユーザ"]
+    dev_company [label="Webシステムの請負開発企業"]
+    intra_dev_company [label="社内システムの開発者"]
+  }
+  {
+    rank=same
+    xlogin_maintainer [label="このシステムの開発者(私)"]
+    community [label="開発コミュニティ"]
+  }
+  
+  # service
+  subgraph cluster_xlogin {
+    label="xloginは、みんなが嬉しいフレームワーク"
+  {
+    rank=same
+    service_x1 [label="workflow.example-company.com"]
+    service_x2 [label="ec-site.example-shop.com"]
+  }
+    xlogin [label="xlogin.jp (ログインとデータ保存)"]
+    service_x1 -> xlogin [label="ログインとデータ保存は任せる"]
+    service_x2 -> xlogin [label="ログインとデータ保存は任せる"]
+  }
+  
+  user -> service_x1 [label="xloginアカウントで利用可能
+  (アカウントの使い分け不要)"]
+  user -> service_x2 [label="xloginアカウントで利用可能
+  (アカウントの使い分け不要)"]
+
+  dev_company -> service_x2 [label="データの加工機能と表示機能のみ作ればよい
+  (ログインとデータ保存はxlogin.jpに任せればよいため)"]
+  
+  intra_dev_company -> service_x1 [label="xlogin.jpの機能を使えば簡単に作れる"]
+ 
+ 
+  xlogin -> xlogin_maintainer [label="メンテナンスがとても楽
+  (クラウドサービスをあれこれ複雑に組み合わせていないため)" dir=back] 
+  xlogin -> community [label="" dir=back]
+  
+}
