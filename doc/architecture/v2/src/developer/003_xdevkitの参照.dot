@@ -1,0 +1,44 @@
+digraph G {
+  rankdir="TB"
+  label="developer_003_xdevkitの参照"
+  
+  sample [label="xlogin-jp-client-sample"]
+  x [label="xdevkit"]
+  xc [label="xdevkit/component"]
+  xar [label="xdevkit-auth-router"]
+  xvc [label="xdevkit-view-component"]
+  xs [label="xdevkit-setting"]
+  
+  sample_sw [label="service/staticWeb"]
+  sample_make [label="Makefile"]
+  
+  sample_swv [label="view file"]
+  sample_sws [label="server file"]
+  
+  # sample
+  sample -> sample_make
+  sample -> sample_sw
+  sample -> x
+  
+  # sample_sw
+  sample_sw -> sample_sws
+  sample_sw -> sample_swv
+  
+  # x
+  x -> xc
+  xc -> xar
+  xc -> xvc
+  xc -> xs
+
+  # to server  
+  xar -> sample_sws [constraint=false color=red label=コピー]
+  xs -> sample_sws [constraint=false color=red label=コピー]
+
+  # to view
+  xvc -> sample_swv [constraint=false color=red label=コピー]
+  xs -> sample_swv [constraint=false color=red label=コピー]
+  
+  
+  to -> from [color=red shape=record label="Makefileでコピー" dir=back]
+}
+
