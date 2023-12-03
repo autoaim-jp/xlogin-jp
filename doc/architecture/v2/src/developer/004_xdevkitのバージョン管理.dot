@@ -1,0 +1,62 @@
+digraph G {
+  rankdir="TB"
+  label="developer_004_xdevkitのバージョン管理"
+  
+  xlogin [label="xlogin-jp"]
+  sample [label="xlogin-jp-client-sample"]
+  
+  x [label=xdevkit]
+  xb [label="xdevkit-backend"]
+  
+  xdevkit_gitmodules [label=".gitmodules"]
+  xlogin_gitmodules [label=".gitmodules"]
+  c [label="xdevkit/common"]
+  s [label="xdevkit/standalone"]
+  xb_c [label="xdevkit/common"]
+  xb_s [label="xdevkit/standalone"]
+
+  s_compiler [label="xdevkit-view-compiler"]
+  s_eslint [label="xdevkit-eslint"]
+  s_htpasswd [label="xdevkit-htpasswd"]
+  s_jsdoc [label="xdevkit-jsdoc"]
+  c_auth_router [label="xdevkit-auth-router"]
+  c_setting [label="xdevkit-setting"]
+  c_component [label="xdevkit-view-component"]
+  
+  c_backend_server [label="backend-server"]
+  
+
+  # xdevkit
+  x -> c
+  x -> s
+  x -> xdevkit_gitmodules [label="xdevkitはここでバージョン管理" color=red]
+  
+  # submodule
+  s -> s_compiler
+  s -> s_eslint
+  s -> s_htpasswd
+  s -> s_jsdoc
+  
+  c -> c_auth_router
+  c -> c_setting
+  c -> c_component
+  
+
+  # app
+  sample -> x
+  xlogin -> xb
+  xlogin -> xlogin_gitmodules [label="xlogin-jpはここでバージョン管理" color=red]
+  xb -> xb_c
+  xb -> xb_s
+  
+  # xdevkit-backend
+  xb_c -> c_setting
+  xb_c -> c_component
+  xb_c -> c_backend_server
+  xb_s -> s_compiler
+  xb_s -> s_eslint
+  xb_s -> s_htpasswd
+  xb_s -> s_jsdoc
+  
+}
+
