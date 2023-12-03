@@ -1,0 +1,77 @@
+digraph G {
+    rankdir="LR"
+    label="developer_008_サービス同士の依存関係"
+    
+    # api
+    subgraph cluster_auth {
+        label="authApi"
+    auth_setting [label="src/setting/index.js"]
+    auth_env [label="src/.env"]
+    }
+    
+    subgraph cluster_chatgptApi {
+        label="chatgptApi"
+    gpt_a_setting [label="setting/index.js"]
+    gpt_a_env [label=".env"]
+    }
+
+    subgraph cluster_chatgptExecutor {
+        label="chatgptExecutor"
+    gpt_e_setting [label="setting.js"]
+    gpt_e_env [label=".env"]
+    }
+        
+    # metrics
+    subgraph cluster_grafana {
+        label="grafama"
+    grafana_d [label="provisioning/datasources/datasource.yml"]
+    grafana_ini [label="setting/grafana.ini"]
+    }
+    
+    subgraph cluster_prom {
+        label="prometheus"
+    prom_yml [label="prometheus.yml"]
+    }
+    
+    # nginx
+    subgraph cluster_nginx {
+        label="reverseProxy"
+    n_c [label="nginx.conf"]
+    htpasswd [label=".htpasswd"]
+    }
+    
+    # postgresql
+    subgraph cluster_psql {
+        label="postgresql"
+    psql_yml [label="docker-entrypoint-initdb.d/10_init.sql"]
+    }
+    
+    # docker
+    subgraph cluster_docker {
+        label="app/docker"
+    dc_yml [label="docker-compose.app.yml"]
+    }
+    
+    # api
+    auth_setting -> dc_yml [label="REDIS_PORT,REDIS_HOST,REDIS_DB"]
+    auth_env -> dc_yml [label="DB_HOST"]
+    auth_env -> psql_yml [label="DB_NAME,DB_USER,DB_PASS"]
+    
+    gpt_a_setting -> gpt_e_setting [label="CHATGPT_PROMPT_QUEUE,CHATGPT_RESPONSE_QUEUE" dir=both]
+    gpt_a_env -> dc_yml [label="AMQP_USER,AMQP_PASS"]
+    gpt_e_env -> dc_yml [label="AMQP_USER,AMQP_PASS"]
+
+    # prometheus
+    prom_yml -> n_c [label="scrape_configs.static_configs.targets"]
+    prom_yml -> htpasswd
+    
+    # grafana
+    grafana_d -> htpasswd
+    dc_yml -> grafana_ini [label="grafanaにログインする際のユーザ名とパスワード"]
+    
+    # nginx
+    n_c -> htpasswd
+    n_c -> auth_env [label="SERVER_PORT"]
+
+}
+
