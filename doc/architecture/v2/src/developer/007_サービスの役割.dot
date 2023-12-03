@@ -1,0 +1,57 @@
+digraph G {
+  rankdir="TB"
+  label="developer_007_サービスの役割"
+
+  subgraph cluster_sample {
+    label="xlogin-jp-sample-client"
+    s_s [label="/service/staticWeb"]
+    s_redis [label="/service/redis"]
+    s_xdevkit_a [label="/xdevkit/component/xdevkit-auth-router"]
+    s_s -> s_xdevkit_a [label="APIリクエスト呼び出し"]
+    s_s -> s_redis [label="セッション保存"]
+    
+  }
+  
+  subgraph cluster_xlogin {
+    label="xlogin-jp"
+    nginx [label="/service/reverseProxy (リバースプロキシ:nginx)"]
+
+    # api
+    subgraph cluster_api {
+      label="backend api"
+      auth [label="/service/authApi (認証認可とユーザ情報管理を担う)"]
+      storage [label="/service/storageApi (ファイル管理を担う)"]
+      chatgpt [label="/service/chatgptApi (ChatGPTのキュー管理を行う)"]
+      staticWeb [label="/service/staticWeb (静的ファイルのリクエスト管理を行う)"]
+    }
+
+    # external api
+    chatgpt_e [label="/service/chatgptExecutor (ChatGPTの結果取得を行う)"]
+
+    # db
+    postgresql [label="/service/postgresql (データの管理を行う)"]
+    redis [label="/service/redis (セッションの管理を行う)"]
+    
+    # metrics
+    prometheus [label="/service/prometheus (メトリクスの管理を行う)"]
+    grafana [label="/service/grafana (メトリクスの可視化を行う)"]
+    exporter [label="node-exporter (リソースの使用量取得を行う)"]
+
+    nginx -> staticWeb
+    nginx -> storage -> postgresql
+    nginx -> chatgpt -> postgresql
+    nginx -> auth
+    auth -> redis
+    auth -> postgresql
+
+    nginx -> grafana -> prometheus
+    prometheus -> exporter
+    prometheus -> staticWeb
+    
+    chatgpt -> chatgpt_e
+  }
+  
+  s_xdevkit_a -> nginx [label="APIリクエスト呼び出し"]
+
+}
+
