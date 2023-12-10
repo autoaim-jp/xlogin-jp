@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: storageApi/src/lib/index.js</title>
+    <title>JSDoc: Source: chatgptApi/src/lib/index.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: storageApi/src/lib/index.js</h1>
+    <h1 class="page-title">Source: chatgptApi/src/lib/index.js</h1>
 
     
 
@@ -26,8 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/* /lib/index.js */
-import backendServerLib from './backendServerLib.js'
+            <pre class="prettyprint source linenums"><code>import backendServerLib from './backendServerLib.js'
 /**
  * @file
  * @name アプリケーション全体で共通で使用するライブラリ
@@ -40,42 +39,32 @@ const mod = {}
  *
  * @param {} crypto
  * @param {} ulid
- * @param {} multer
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid, multer }) => {
+const init = ({ crypto, ulid }) => {
   mod.crypto = crypto
   mod.ulid = ulid
-  mod.multer = multer
   backendServerLib.init({ crypto, ulid })
 }
 
-const parseMultipartFileUpload = ({ req, formKey }) => {
-  const upload = mod.multer({
-    storage: mod.multer.memoryStorage(),
-    limits: { fileSize: 2 * 1024 * 1024 },
-  })
 
-  return new Promise((resolve) => {
-    upload.single(formKey)(req, null, (error) => {
-      if (error instanceof mod.multer.MulterError) {
-        return resolve({ error: true, message: error.message })
-      } if (error) {
-        return resolve({ error: true, message: 'unkown error' })
-      }
+const createAmqpConnection = async ({
+  amqplib, user, pass, host, port,
+}) => {
+  const conn = await amqplib.connect(`amqp://${user}:${pass}@${host}:${port}`)
+  return conn
+}
 
-      return resolve({ error: false, message: 'success' })
-    })
-  })
+const getUlid = () => {
+  return mod.ulid()
 }
 
 export default {
   backendServerLib,
-
   init,
-
-  parseMultipartFileUpload,
+  createAmqpConnection,
+  getUlid,
 }
 
 </code></pre>
