@@ -1,0 +1,46 @@
+digraph G {
+  rankdir="TB"
+  label="developer_009_GitHubActionsの動作"
+  
+  slack [label="slack"]
+  a_slack [label="slack-notice-action"]
+  a_slack -> slack [label="通知"]
+  
+  subgraph cluster_xlogin {
+    label="xlogin-jp"
+    x_eslint [label=".github/workflow/eslint.yml"]
+    x_test [label=".github/workflow/test.yml"]
+
+    subgraph cluster_xm {
+      label="Makefile"
+      x_init [label="make init"]
+      x_lf [label="make lint-fix"]
+      x_testup [label="make test-up"]
+      
+      x_ix [label="make init-xdevkit"]
+      x_ic [label="make init-common"]
+      x_init -> x_ix
+      x_init -> x_ic
+    }
+    
+    x_xdevkit_eslint [label="xdevkit/standalone/xdevkit-eslint
+    /docker/docker-compose.eslint.yml"]
+    x_lf -> x_xdevkit_eslint [label="docker compose up"]
+    
+    x_app_test [label="app/docker/docker-compose.test.yml"]
+    x_testup -> x_app_test [label="docker compose down"]
+    x_testup -> x_app_test [label="docker compose up"]
+  }
+  
+  # eslint
+  x_eslint -> x_init [label="実行1"]
+  x_eslint -> x_lf [label="実行2"]
+  x_eslint -> a_slack [label="実行3"]
+  
+  # test
+  x_test -> x_testup [label="実行1"]
+  x_test -> a_slack [label="実行2"]
+  
+  
+}
+
