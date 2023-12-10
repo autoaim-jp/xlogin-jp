@@ -22,7 +22,7 @@
 	path = xdevkit-backend/standalone/xdevkit-view-compiler
 	url = https://github.com/autoaim-jp/xdevkit-view-compiler
 	update = rebase
-	branch = v0.24
+	branch = master
 [submodule "xdevkit-backend/standalone/xdevkit-jsdoc"]
 	path = xdevkit-backend/standalone/xdevkit-jsdoc
 	url = https://github.com/autoaim-jp/xdevkit-jsdoc
