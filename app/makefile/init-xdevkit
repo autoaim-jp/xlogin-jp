@@ -11,7 +11,7 @@ init-xdevkit:
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/staticWeb/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/authApi/src/setting/browserServerSetting.js
 	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/storageApi/src/setting/browserServerSetting.js
-	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/apiServer/src/setting/browserServerSetting.js
+	cp ./xdevkit-backend/common/xdevkit-setting/browserServerSetting.js ./service/chatgptApi/src/setting/browserServerSetting.js
 	
 	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/js/_xdevkit ./service/staticWeb/src/view/src/js/_lib/
 	cp -r ./xdevkit-backend/common/xdevkit-view-component/src/ejs ./service/staticWeb/src/view/src/ejs/_xdevkit

@@ -1,0 +1,25 @@
+digraph G {
+  rankdir="TB"
+  label="developer_006_リポジトリの役割"
+
+  sample [label="xlogin-jp-client-sample"]
+  xlogin [label="xlogin-jp"]
+  {
+    rank=same
+  x_auth [label="service/authApi"]
+  x_storage [label="service/storageApi"]
+  x_chatgpt [label="service/chatgptApi"]
+  }
+  
+  # sample
+  sample -> xlogin [label="ログインページへ遷移
+  データの取得と保存"]
+  xlogin -> sample [label="ユーザ情報
+  データを返す"]
+  
+  # service
+  xlogin -> x_auth [label="認証、通知、ユーザ情報"]
+  xlogin -> x_storage [label="ファイル、JSON"]
+  xlogin -> x_chatgpt [label="ChatGPT"]
+}
+

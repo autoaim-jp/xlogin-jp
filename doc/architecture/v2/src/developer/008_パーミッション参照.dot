@@ -1,0 +1,46 @@
+digraph G {
+  rankdir="TB"
+  label="developer_008_パーミッション参照"
+
+  full [label="rw:$CLIENT_ID:json_v1"]
+  j [label="json_v1"]
+  full -> j [label="一部"]
+
+  subgraph cluster_xdevkit {
+    label="xdevkit"
+    x_bss [label="component/xdevkit-setting/browserServerSetting.js"]
+  }
+  
+  subgraph cluster_client {
+    label="xlogin-jp-client-sample"
+    c_view_html [label="view/build/mypage.html"]
+    c_view_component [label="view/src/ejs/component/editor.ejs"]
+    c_x_setting [label="xdevkitSetting.js"]
+    c_bss [label="browserServerSetting.js"]
+    c_view_outputjs [label="view/src/js/mypage/output.js"]
+  }
+  
+  c_view_html -> c_view_component [label="参照(生成元)"]
+  c_view_html -> c_view_outputjs [label="参照"]
+  c_view_outputjs -> full [label="コンポーネント表示(使用)に必要な権限"]
+  
+  c_view_component -> full [label="コンポーネント表示(使用)に必要な権限"]
+  c_x_setting -> full [label="xlogin.jpへのリダイレクト時に渡すscope"]
+  
+  subgraph cluster_xlogin {
+    label="xlogin-jp"
+    xl_view_html [label="view/build/confirm.html"]
+    xl_view_outputjs [label="view/src/js/confirm/output.js"]
+    xl_bss [label="browserServerSetting.js"]
+    xl_server_core [label="service/storageApi/src/core/index.js"]
+  }
+  
+  xl_view_html -> xl_view_outputjs [label="参照"]
+  xl_view_outputjs -> j [label="権限のチェックボックス作成"]
+  xl_server_core -> j [label="accessTokenの権限チェク"]
+  
+  c_bss -> x_bss [label="ファイルコピー元"]
+  xl_bss -> x_bss [label="ファイルコピー元"]
+  x_bss -> j
+}
+

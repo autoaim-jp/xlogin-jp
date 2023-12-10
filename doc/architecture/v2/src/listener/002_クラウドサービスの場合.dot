@@ -1,0 +1,50 @@
+digraph G {
+  rankdir="TB"
+  label="listener_002_クラウドサービスの場合"
+ 
+  # stakeholder
+    user [label="ユーザ"]
+  {
+    rank=same
+    dev_company [label="Webシステムの請負開発企業"]
+    intra_dev_company [label="社内システムの開発者"]
+  }
+
+  # service
+  subgraph cluster_aws {
+    label="AWSの機能"
+  auth_a [label="AWSのログイン機能サービス"]
+  static_a [label="AWSのWebページ表示サービス"]
+  storage_a [label="AWSのファイル保存サービス"]
+  function_a [label="AWSのデータ加工サービス"]
+  }
+
+  subgraph cluster_service {
+    label="AWSを使うサービス"
+  service_a1 [label="workflow.example-company.com"]
+  service_a2 [label="ec-site.example-shop.com"]
+  }
+
+  service_a1 -> auth_a [label="認証は独自のアカウントを実装してここに任せる"]
+  service_a2 -> auth_a [label="認証は独自のアカウントを実装してここに任せる"]
+  service_a1 -> static_a [label="Webページはここに任せる"]
+  service_a2 -> static_a [label="Webページはここに任せる"]
+  service_a1 -> function_a [label="機能はここに任せる"]
+  service_a2 -> function_a [label="機能はここに任せる"]
+  
+  
+  # user
+  user -> service_a1 [label="このサービス固有のアカウントを使用"]
+  user -> service_a2 [label="このサービス固有のアカウントを使用"]
+  
+  auth_a -> dev_company [dir=back label="他のアプリケーションとの
+  連携はここで考える"]
+  static_a -> dev_company [dir=back label="Webページはここに保存して管理する"]
+  function_a -> dev_company [dir=back label="機能を作成したらここに保存して管理する"]
+
+  auth_a -> intra_dev_company [dir=back label="他のアプリケーションとの
+  連携はここで考える"]
+  static_a -> intra_dev_company [dir=back label="Webページはここに保存して管理する"]
+  function_a -> intra_dev_company [dir=back label="機能を作成したらここに保存して管理する"]
+}
+

@@ -1,0 +1,49 @@
+digraph G {
+  rankdir="TB"
+  label="developer_005_テスト"
+  
+  xlogin [label="xlogin-jp"]
+  {
+    rank=same
+  makefile [label="Makefile"]
+  workflow [label=".github/workflow/test.yml"]
+  aapi [label="service/authApi"]
+  sapi [label="service/storageApi"]
+  workflow -> makefile -> aapi -> sapi [style=invis]
+  }
+  test_up [label="test-up command"]
+  
+  test_yml [label="app/docker/docker-compose.test.yml"]
+  
+  {
+    rank=same
+  aapi_json [label="src/package.json"]
+  aapi_test [label="src/test/"]
+  
+  sapi_json [label="src/package.json"]
+  sapi_test [label="src/test/"]
+  }
+  
+  
+  # root
+  xlogin -> makefile
+  xlogin -> workflow
+  xlogin -> aapi
+  xlogin -> sapi
+  makefile -> test_up
+  workflow -> makefile
+  
+  aapi -> aapi_json
+  aapi -> aapi_test
+  sapi -> sapi_json
+  sapi -> sapi_test
+  
+  test_up -> test_yml [label="docker compose up"]
+  
+  test_yml -> aapi_json
+  test_yml -> sapi_json
+  
+  aapi_json -> aapi_test [label="テスト実行" color=red]
+  sapi_json -> sapi_test [label="テスト実行" color=red]
+}
+

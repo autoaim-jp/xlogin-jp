@@ -1,0 +1,43 @@
+digraph G {
+  rankdir="LR"
+  title="developer_002_プログラミング学習者"
+  
+  deploy -> test_server -> dev_server -> test_server2 -> dev_client
+  
+  {
+      rank=same
+      deploy
+      test_server [label="テスト実装(サーバ側)"]
+      dev_server [label="実装(サーバ側)"]
+      test_server2 [label="テストを行う(サーバ側)"]
+      dev_client [label="実装(ブラウザ側)"]
+  }
+  
+  d1 [label="AWS、ConoHa VPS、KAGOYA CLOUD VPSから選んで準備"]
+  d1 -> deploy
+
+  ts1 [label="元からサーバ側テストを2つ用意(メモ作成と削除)"]
+  ts2 [label="サーバ側テストを1つ書いてみる(メモ更新)"]
+  ts1 -> test_server
+  ts2 -> test_server
+
+  ds1 [label="元から2つ用意(サーバ側)"]
+  ds2 [label="新しく実装したものも含め合計3つの機能"]
+  ds1 -> dev_server
+  ds2 -> dev_server
+  
+  ts2_1 [label="テストを実行(サーバ側)"]
+  ts2_2 [label="メモが更新できることをブラウザで確認"]
+  ts2_1 -> test_server2
+  ts2_2 -> test_server2
+  
+  
+  dc1 [label="メモ作成のコード確認(ブラウザ側)"]
+  dc2 [label="ブラウザ側のメモ更新のUI実装(ボタン表示)"]
+  dc3 [label="ブラウザ側のメモ更新のロジック実装(リクエスト送信)"]
+  dc1 -> dev_client
+  dc2 -> dev_client
+  dc3 -> dev_client
+  
+}
+

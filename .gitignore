@@ -27,7 +27,6 @@ doc/jsdoc/html/
 
 data/redis/
 storageApi/src/data/
-storageApi
 
 yarn.lock
 yarn-error.log

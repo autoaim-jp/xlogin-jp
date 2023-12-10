@@ -105,11 +105,11 @@ docker-compose-up-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
 docker-compose-up-view-compile:
-	BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
-	BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-watch:
-	BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 
 # down
 docker-compose-down-app:
@@ -133,9 +133,9 @@ postgresql-restore:
 	./service/postgresql/bin/restorePostgresqlData.sh
 
 docker-compose-up-lint:
-	docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+	SERVICE_PATH=../../../../service docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 docker-compose-up-lint-fix:
-	FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+	SERVICE_PATH=../../../../service FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 
 init-doc-deploy-key:
 	mkdir -p ./secret/

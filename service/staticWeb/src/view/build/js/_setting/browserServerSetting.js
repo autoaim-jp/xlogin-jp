@@ -38,7 +38,10 @@ const labelList = {
         label: 'ファイル',
         summary: '連携するサービスで、あなたがデータを保存できます。',
       },
-
+      chatgpt: {
+        label: 'ChatGPT',
+        summary: '連携するサービスで、ChatGPTを利用するための権限です。',
+      },
     },
   },
   scopeOperation: {

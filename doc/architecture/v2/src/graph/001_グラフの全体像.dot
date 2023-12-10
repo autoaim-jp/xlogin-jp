@@ -1,0 +1,49 @@
+digraph G {
+  graph [charset="UTF-8" fontname = "Meiryo"]
+  node [fontname = "Meiryo"]
+  edge [fontname = "Meiryo"]
+  rankdir="LR"
+  label="graph_001_グラフの全体像"
+  
+  # user
+  service_user [label="ユーザ視点"]
+  innovator_user [label="お試し利用と開発に興味があるユーザ視点\n(利用者であり、仕組みにも興味がある)"]
+  early_adopter_user [label="継続的利用・開発と他人へ勧めることに興味があるユーザ視点"]
+  early_majority_user [label="継続的利用に興味があるユーザ視点"]
+  last_mile_user [label="他のサービスとの比較に興味があるユーザ視点"]
+  
+  service_user -> innovator_user [label="1分で使えるようになるマニュアルと、仕組みの面白い点に寄せる"]
+  service_user -> early_adopter_user [label="開発のエコシステムをわかりやすく"]
+  service_user -> early_majority_user [label="安心して使える理由をわかりやすく"]
+  service_user -> last_mile_user [label="他のサービスより優れている理由をわかりやすく"]
+  
+  # developer
+  developer [label="開発者視点"]
+  service_developer [label="サービスデベロッパ視点"]
+  xlogin_developer [label="xloginメンテナ視点"]
+  xdevkit_developer [label="xdevkitメンテナ視点"]
+  trainee_developer [label="これを通してプログラミングを学ぶデベロッパ視点"]
+  
+  developer -> service_developer [label="サービスの作り方と、APIのリストで包括的にわかるように"]
+  developer -> xlogin_developer [label="全体のエコシステムを把握できるように"]
+  developer -> xdevkit_developer [label="各モジュールの役割を把握できるように"]
+  developer -> trainee_developer [label="20分でとりあえずページを表示してみる手順のように"]
+  
+  
+  # listener
+  business_model_listener [label="ビジネスモデルに興味がある人の視点"]
+  pitch_listener [label="ピッチリスナー視点\n(短い時間で全体を知りたい人)"]
+  business_investor [label="投資家視点(どういうキャッシュフローなのか知りたい人)\n"]
+
+  business_model_listener -> pitch_listener [label="もっと簡易的にする"]
+  business_model_listener -> business_investor [label="もっとビジネス的に"]  
+  
+  
+  # adjusting position
+  {
+      rank=same
+      service_user
+      developer
+      business_model_listener
+  }
+}

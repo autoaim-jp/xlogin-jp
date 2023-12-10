@@ -1,0 +1,49 @@
+digraph G {
+  rankdir="LR"
+  label="developer_001_xloginメンテナ1"
+ 
+  # backend development
+  backend [label="xlogin-jp"]
+  service1 [label="xlogin-jp-client-sample"]
+  service2 [label="xlogin-jp-chatgpt-sample"]
+  
+  # service development
+  xdevkit_starter [label="xdevkit-starter"]
+  
+  # xdevkit development
+  xdevkit [label="xdevkit"]
+  x_view_compiler [label="xdevkit-view-compiler"]
+  x_eslint [label="xdevkit-eslint"]
+  
+  # microservice development
+  auth_api [label="auth-api"]
+  chatgpt_api [label="chatgpt-api"]
+  chatgpt_executor [label="chatgpt-executor"]
+  
+  
+  # starter
+  xdevkit_starter -> service2 [label="生成(テンプレから)"]
+  xdevkit_starter -> service1 [label="複製(テンプレ元として)"]
+  
+  # service
+//   service1 -> backend [label="認証認可とAPIを利用(File, Json, Notification, User"]
+  service2 -> backend [label="認証認可とAPIを利用(ChatGPT, Json, User)"]
+  
+//   service1 -> xdevkit [label="モジュールとして利用"]
+  service2 -> xdevkit [label="利用(モジュールとして)"]
+  # xdevkit
+  xdevkit -> x_view_compiler [label="含む(サブモジュールとして)"]
+  xdevkit -> x_eslint [label="含む(サブモジュールとして)"]
+  
+  # xdevkit-backend
+  backend -> x_view_compiler [label="含む(サブモジュールとして)"]
+  backend -> x_eslint [label="含む(サブモジュールとして)"]
+  
+  # chatgpt
+  backend -> auth_api [label="含む(認証モジュールとして)"]
+  backend -> chatgpt_api [label="含む(サービスとキューの橋渡しモジュールとして)"]
+  backend -> chatgpt_executor [label="含む(キューとChatGPT APIの橋渡しモジュールとして)"]
+  
+  
+}
+

@@ -92,7 +92,7 @@ services:
       timeout : 5s
       retries: 10
 
-  prometheus:
+  prometheus_container:
     container_name: xlapp-container-prometheus
     image: prom/prometheus
     volumes:
@@ -101,13 +101,13 @@ services:
     ports:
       - 127.0.0.1:56002:9090
 
-  node-exporter:
+  node_exporter_container:
     container_name: xlapp-container-node-exporter
     image: quay.io/prometheus/node-exporter
     ports:
       - 127.0.0.1:59100:9100
 
-  grafana:
+  grafana_container:
     container_name: xlapp-container-grafana
     image: grafana/grafana
     volumes:
@@ -120,7 +120,7 @@ services:
       - 127.0.0.1:56001:3000
     user: "$PID:$GID"
 
-  alertmanager:
+  alertmanager_container:
     container_name: xlapp-container-alertmanager
     image: prom/alertmanager
     volumes:
@@ -130,7 +130,7 @@ services:
       - 127.0.0.1:9093:9093
     restart: always
 
-  rabbitmq:
+  rabbitmq_container:
     container_name: xlapp-container-rabbitmq
     image: rabbitmq:3.11-management
     ports:
@@ -147,15 +147,15 @@ services:
       timeout: 10s
       retries: 20
 
-  chatgpt:
-    container_name: xlapp-container-chatgpt
+  chatgpt_executor_container:
+    container_name: xlapp-container-chatgpt-executor
     build:
       context: ../../
-      dockerfile: ./service/chatgpt/docker/Dockerfile
+      dockerfile: ./service/chatgptExecutor/docker/Dockerfile
     tty: true
     working_dir: /app
     volumes:
-      - ../../service/chatgpt/src:/app
+      - ../../service/chatgptExecutor/src:/app
       - xlapp-volume-cg-nm:/app/node_modules
     command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     healthcheck:
@@ -164,18 +164,18 @@ services:
       timeout : 5s
       retries: 10
     depends_on:
-      rabbitmq:
+      rabbitmq_container:
         condition: service_healthy
  
-  api_server:
-    container_name: xlapp-container-api-server
+  chatgpt_api_container:
+    container_name: xlapp-container-chatgpt-api
     build:
       context: ../../
-      dockerfile: ./service/apiServer/docker/Dockerfile
+      dockerfile: ./service/chatgptApi/docker/Dockerfile
     tty: true
     working_dir: /app
     volumes:
-      - ../../service/apiServer/src:/app
+      - ../../service/chatgptApi/src:/app
       - xlapp-volume-as-nm:/app/node_modules
     command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     healthcheck:
@@ -184,7 +184,7 @@ services:
       timeout : 5s
       retries: 10
     depends_on:
-      chatgpt:
+      chatgpt_executor_container:
         condition: service_healthy
 
   reverse_proxy_container:
@@ -203,7 +203,7 @@ services:
         condition: service_healthy
       storage_api_container:
         condition: service_healthy
-      api_server:
+      chatgpt_api_container:
         condition: service_healthy
 
 volumes:
