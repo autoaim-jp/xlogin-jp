@@ -146,12 +146,16 @@ docker-compose-rebuild-doc:
 	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
 	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
 docker-compose-up-doc-publish:
+	SECRET_PATH=../../../../secret \
+	SERVICE_PATH=../../../../service \
 	JSDOC_COMMAND="generate-publish" \
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
 	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
 	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 docker-compose-up-doc-generate:
+	SECRET_PATH=../../../../secret \
+	SERVICE_PATH=../../../../service \
 	JSDOC_COMMAND="generate" \
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
