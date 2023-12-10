@@ -1,6 +1,6 @@
 digraph G {
     rankdir="LR"
-    label="developer_008_サービス同士の依存関係"
+    label="developer_010_サービス同士の依存関係"
     
     # api
     subgraph cluster_auth {
