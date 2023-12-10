@@ -1,0 +1,34 @@
+digraph G {
+  rankdir="LR"
+  label="developer_011_xdevkit-starterの処理"
+  
+  p [label="./project/$(project)"]
+  dotgit [label="./project/$(project)/.git/"]
+  dotgitm [label="./project/$(project)/.gitmodules"]
+  xdevkit [label="./project/$(project)/xdevkit/"]
+  core_sh [label="./core/generateDotEnv.sh"]
+  env [label="./project/$(project)/service/staticWeb/src/.env"]
+  dc_app [label="./project/$(project)/app/docker/docker-compose.app.yml"]
+  dummy_cert [label="./project/$(project)/service/staticWeb/src/cert/"]
+  cert [label="/etc/letsencrypt/"]
+  conf [label="/etc/nginx/conf.d/$(origin).conf"]
+  
+  validation -> argument [label="引数にproject,origin,portがあるかどうか確認"]
+  git_clone_template -> p [label="autoaim-jp/xlogin-jp-client-sample を clone"]
+  clean_git -> dotgit [label="rmしてからinitしなおす"]
+  clean_git -> dotgitm [label="rmしてからinitしなおす"]
+  setup_xdevkit -> xdevkit [label="rmしてから autoaim-jp/xdevkit を clone"]
+  replace_project_name -> s_conf [label="DOCKER_PROJECT_NAME を書き換え\n(コンテナ名重複防止のため)"]
+  generate_dot_env -> core_sh [label="実行"]
+  core_sh -> env [label="originなどをもとに作成"]
+  "bugfix_v0.25" 
+  update_port -> dc_app [label="port を3001から変更"]
+  update_port -> env [label="port を3001から変更"]
+  make_dummy_cert -> dummy_cert [label="HTTPS通信のためダミーの証明書を作成"]
+  fetch_letsencrypt -> cert [label="ホストに有効な証明書を作成"]
+  register_with_nginx -> conf [label="作成"]
+  register_with_nginx -> nginx [label="reload"]
+  start -> make [label="makeコマンドを実行して起動"]
+  
+}
+
