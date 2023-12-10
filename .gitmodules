@@ -27,5 +27,5 @@
 	path = xdevkit-backend/standalone/xdevkit-jsdoc
 	url = https://github.com/autoaim-jp/xdevkit-jsdoc
 	update = rebase
-	branch = v0.24
+	branch = master
 
