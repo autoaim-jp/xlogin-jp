@@ -23,6 +23,7 @@ vim, PostgreSQL, redis, xdevkit, GitHub Pages
 ![architecture img](./doc/architecture/v2/result/developer/008_パーミッション参照.png)
 ![architecture img](./doc/architecture/v2/result/developer/009_GitHubActionsの動作.png)
 ![architecture img](./doc/architecture/v2/result/developer/010_サービス同士の依存関係.png)
+![architecture img](./doc/architecture/v2/result/developer/011_xdevkit-starterの処理.png)
 ![architecture img](./doc/architecture/v2/result/listener/001_ステークホルダ.png)
 ![architecture img](./doc/architecture/v2/result/listener/002_クラウドサービスの場合.png)
 ![architecture img](./doc/architecture/v2/result/developer/002_プログラミング学習者.png)
