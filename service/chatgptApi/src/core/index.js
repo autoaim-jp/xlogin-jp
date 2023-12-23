@@ -41,7 +41,7 @@ const createPgPool = ({ pg }) => {
 const handleRegisterPrompt = async ({ clientId, accessToken, prompt }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'w'
-  const range = mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID')
+  const range = clientId
   const dataType = 'chatgpt'
   const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
     accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
@@ -74,7 +74,7 @@ const handleRegisterPrompt = async ({ clientId, accessToken, prompt }) => {
 const handleLookupChatgptResponse = async ({ clientId, accessToken, requestIdList }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
-  const range = mod.setting.getValue('server.AUTH_SERVER_CLIENT_ID')
+  const range = clientId
   const dataType = 'chatgpt'
   const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
     accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,

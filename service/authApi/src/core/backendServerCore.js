@@ -28,9 +28,7 @@ const init = ({ setting, input, lib }) => {
  * @return {HandleResult} エラー処理された結果
  * @memberof core
  */
-const getErrorResponse = ({
-  status, error, isServerRedirect, response, session,
-}) => {
+const getErrorResponse = ({ status, error, isServerRedirect, response, session }) => {
   if (isServerRedirect === undefined) {
     isServerRedirect = false
   }
@@ -69,9 +67,7 @@ const getErrorResponse = ({
  * @return {signatureCheckResult} クライアントの署名が正しいかどうか
  * @memberof core
  */
-const isValidSignature = async ({
-  clientId, timestamp, path, requestBody, signature,
-}) => {
+const isValidSignature = async ({ clientId, timestamp, path, requestBody, signature }) => {
   const contentHash = mod.lib.backendServerLib.calcSha256AsB64({ str: JSON.stringify(requestBody) })
   const dataToSign = `${timestamp}:${path}:${contentHash}`
   const { execQuery, paramSnakeToCamel, calcSha256HmacAsB64 } = mod.lib.backendServerLib

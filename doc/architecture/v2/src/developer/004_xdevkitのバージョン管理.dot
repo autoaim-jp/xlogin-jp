@@ -10,6 +10,7 @@ digraph G {
   
   xdevkit_gitmodules [label=".gitmodules"]
   xlogin_gitmodules [label=".gitmodules"]
+  xlogin_version [label="setting/version.conf"]
   c [label="xdevkit/common"]
   s [label="xdevkit/standalone"]
   xb_c [label="xdevkit/common"]
@@ -45,7 +46,8 @@ digraph G {
   # app
   sample -> x
   xlogin -> xb
-  xlogin -> xlogin_gitmodules [label="xlogin-jpはここでバージョン管理" color=red]
+  xlogin -> xlogin_version [label="xlogin-jpはここでバージョン管理" color=red]
+  xlogin_version -> xlogin_gitmodules [label="make init-xdevkitでここに反映される" color=red]
   xb -> xb_c
   xb -> xb_s
   

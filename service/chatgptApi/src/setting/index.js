@@ -14,9 +14,6 @@ const init = ({ env }) => {
   setting.env.AMQP_PORT = env.AMQP_PORT
 }
 
-setting.server = {}
-setting.server.AUTH_SERVER_CLIENT_ID = 'auth'
-
 setting.amqp = {}
 setting.amqp.CHATGPT_PROMPT_QUEUE = 'chatgpt-prompt-queue'
 setting.amqp.CHATGPT_RESPONSE_QUEUE = 'chatgpt-response-queue'
