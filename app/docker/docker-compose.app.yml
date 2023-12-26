@@ -134,8 +134,8 @@ services:
     container_name: xlapp-container-rabbitmq
     image: rabbitmq:3.11-management
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 127.0.0.1:5672:5672
+        #      - 127.0.0.1:15672:15672
     environment:
       - RABBITMQ_DEFAULT_USER=chatgptrabmqusr
       - RABBITMQ_DEFAULT_PASS=klzoioi209kjlkzj1hh1u
