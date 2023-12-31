@@ -42,6 +42,10 @@ const labelList = {
         label: 'ChatGPT',
         summary: '連携するサービスで、ChatGPTを利用するための権限です。',
       },
+      text_lib_v1: {
+        label: 'テキスト変換',
+        summary: '連携するサービスで、テキスト変換機能を利用するための権限です。',
+      },
     },
   },
   scopeOperation: {

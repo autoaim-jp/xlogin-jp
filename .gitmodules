@@ -7,7 +7,7 @@
 	path = xdevkit-backend/common/xdevkit-setting
 	url = https://github.com/autoaim-jp/xdevkit-setting
 	update = rebase
-	branch = master
+	branch = v0.30
 [submodule "xdevkit-backend/standalone/xdevkit-htpasswd"]
 	path = xdevkit-backend/standalone/xdevkit-htpasswd
 	url = https://github.com/autoaim-jp/xdevkit-htpasswd
