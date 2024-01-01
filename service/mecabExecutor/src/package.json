@@ -1,0 +1,16 @@
+{
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start-watch": "nodemon --ignore '*.json' --delay 1 app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "mecab-async": "^0.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

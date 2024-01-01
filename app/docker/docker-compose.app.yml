@@ -187,6 +187,26 @@ services:
       chatgpt_executor_container:
         condition: service_healthy
 
+  mecab_executor_container:
+    container_name: xlapp-container-mecab-executor
+    build:
+      context: ../../
+      dockerfile: ./service/mecabExecutor/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/mecabExecutor/src:/app
+      - xlapp-volume-cg-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      rabbitmq_container:
+        condition: service_healthy
+ 
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
