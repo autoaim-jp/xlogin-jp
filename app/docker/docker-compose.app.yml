@@ -196,7 +196,7 @@ services:
     working_dir: /app
     volumes:
       - ../../service/mecabExecutor/src:/app
-      - xlapp-volume-cg-nm:/app/node_modules
+      - xlapp-volume-me-nm:/app/node_modules
     command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     healthcheck:
       test: ls /tmp/setup.done
@@ -207,6 +207,26 @@ services:
       rabbitmq_container:
         condition: service_healthy
  
+  text_lib_api_container:
+    container_name: xlapp-container-text-lib-api
+    build:
+      context: ../../
+      dockerfile: ./service/textLibApi/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/textLibApi/src:/app
+      - xlapp-volume-tl-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      mecab_executor_container:
+        condition: service_healthy
+
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
@@ -225,6 +245,9 @@ services:
         condition: service_healthy
       chatgpt_api_container:
         condition: service_healthy
+      text_lib_api_container:
+        condition: service_healthy
+
 
 volumes:
   xlapp-volume-aac-nm:
@@ -232,6 +255,8 @@ volumes:
   xlapp-volume-swc-nm:
   xlapp-volume-as-nm:
   xlapp-volume-cg-nm:
+  xlapp-volume-me-nm:
+  xlapp-volume-tl-nm:
 
 
 
