@@ -67,17 +67,16 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
   }
   const requestObjStr = JSON.stringify(requestObj)
 
+  console.log({ debug: 'sendToQueue', requestId, message })
   mod.amqpChannel.sendToQueue(queue, Buffer.from(requestObjStr))
 
   responseList[requestId] = { emailAddress }
 
   const parseResult = await new Promise(async (resolve) => {
-
     while (true) {
       await mod.lib.awaitSleep({ ms: 1 * 1000 })
       const responseObj = responseList[requestId]
       if (responseObj && responseObj.response && responseObj.response.response && responseObj.emailAddress === emailAddress) {
-        delete handleResult[requestId]
         return resolve(responseObj.response.response)
       }
 

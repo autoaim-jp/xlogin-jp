@@ -31,16 +31,15 @@ const parseText = async ({ message }) => {
 
 
 const startConsumer = async () => {
-	const promptQueue = mod.setting.getValue('amqp.CHATGPT_PROMPT_QUEUE')
+	const promptQueue = mod.setting.getValue('amqp.MECAB_PROMPT_QUEUE')
 	await mod.amqpPromptChannel.assertQueue(promptQueue)
 
-	const responseQueue = mod.setting.getValue('amqp.CHATGPT_RESPONSE_QUEUE')
+	const responseQueue = mod.setting.getValue('amqp.MECAB_RESPONSE_QUEUE')
 	await mod.amqpResponseChannel.assertQueue(responseQueue)
 
 	mod.amqpPromptChannel.consume(promptQueue, async (msg) => {
 		if (msg !== null) {
 			console.log('Recieved:', msg.content.toString())
-			await mod.lib.awaitSleep({ ms: SLEEP_BEFORE_REQUEST_MS })
 
 			const requestJson = JSON.parse(msg.content.toString())
 
