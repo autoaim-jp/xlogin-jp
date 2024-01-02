@@ -8,6 +8,7 @@ import amqplib from 'amqplib'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import expressUseragent from 'express-useragent'
+import winston from 'winston'
 
 import setting from './setting/index.js'
 import output from './output/index.js'
@@ -77,8 +78,7 @@ const startServer = ({ app, port }) => {
 
 const init = async () => {
   dotenv.config()
-  a.lib.backendServerLib.monkeyPatch()
-  a.lib.init({ ulid, crypto })
+  a.lib.init({ ulid, crypto, winston })
   a.setting.init({ env: process.env })
   a.output.init({ setting })
   const {
@@ -93,6 +93,7 @@ const init = async () => {
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 }
 
 const main = async () => {

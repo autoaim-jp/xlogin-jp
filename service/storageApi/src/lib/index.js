@@ -16,11 +16,11 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid, multer }) => {
+const init = ({ crypto, ulid, winston, multer }) => {
   mod.crypto = crypto
   mod.ulid = ulid
   mod.multer = multer
-  backendServerLib.init({ crypto, ulid })
+  backendServerLib.init({ crypto, ulid, winston })
 }
 
 const parseMultipartFileUpload = ({ req, formKey }) => {

@@ -16,9 +16,9 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid }) => {
+const init = ({ crypto, ulid, winston }) => {
   mod.crypto = crypto
-  backendServerLib.init({ crypto, ulid })
+  backendServerLib.init({ crypto, ulid, winston })
 }
 
 /**

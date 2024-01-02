@@ -199,9 +199,7 @@ const execQuery = async ({ query, paramList }) => {
  * @return {boolean} 権限があるかどうか
  * @memberof input
  */
-const checkPermission = ({
-  splitPermissionList, operationKey, range, dataType,
-}) => {
+const checkPermission = ({ splitPermissionList, operationKey, range, dataType }) => {
   const { required, optional } = splitPermissionList
   const permissionList = { ...required, ...optional }
   const isAuthorized = Object.entries(permissionList).some(([key, isChecked]) => {
@@ -275,7 +273,7 @@ const _createGlobalLogger = ({ SERVICE_NAME }) => {
       new mod.winston.transports.File({ filename: 'log/combined.log', level: 'info' }),
     ],
   })
-  global.logger = logger
+  return logger
 }
 
 

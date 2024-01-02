@@ -272,7 +272,7 @@ const _createGlobalLogger = ({ SERVICE_NAME }) => {
       new mod.winston.transports.File({ filename: 'log/combined.log', level: 'info' }),
     ],
   })
-  global.logger = logger
+  return logger
 }
 
 

@@ -16,6 +16,7 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
+import winston from 'winston'
 
 import setting from './setting/index.js'
 import output from './output/index.js'
@@ -275,8 +276,7 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.backendServerLib.monkeyPatch()
-  a.lib.init({ crypto, ulid })
+  a.lib.init({ ulid, crypto, winston })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({
@@ -285,6 +285,7 @@ const init = async () => {
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 }
 
 /**
