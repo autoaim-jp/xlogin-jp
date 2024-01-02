@@ -7,6 +7,7 @@ const init = ({ env }) => {
   setting.env.SERVER_ORIGIN = env.SERVER_ORIGIN
   setting.env.SESSION_SECRET = env.SESSION_SECRET
   setting.env.SERVER_PORT = env.SERVER_PORT
+  setting.env.SERVICE_NAME = env.SERVICE_NAME
 
   setting.env.AMQP_USER = env.AMQP_USER
   setting.env.AMQP_PASS = env.AMQP_PASS
