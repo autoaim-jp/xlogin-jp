@@ -17,7 +17,7 @@
 	path = xdevkit-backend/standalone/xdevkit-eslint
 	url = https://github.com/autoaim-jp/xdevkit-eslint
 	update = rebase
-	branch = master
+	branch = v0.30
 [submodule "xdevkit-backend/standalone/xdevkit-view-compiler"]
 	path = xdevkit-backend/standalone/xdevkit-view-compiler
 	url = https://github.com/autoaim-jp/xdevkit-view-compiler

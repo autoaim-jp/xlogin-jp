@@ -1,5 +1,4 @@
 import fs from 'fs'
-import child_process from 'child_process'
 import MecabAsync from 'mecab-async'
 import dotenv from 'dotenv'
 import amqplib from 'amqplib'
@@ -24,7 +23,7 @@ const init = async () => {
   })
   const mecab = new MecabAsync()
   await core.init({
-    setting, lib, amqpConnection, mecab
+    setting, lib, amqpConnection, mecab,
   })
 }
 

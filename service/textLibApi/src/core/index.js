@@ -67,12 +67,14 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
 
   responseList[requestId] = { emailAddress }
 
+  /* eslint no-async-promise-executor: 0 */
   const parseResult = await new Promise(async (resolve) => {
-    while (true) {
+    for (;;) {
+      /* eslint no-await-in-loop: 0 */
       await mod.lib.awaitSleep({ ms: 1 * 1000 })
       const responseObj = responseList[requestId]
       if (responseObj && responseObj.response && responseObj.response.response && responseObj.emailAddress === emailAddress) {
-        return resolve(responseObj.response.response)
+        resolve(responseObj.response.response)
       }
     }
   })
@@ -80,7 +82,6 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
   const status = mod.setting.browserServerSetting.getValue('statusList.SUCCESS')
   const handleResult = { status, result: parseResult }
   return handleResult
-
 }
 
 const startConsumer = async () => {
@@ -92,9 +93,10 @@ const startConsumer = async () => {
       mod.amqpChannel.ack(msg)
       const responseJson = JSON.parse(msg.content.toString())
       if (!responseList[responseJson.requestId]) {
-        return
+        // warn no object defined
+      } else {
+        responseList[responseJson.requestId].response = responseJson
       }
-      responseList[responseJson.requestId].response = responseJson
     } else {
       // Consumer cancelled by server
       throw new Error()
