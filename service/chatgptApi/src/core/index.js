@@ -106,7 +106,6 @@ const startConsumer = async () => {
 
   mod.amqpChannel.consume(queue, (msg) => {
     if (msg !== null) {
-      console.log('Recieved:', msg.content.toString())
       mod.amqpChannel.ack(msg)
       const responseJson = JSON.parse(msg.content.toString())
       if (!responseList[responseJson.requestId]) {
@@ -114,7 +113,7 @@ const startConsumer = async () => {
       }
       responseList[responseJson.requestId].response = responseJson
     } else {
-      console.log('Consumer cancelled by server')
+      // Consumer cancelled by server
       throw new Error()
     }
   })

@@ -16,7 +16,6 @@ const init = async ({
 const parseText = async ({ message }) => {
 	const result = await new Promise((resolve) => {
 		mod.mecab.parse(message, (err, parsedResult) => {
-			console.log(parsedResult)
 			resolve({ err, parsedResult })
 		})
 	})
@@ -39,22 +38,19 @@ const startConsumer = async () => {
 
 	mod.amqpPromptChannel.consume(promptQueue, async (msg) => {
 		if (msg !== null) {
-			console.log('Recieved:', msg.content.toString())
-
 			const requestJson = JSON.parse(msg.content.toString())
 
 			const { requestId } = requestJson
 			const message = requestJson.message
 
 			const responseObj = await parseText({ message })
-			console.log('mecab response:', responseObj)
 			const responseJson = { requestId, response: responseObj }
 			const responseJsonStr = JSON.stringify(responseJson)
 			mod.amqpResponseChannel.sendToQueue(responseQueue, Buffer.from(responseJsonStr))
 
 			mod.amqpPromptChannel.ack(msg)
 		} else {
-			console.log('Consumer cancelled by server')
+			// Consumer cancelled by server
 			throw new Error()
 		}
 	})

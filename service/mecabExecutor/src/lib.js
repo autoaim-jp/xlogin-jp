@@ -8,18 +8,17 @@ const createAmqpConnection = async ({
 const fork = ({ spawn, commandList, resultList, }) => {
   return new Promise((resolve) => {
     const proc = spawn(commandList[0], commandList.slice(1), { shell: true })
-    console.log('start:', commandList)
 
     proc.stderr.on('data', (err) => {
-      console.error('stderr:', err.toString())
+      // console.error('stderr:', err.toString())
     })
     proc.stdout.on('data', (data) => {
-      console.log('stdout:', data.toString())
+      // console.log('stdout:', data.toString())
       const result = ((data || '').toString() || '')
       resultList.push(result)
     })
     proc.on('close', (code) => {
-      console.log('[end] spawn', code)
+      // console.log('[end] spawn', code)
       resolve()
     })
   })

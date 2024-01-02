@@ -47,16 +47,12 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
     accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
   })
 
-  console.log({ emailAddress, clientId, accessToken, message })
-
   if (!emailAddress) {
     const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_text_lib_prompt_access_token'
-    console.log({ error })
     return backendServerCore.getErrorResponse({ status, error })
   }
 
-  console.log({ debug: true, message: 'ok' })
   const queue = mod.setting.getValue('amqp.MECAB_PROMPT_QUEUE')
   await mod.amqpChannel.assertQueue(queue)
 
@@ -67,7 +63,6 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
   }
   const requestObjStr = JSON.stringify(requestObj)
 
-  console.log({ debug: 'sendToQueue', requestId, message })
   mod.amqpChannel.sendToQueue(queue, Buffer.from(requestObjStr))
 
   responseList[requestId] = { emailAddress }
@@ -79,14 +74,11 @@ const handleParseText = async ({ clientId, accessToken, message }) => {
       if (responseObj && responseObj.response && responseObj.response.response && responseObj.emailAddress === emailAddress) {
         return resolve(responseObj.response.response)
       }
-
-      console.log({ debug: true, message: 'loop', requestId })
     }
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.SUCCESS')
   const handleResult = { status, result: parseResult }
-  console.log({ debug: true, handleResult })
   return handleResult
 
 }
@@ -97,7 +89,6 @@ const startConsumer = async () => {
 
   mod.amqpChannel.consume(queue, (msg) => {
     if (msg !== null) {
-      console.log('Recieved:', msg.content.toString())
       mod.amqpChannel.ack(msg)
       const responseJson = JSON.parse(msg.content.toString())
       if (!responseList[responseJson.requestId]) {
@@ -105,7 +96,7 @@ const startConsumer = async () => {
       }
       responseList[responseJson.requestId].response = responseJson
     } else {
-      console.log('Consumer cancelled by server')
+      // Consumer cancelled by server
       throw new Error()
     }
   })

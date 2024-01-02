@@ -4,10 +4,6 @@ const getHandlerParseText = ({ handleParseText }) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
-    console.log({
-      debug: true, message, accessToken, clientId,
-    })
-
     const handleResult = await handleParseText({ message, accessToken, clientId })
 
     res.json({ result: handleResult })

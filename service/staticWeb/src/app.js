@@ -61,7 +61,6 @@ const _getStaticRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
-    console.log('debug:', req.path, req.query, req.body)
     res.status(404)
     res.end('Not Found')
     return next()

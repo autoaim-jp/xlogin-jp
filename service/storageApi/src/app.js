@@ -129,7 +129,6 @@ const _getFormRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
-    console.log('debug:', req.path, req.query, req.body)
     res.status(500)
     res.end('Internal Server Error')
     return next()
@@ -190,7 +189,6 @@ const main = async () => {
 
   startServer(expressApp)
 
-  console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
   fs.writeFileSync('/tmp/setup.done', '0')
 }
 
