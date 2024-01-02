@@ -1,3 +1,5 @@
+SERVICE_NAME=authApi
+
 SESSION_SECRET='secretsecretsecretsecret'
 
 SERVER_PORT=3333
