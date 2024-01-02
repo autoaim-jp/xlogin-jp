@@ -9,9 +9,10 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid }) => {
+const init = ({ crypto, ulid, winston }) => {
   mod.crypto = crypto
   mod.ulid = ulid
+  mod.winston = winston
 }
 
 /* url */
@@ -262,15 +263,30 @@ const _argNamed = (obj) => {
   return flattened
 }
 
+const _createGlobalLogger = ({ SERVICE_NAME }) => {
+  const logger = mod.winston.createLogger({
+    level: 'info',
+    format: mod.winston.format.json(),
+    defaultMeta: { service: SERVICE_NAME },
+    transports: [
+      new mod.winston.transports.Console({ level: 'debug' }),
+      new mod.winston.transports.File({ filename: 'log/combined.log', level: 'info' }),
+    ],
+  })
+  global.logger = logger
+}
+
+
 /**
  * グローバルの関数をセットする。
  *
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const monkeyPatch = () => {
+const monkeyPatch = ({ SERVICE_NAME }) => {
   if (typeof global.argNamed === 'undefined') {
     global.argNamed = _argNamed
+    global.logger = _createGlobalLogger({ SERVICE_NAME })
   } else {
     console.log('[warn] global.argNamed is already set.')
   }

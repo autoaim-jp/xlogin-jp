@@ -73,11 +73,10 @@ const startServer = ({ app, port }) => {
 
 const init = async () => {
   dotenv.config()
-  a.lib.backendServerLib.monkeyPatch()
   a.lib.init({ ulid, crypto, winston })
   a.setting.init({ env: process.env })
   a.output.init({ setting })
-  a.lib.createGlobalLogger({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 
   const {
     AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port,
