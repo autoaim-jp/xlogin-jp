@@ -94,7 +94,7 @@ docker-compose-build-app:
 docker-compose-build-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml build
 docker-compose-build-view:
-	docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml build
 
 # up
 docker-compose-up-app:
@@ -108,11 +108,11 @@ docker-compose-up-test:
 	docker compose -p ${DOCKER_PROJECT_NAME}-test -f ./app/docker/docker-compose.test.yml up --abort-on-container-exit
 
 docker-compose-up-view-compile:
-	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-compile-minify:
-	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="compile-minify" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 docker-compose-up-view-watch:
-	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit-backend/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
+	VIEW_PATH=../../../../service/staticWeb/src/view BUILD_COMMAND="watch" docker compose -p ${DOCKER_PROJECT_NAME}-view -f ./xdevkit/standalone/xdevkit-view-compiler/docker/docker-compose.view.yml up --abort-on-container-exit
 
 # down
 docker-compose-down-app:
@@ -136,9 +136,9 @@ postgresql-restore:
 	./service/postgresql/bin/restorePostgresqlData.sh
 
 docker-compose-up-lint:
-	SERVICE_PATH=../../../../service docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+	SERVICE_PATH=../../../../service docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 docker-compose-up-lint-fix:
-	SERVICE_PATH=../../../../service FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit-backend/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
+	SERVICE_PATH=../../../../service FIX_OPTION="--fix" docker compose -p ${DOCKER_PROJECT_NAME}-lint -f ./xdevkit/standalone/xdevkit-eslint/docker/docker-compose.eslint.yml up --abort-on-container-exit
 
 init-doc-deploy-key:
 	mkdir -p ./secret/
@@ -146,8 +146,8 @@ init-doc-deploy-key:
 	echo "info: register this as a deploy key at github"
 	cat ./secret/id_rsa_deploy_key.pub
 docker-compose-rebuild-doc:
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml down --volumes
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml build
 docker-compose-up-doc-publish:
 	SECRET_PATH=../../../../secret \
 	SERVICE_PATH=../../../../service \
@@ -155,7 +155,7 @@ docker-compose-up-doc-publish:
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
 	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 docker-compose-up-doc-generate:
 	SECRET_PATH=../../../../secret \
 	SERVICE_PATH=../../../../service \
@@ -163,13 +163,13 @@ docker-compose-up-doc-generate:
 	GIT_USER_NAME="${GIT_USER_NAME}" \
 	GIT_USER_EMAIL="${GIT_USER_EMAIL}" \
 	GIT_REPOSITORY_URL="${GIT_REPOSITORY_URL}" \
-	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit-backend/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
+	docker compose -p ${DOCKER_PROJECT_NAME}-doc -f ./xdevkit/standalone/xdevkit-jsdoc/docker/docker-compose.jsdoc.yml up --abort-on-container-exit
 
 
 # deploytool
 docker-run-htpasswd:
-	pushd ./xdevkit-backend/standalone/xdevkit-htpasswd/ && make generate && popd
-	mv ./xdevkit-backend/standalone/xdevkit-htpasswd/.htpasswd ./setting/.htpasswd
+	pushd ./xdevkit/standalone/xdevkit-htpasswd/ && make generate && popd
+	mv ./xdevkit/standalone/xdevkit-htpasswd/.htpasswd ./setting/.htpasswd
 
 docker-restart-install-stop:
 	docker restart xlapp-container-$(CONTAINER)
