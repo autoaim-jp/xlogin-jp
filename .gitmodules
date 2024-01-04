@@ -29,3 +29,7 @@
 	update = rebase
 	branch = master
 
+[submodule "xdevkit"]
+	path = xdevkit
+	url = git@github.com:/autoaim-jp/xdevkit
+	branch = v0.30
