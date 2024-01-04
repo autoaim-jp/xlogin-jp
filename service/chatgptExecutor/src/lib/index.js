@@ -1,3 +1,9 @@
+import backendServerLib from './backendServerLib.js'
+
+const init = ({ winston }) => {
+  backendServerLib.init({ winston })
+}
+
 const createAmqpConnection = async ({
   amqplib, user, pass, host, port,
 }) => {
@@ -14,6 +20,10 @@ const awaitSleep = ({ ms }) => {
 }
 
 export default {
+  backendServerLib,
+
+  init,
+
   createAmqpConnection,
   awaitSleep,
 }

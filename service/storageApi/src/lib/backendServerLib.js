@@ -183,7 +183,7 @@ const execQuery = async ({ query, paramList }) => {
         return resolve({ err: null, result })
       })
       .catch((err) => {
-        logger.error('Error executing query', err)
+        logger.error('Error executing query', { err })
         return resolve({ err, result: null })
       })
   })

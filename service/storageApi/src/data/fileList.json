@@ -38,13 +38,7 @@
         "content": "kjhgf"
       }
     },
-    "sample_xlogin_jp": {
-      "/message.txt": {
-        "dateUpdated": 1698839103447,
-        "clientId": "sample_xlogin_jp",
-        "content": "text after test\nJSON変更！"
-      }
-    }
+    "sample_xlogin_jp": {}
   },
   "user@example.com2": {
     "sample_xlogin_jp": {
