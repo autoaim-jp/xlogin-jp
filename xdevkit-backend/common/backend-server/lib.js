@@ -182,7 +182,7 @@ const execQuery = async ({ query, paramList }) => {
         return resolve({ err: null, result })
       })
       .catch((err) => {
-        console.error('Error executing query', err.stack)
+        logger.error('Error executing query', err)
         return resolve({ err, result: null })
       })
   })
@@ -207,7 +207,7 @@ const checkPermission = ({ splitPermissionList, operationKey, range, dataType })
     }
     const keySplit = key.split(':')
     if (keySplit.length !== 3) {
-      console.log('[warn] invalid key:', key)
+      logger.warn('invalid key', { key })
       return false
     }
 
@@ -283,12 +283,8 @@ const _createGlobalLogger = ({ SERVICE_NAME }) => {
  * @memberof lib
  */
 const monkeyPatch = ({ SERVICE_NAME }) => {
-  if (typeof global.argNamed === 'undefined') {
-    global.argNamed = _argNamed
-    global.logger = _createGlobalLogger({ SERVICE_NAME })
-  } else {
-    console.log('[warn] global.argNamed is already set.')
-  }
+  global.argNamed = _argNamed
+  global.logger = _createGlobalLogger({ SERVICE_NAME })
 }
 
 

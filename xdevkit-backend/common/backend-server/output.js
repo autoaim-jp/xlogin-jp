@@ -17,7 +17,7 @@ const init = ({ setting }) => {
  * @memberof output
  */
 const endResponse = ({ req, res, handleResult }) => {
-  console.log('endResponse:', req.url, handleResult.error)
+  logger.info('endResponse:', req.url, handleResult.error)
   if (req.session) {
     req.session.auth = handleResult.session
   }

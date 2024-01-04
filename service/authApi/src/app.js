@@ -264,7 +264,7 @@ const _getErrorRouter = () => {
  */
 const startServer = (expressApp) => {
   expressApp.listen(a.setting.getValue('env.SERVER_PORT'), () => {
-    console.log(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
+    logger.info(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
   })
 }
 

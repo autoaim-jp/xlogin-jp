@@ -67,7 +67,7 @@ const _getErrorRouter = () => {
 
 const startServer = ({ app, port }) => {
   app.listen(port, () => {
-    console.log(`listen to port: ${port}`)
+    logger.info(`listen to port: ${port}`)
   })
 }
 

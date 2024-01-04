@@ -429,7 +429,7 @@ const _afterCheckPermission = async (ipAddress, useragent, authSession, splitPer
   const notificationAppendResult = await mod.output.appendNotification({
     notificationId, clientId: notificationRange, emailAddress, subject, detail, execQuery, getMaxIdInList,
   })
-  console.log({ notificationAppendResult })
+  logger.debug('_afterCheckPermission', { notificationAppendResult })
 
   const serviceUserId = mod.lib.backendServerLib.getRandomB64UrlSafe({ len: mod.setting.getValue('user.SERVICE_USER_ID_L') })
   const { clientId } = authSession.oidc

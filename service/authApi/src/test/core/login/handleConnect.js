@@ -4,20 +4,20 @@ export const handleConnectWithoutUser = ({ debugLog, core, TEST_PARAM, EXPECTED_
       status: 1,
       session: EXPECTED_PARAM.session,
       response: null,
-      redirect: '/login',
-      // redirect: '/confirm',
+      redirect: '/login', 
+      // redirect: '/confirm', 
     }
 
     const paramKeyList = [
-      // 'user',
-      'clientId',
-      'redirectUri',
-      'state',
-      'scope',
-      'responseType',
-      'codeChallenge',
-      'codeChallengeMethod',
-      'requestScope',
+      // 'user', 
+      'clientId', 
+      'redirectUri', 
+      'state', 
+      'scope', 
+      'responseType', 
+      'codeChallenge', 
+      'codeChallengeMethod', 
+      'requestScope', 
     ]
 
     const argList = {}
@@ -27,7 +27,7 @@ export const handleConnectWithoutUser = ({ debugLog, core, TEST_PARAM, EXPECTED_
 
     const handleResult = await core.handleConnect(argList)
     if (debugLog) {
-      console.log('handleConnect:',handleResult)
+      logger.debug('handleConnect', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)
@@ -61,20 +61,20 @@ export const handleConnectWithUser = ({ debugLog, core, TEST_PARAM, EXPECTED_PAR
       status: 1,
       session: EXPECTED_PARAM.session,
       response: null,
-      // redirect: '/login',
-      redirect: '/confirm',
+      // redirect: '/login', 
+      redirect: '/confirm', 
     }
 
     const paramKeyList = [
-      'user',
-      'clientId',
-      'redirectUri',
-      'state',
-      'scope',
-      'responseType',
-      'codeChallenge',
-      'codeChallengeMethod',
-      'requestScope',
+      'user', 
+      'clientId', 
+      'redirectUri', 
+      'state', 
+      'scope', 
+      'responseType', 
+      'codeChallenge', 
+      'codeChallengeMethod', 
+      'requestScope', 
     ]
 
     const argList = {}
@@ -84,7 +84,7 @@ export const handleConnectWithUser = ({ debugLog, core, TEST_PARAM, EXPECTED_PAR
 
     const handleResult = await core.handleConnect(argList)
     if (debugLog) {
-      console.log('handleConnect:',handleResult)
+      logger.debug('handleConnect', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)
