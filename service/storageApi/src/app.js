@@ -159,7 +159,9 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.init({ ulid, crypto, winston, multer })
+  a.lib.init({
+    ulid, crypto, winston, multer,
+  })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({

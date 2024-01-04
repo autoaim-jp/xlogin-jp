@@ -16,7 +16,9 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid, winston, multer }) => {
+const init = ({
+  crypto, ulid, winston, multer,
+}) => {
   mod.crypto = crypto
   mod.ulid = ulid
   mod.multer = multer
