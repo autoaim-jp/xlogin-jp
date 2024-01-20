@@ -24,17 +24,29 @@ const mod = {}
  * @memberof core
  */
 const init = ({
-  setting, output, input, lib,
+  setting, output, input, lib, fs
 }) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
   mod.lib = lib
+  mod.fs = fs
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   output.createUploadDir({ uploadDirDiskPath: FORM_UPLOAD_DIR })
 
   backendServerCore.init({ setting, input, lib })
+}
+
+const initDataFileAndDir = () => {
+  logger.debug(mod.setting.getValue('server.FILE_LIST_JSON'))
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON'))) {
+    fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
+  }
+
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))) {
+    fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'), '')
+  }
 }
 
 /**
@@ -329,6 +341,7 @@ export default {
   backendServerCore,
 
   init,
+  initDataFileAndDir,
   createPgPool,
 
   handleJsonUpdate,
