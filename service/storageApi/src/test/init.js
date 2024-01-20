@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import { ulid } from 'ulid'
 import multer from 'multer'
 import pg from 'pg'
+import winston from 'winston'
 
 import setting from '../setting/index.js'
 import output from '../output/index.js'
@@ -20,14 +21,14 @@ const a = asocial
 const init = async () => {
   const ulid = { ulid: () => { return '01ARZ3NDEKTSV4RRFFQ69G5FAV' } }
   dotenv.config({ path: './.testenv' })
-  a.lib.backendServerLib.monkeyPatch()
-  a.lib.init({ crypto, ulid, multer })
+  a.lib.init({ ulid, crypto, winston, multer })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({ setting, output, input, lib })
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 }
 
 const _registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {

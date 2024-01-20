@@ -8,9 +8,9 @@ export const handleCredentialCheck = ({ debugLog, core, TEST_PARAM, EXPECTED_PAR
     }
 
     const paramKeyList = [
-      'emailAddress',
-      'passHmac2',
-      'authSession',
+      'emailAddress', 
+      'passHmac2', 
+      'authSession', 
     ]
 
     const argList = {}
@@ -20,7 +20,7 @@ export const handleCredentialCheck = ({ debugLog, core, TEST_PARAM, EXPECTED_PAR
 
     const handleResult = await core.handleCredentialCheck(argList)
     if (debugLog) {
-      console.log('handleCredentialCheck:', handleResult)
+      logger.debug('handleCredentialCheck', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

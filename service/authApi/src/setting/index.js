@@ -8,6 +8,7 @@ const init = (env) => {
   setting.env.SERVER_ORIGIN = env.SERVER_ORIGIN
   setting.env.SESSION_SECRET = env.SESSION_SECRET
   setting.env.SERVER_PORT = env.SERVER_PORT
+  setting.env.SERVICE_NAME = env.SERVICE_NAME
 }
 
 setting.startup = {}

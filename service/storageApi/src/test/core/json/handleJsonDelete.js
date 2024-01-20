@@ -20,7 +20,7 @@ export const handleJsonDelete = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleJsonDelete(argList)
-    console.log('handleJsonDelete:', handleResult)
+    logger.debug('handleJsonDelete', handleResult)
 
     expect(handleResult).toHaveProperty('status', expected.status)
     expect(handleResult).toHaveProperty('session', expected.session)

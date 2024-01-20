@@ -22,9 +22,9 @@ export const handleUserInfo = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =
     }
 
     const paramKeyList = [
-      'clientId',
-      'accessToken',
-      'filterKeyListStr',
+      'clientId', 
+      'accessToken', 
+      'filterKeyListStr', 
     ]
 
     const argList = {}
@@ -34,7 +34,7 @@ export const handleUserInfo = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =
 
     const handleResult = await core.handleUserInfo(argList)
     if (debugLog) {
-      console.log('handleUserInfo:', handleResult)
+      logger.debug('handleUserInfo', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

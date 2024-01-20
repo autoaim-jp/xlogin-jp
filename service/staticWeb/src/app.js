@@ -8,12 +8,14 @@ import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import winston from 'winston'
 import { collectDefaultMetrics, register } from 'prom-client'
 
 import setting from './setting/index.js'
+import lib from './lib/index.js'
 
 const asocial = {
-  setting,
+  setting, lib,
 }
 const a = asocial
 
@@ -61,7 +63,6 @@ const _getStaticRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
-    console.log('debug:', req.path, req.query, req.body)
     res.status(404)
     res.end('Not Found')
     return next()
@@ -79,7 +80,7 @@ const _getErrorRouter = () => {
  */
 const startServer = ({ app, port, origin }) => {
   app.listen(port, () => {
-    console.log(`xlogin.jp listen to port: ${port}, origin: ${origin}`)
+    logger.info(`xlogin.jp listen to port: ${port}, origin: ${origin}`)
   })
 }
 
@@ -91,7 +92,9 @@ const startServer = ({ app, port, origin }) => {
  */
 const init = async () => {
   dotenv.config()
+  a.lib.init({ winston })
   a.setting.init(process.env)
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 
   collectDefaultMetrics()
 }

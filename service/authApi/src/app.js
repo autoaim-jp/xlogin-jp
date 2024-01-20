@@ -16,6 +16,7 @@ import RedisStore from 'connect-redis'
 import dotenv from 'dotenv'
 import expressUseragent from 'express-useragent'
 import pg from 'pg'
+import winston from 'winston'
 
 import setting from './setting/index.js'
 import output from './output/index.js'
@@ -246,7 +247,6 @@ const _getFunctionRouter = () => {
 const _getErrorRouter = () => {
   const expressRouter = express.Router()
   expressRouter.use((req, res, next) => {
-    console.log('debug:', req.path, req.query, req.body)
     res.status(500)
     res.end('Internal Server Error')
     return next()
@@ -264,7 +264,7 @@ const _getErrorRouter = () => {
  */
 const startServer = (expressApp) => {
   expressApp.listen(a.setting.getValue('env.SERVER_PORT'), () => {
-    console.log(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
+    logger.info(`xlogin.jp listen to port: ${a.setting.getValue('env.SERVER_PORT')}, origin: ${a.setting.getValue('env.SERVER_ORIGIN')}`)
   })
 }
 
@@ -276,8 +276,7 @@ const startServer = (expressApp) => {
  */
 const init = async () => {
   dotenv.config()
-  a.lib.backendServerLib.monkeyPatch()
-  a.lib.init({ crypto, ulid })
+  a.lib.init({ ulid, crypto, winston })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({
@@ -286,6 +285,7 @@ const init = async () => {
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 }
 
 /**
@@ -309,7 +309,6 @@ const main = async () => {
 
   startServer(expressApp)
 
-  console.log(`open: http://${a.setting.getValue('env.SERVER_ORIGIN')}/`)
   fs.writeFileSync('/tmp/setup.done', '0')
 }
 

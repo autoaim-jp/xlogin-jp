@@ -141,7 +141,7 @@ const getUserByAccessToken = async ({
   for await (const key of filterKeyList) {
     const keySplit = key.split(':')
     if (keySplit.length !== 2) {
-      console.log('[warn] invalid key:', key)
+      logger.warn('invalid key:', key)
       return null
     }
     const operationKey = 'r'

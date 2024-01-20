@@ -1,3 +1,5 @@
+SERVICE_NAME=storageApi
+
 SESSION_SECRET='secretsecretsecretsecret'
 
 SERVER_PORT=3333

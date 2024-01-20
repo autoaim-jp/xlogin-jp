@@ -9,10 +9,10 @@ export const handleConfirm = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =>
     expected.session.oidc.splitPermissionList = EXPECTED_PARAM.splitPermissionList
 
     const paramKeyList = [
-      'ipAddress',
-      'useragent',
-      'permissionList',
-      'authSession',
+      'ipAddress', 
+      'useragent', 
+      'permissionList', 
+      'authSession', 
     ]
 
     const argList = {}
@@ -22,7 +22,7 @@ export const handleConfirm = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =>
 
     const handleResult = await core.handleConfirm(argList)
     if (debugLog) {
-      console.log('handleConfirm:', handleResult)
+      logger.debug('handleConfirm', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

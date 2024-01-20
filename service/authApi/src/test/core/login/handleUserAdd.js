@@ -11,8 +11,8 @@ export const handleUserAdd = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =>
       'passPbkdf2', 
       'saltHex', 
       'isTosChecked', 
-      'isPrivacyPolicyChecked',
-      'authSession',
+      'isPrivacyPolicyChecked', 
+      'authSession', 
     ]
 
     const argList = {}
@@ -23,7 +23,7 @@ export const handleUserAdd = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) =>
 
     const handleResult = await core.handleUserAdd(argList)
     if (debugLog) {
-      console.log('handleUserAdd:', handleResult)
+      logger.debug('handleUserAdd', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

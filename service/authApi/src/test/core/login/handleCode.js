@@ -8,9 +8,9 @@ export const handleCode = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
     }
 
     const paramKeyList = [
-      'clientId',
-      'code',
-      'codeVerifier',
+      'clientId', 
+      'code', 
+      'codeVerifier', 
     ]
 
     const argList = {}
@@ -20,7 +20,7 @@ export const handleCode = ({ debugLog, core, TEST_PARAM, EXPECTED_PARAM }) => {
 
     const handleResult = await core.handleCode(argList)
     if (debugLog) {
-      console.log('handleCode:', handleResult)
+      logger.debug('handleCode', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

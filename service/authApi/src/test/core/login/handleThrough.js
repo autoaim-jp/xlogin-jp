@@ -15,7 +15,7 @@ export const handleThroughReturnNotFound = ({ debugLog, core, TEST_PARAM, EXPECT
     const handleResult = await core.handleThrough(argList)
     
     if (debugLog) {
-      console.log('handleThroughReturnNotFound:', handleResult)
+      logger.debug('handleThroughReturnNotFound', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)
@@ -59,7 +59,7 @@ export const handleThroughReturnRedirect = ({ debugLog, core, TEST_PARAM, EXPECT
     const handleResult = await core.handleThrough(argList)
     
     if (debugLog) {
-      console.log('handleThroughReturnRedirect:', handleResult)
+      logger.debug('handleThroughReturnRedirect', handleResult)
     }
 
     expect(handleResult).toHaveProperty('status', expected.status)

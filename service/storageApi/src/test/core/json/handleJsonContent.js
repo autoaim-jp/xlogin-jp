@@ -19,9 +19,9 @@ export const handleJsonContent = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
       argList[key] = TEST_PARAM[key]
     })
 
-    console.log({ argList })
+    logger.debug({ argList })
     const handleResult = await core.handleJsonContent(argList)
-    console.log('handleJsonContent:', handleResult)
+    logger.debug('handleJsonContent', handleResult)
 
     expect(handleResult).toHaveProperty('status', expected.status)
     expect(handleResult).toHaveProperty('session', expected.session)

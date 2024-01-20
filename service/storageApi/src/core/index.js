@@ -316,7 +316,7 @@ const handleFileCreate = async ({
   const createFileResult = await mod.output.createFile({
     fileLabel, userSerialId, clientId, fileDir, fileName, diskFilePath, execQuery,
   })
-  console.log({ createFileResult })
+  logger.debug('handleCreateFile', { createFileResult })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {

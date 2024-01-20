@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import crypto from 'crypto'
 import { ulid } from 'ulid'
 import pg from 'pg'
+import winston from 'winston'
 
 import setting from '../setting/index.js'
 import output from '../output/index.js'
@@ -18,14 +19,14 @@ const a = asocial
 
 const init = async () => {
   dotenv.config({ path: './.testenv' })
-  a.lib.backendServerLib.monkeyPatch()
-  a.lib.init({ crypto, ulid })
+  a.lib.init({ ulid, crypto, winston })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({ setting, output, input, lib })
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
+  a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
 }
 
 const insertTestData = async () => {

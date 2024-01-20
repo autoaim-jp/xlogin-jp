@@ -4,10 +4,6 @@ const getHandlerRegisterPrompt = ({ handleRegisterPrompt }) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
-    console.log({
-      debug: true, prompt, accessToken, clientId,
-    })
-
     const handleResult = await handleRegisterPrompt({ prompt, accessToken, clientId })
 
     res.json({ result: handleResult })
@@ -21,10 +17,6 @@ const getHandlerLookupChatgptResponse = ({ handleLookupChatgptResponse }) => {
     const clientId = req.headers['x-xlogin-client-id']
 
     const requestIdList = requestIdListStr.split(',')
-
-    console.log({
-      debug: true, requestIdList, clientId, accessToken,
-    })
 
     const handleResult = await handleLookupChatgptResponse({ clientId, accessToken, requestIdList })
 

@@ -21,7 +21,7 @@ export const handleJsonUpdate = ({ core, TEST_PARAM, EXPECTED_PARAM }) => {
     })
 
     const handleResult = await core.handleJsonUpdate(argList)
-    console.log('handleJsonUpdate:', handleResult)
+    logger.debug('handleJsonUpdate', handleResult)
 
     expect(handleResult).toHaveProperty('status', expected.status)
     expect(handleResult).toHaveProperty('session', expected.session)
