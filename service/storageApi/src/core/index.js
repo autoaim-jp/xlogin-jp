@@ -1,6 +1,5 @@
 /* /core/index.js */
 
-import fs from 'fs'
 import backendServerCore from './backendServerCore.js'
 
 /**
@@ -24,17 +23,33 @@ const mod = {}
  * @memberof core
  */
 const init = ({
-  setting, output, input, lib,
+  setting, output, input, lib, fs,
 }) => {
   mod.setting = setting
   mod.output = output
   mod.input = input
   mod.lib = lib
+  mod.fs = fs
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
   output.createUploadDir({ uploadDirDiskPath: FORM_UPLOAD_DIR })
 
   backendServerCore.init({ setting, input, lib })
+}
+
+const initDataFileAndDir = () => {
+  logger.debug(mod.setting.getValue('server.FILE_LIST_JSON'))
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON_DIR'))) {
+    mod.fs.mkdirSync(mod.setting.getValue('server.FILE_LIST_JSON_DIR'))
+  }
+
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))) {
+    mod.fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))
+  }
+
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON'))) {
+    mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
+  }
 }
 
 /**
@@ -290,7 +305,7 @@ const handleFileCreate = async ({
   }
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
-  fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
+  mod.fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
   const filePathSplitList = filePath.split('/')
   if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {
@@ -329,6 +344,7 @@ export default {
   backendServerCore,
 
   init,
+  initDataFileAndDir,
   createPgPool,
 
   handleJsonUpdate,

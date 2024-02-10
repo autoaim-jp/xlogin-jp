@@ -24,11 +24,13 @@ const init = async () => {
   a.lib.init({ ulid, crypto, winston, multer })
   a.setting.init(process.env)
   a.output.init({ setting, fs })
-  a.core.init({ setting, output, input, lib })
+  a.core.init({ setting, output, input, lib, fs })
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
   a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
+  
+  a.core.initDataFileAndDir()
 }
 
 const _registerUserByEmailAddress = async (emailAddress, passPbkdf2, saltHex, userName, execQuery) => {

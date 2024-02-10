@@ -9,9 +9,11 @@
 
 
 # tag
-マイクロサービスアーキテクチャ, docker, asocial
-jsdoc, eslint, Node.js, docker-compose, git, GitHub Workflow, jest
-vim, PostgreSQL, redis, xdevkit, GitHub Pages
+マイクロサービスアーキテクチャ, docker, asocial,
+jsdoc, eslint, Node.js, docker-compose, git, GitHub Workflow, jest,
+vim, PostgreSQL, redis, xdevkit, GitHub Pages,
+Prometheus, Grafana, SSO, OIDC, ChatGPT, MeCab,
+
 
 # architecture
 ![architecture img](./doc/architecture/v2/result/developer/001_xloginメンテナ1.png)
