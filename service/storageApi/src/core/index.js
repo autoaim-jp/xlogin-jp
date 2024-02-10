@@ -1,6 +1,5 @@
 /* /core/index.js */
 
-import fs from 'fs'
 import backendServerCore from './backendServerCore.js'
 
 /**
@@ -24,7 +23,7 @@ const mod = {}
  * @memberof core
  */
 const init = ({
-  setting, output, input, lib, fs
+  setting, output, input, lib, fs,
 }) => {
   mod.setting = setting
   mod.output = output
@@ -41,11 +40,11 @@ const init = ({
 const initDataFileAndDir = () => {
   logger.debug(mod.setting.getValue('server.FILE_LIST_JSON'))
   if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON'))) {
-    fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
+    mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
   }
 
   if (!mod.fs.existsSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))) {
-    fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'), '')
+    mod.fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'), '')
   }
 }
 
@@ -302,7 +301,7 @@ const handleFileCreate = async ({
   }
 
   const { FORM_UPLOAD_DIR } = mod.setting.getList('server.FORM_UPLOAD_DIR')
-  fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
+  mod.fs.writeFileSync(`${FORM_UPLOAD_DIR}${diskFilePath}`, req.file.buffer)
 
   const filePathSplitList = filePath.split('/')
   if (filePathSplitList.length <= 2 || filePathSplitList[0] !== '') {

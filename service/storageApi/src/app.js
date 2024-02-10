@@ -165,7 +165,7 @@ const init = async () => {
   a.setting.init(process.env)
   a.output.init({ setting, fs })
   a.core.init({
-    setting, output, input, lib, fs
+    setting, output, input, lib, fs,
   })
   a.input.init({ setting, fs })
   const pgPool = a.core.createPgPool({ pg })
