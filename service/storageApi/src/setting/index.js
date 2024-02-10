@@ -14,7 +14,8 @@ const init = (env) => {
 setting.startup = {}
 setting.startup.MAX_RETRY_PSQL_CONNECT_N = 30
 setting.server = {}
-setting.server.FILE_LIST_JSON = 'data/fileList.json'
+setting.server.FILE_LIST_JSON_DIR = 'data/'
+setting.server.FILE_LIST_JSON = setting.server.FILE_LIST_JSON_DIR + 'fileList.json'
 setting.server.FORM_UPLOAD_DIR = 'data/upload/'
 
 setting.oidc = {}

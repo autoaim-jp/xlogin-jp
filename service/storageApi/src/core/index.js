@@ -39,12 +39,16 @@ const init = ({
 
 const initDataFileAndDir = () => {
   logger.debug(mod.setting.getValue('server.FILE_LIST_JSON'))
-  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON'))) {
-    mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON_DIR'))) {
+    mod.fs.mkdirSync(mod.setting.getValue('server.FILE_LIST_JSON_DIR'))
   }
 
   if (!mod.fs.existsSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))) {
-    mod.fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'), '')
+    mod.fs.mkdirSync(mod.setting.getValue('server.FORM_UPLOAD_DIR'))
+  }
+
+  if (!mod.fs.existsSync(mod.setting.getValue('server.FILE_LIST_JSON'))) {
+    mod.fs.writeFileSync(mod.setting.getValue('server.FILE_LIST_JSON'), '{}')
   }
 }
 
