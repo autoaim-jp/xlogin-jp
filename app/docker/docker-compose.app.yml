@@ -166,7 +166,7 @@ services:
     depends_on:
       rabbitmq_container:
         condition: service_healthy
- 
+
   chatgpt_api_container:
     container_name: xlapp-container-chatgpt-api
     build:
@@ -206,7 +206,7 @@ services:
     depends_on:
       rabbitmq_container:
         condition: service_healthy
- 
+
   text_lib_api_container:
     container_name: xlapp-container-text-lib-api
     build:
