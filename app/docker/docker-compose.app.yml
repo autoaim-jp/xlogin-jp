@@ -227,6 +227,26 @@ services:
       mecab_executor_container:
         condition: service_healthy
 
+  tesseract_executor_container:
+    container_name: xlapp-container-tesseract-executor
+    build:
+      context: ../../
+      dockerfile: ./service/tesseractExecutor/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/tesseractExecutor/src:/app
+      - xlapp-volume-tg-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      rabbitmq_container:
+        condition: service_healthy
+
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
@@ -257,6 +277,6 @@ volumes:
   xlapp-volume-cg-nm:
   xlapp-volume-me-nm:
   xlapp-volume-tl-nm:
-
+  xlapp-volume-tg-nm:
 
 
