@@ -1,7 +1,7 @@
 const mod = {}
 
 const init = async ({
-  setting, lib, amqpConnection, OpenAI,
+  setting, output, input, lib, amqpConnection,
 }) => {
   const amqpPromptChannel = await amqpConnection.createChannel()
   mod.amqpPromptChannel = amqpPromptChannel
@@ -9,29 +9,24 @@ const init = async ({
   mod.amqpResponseChannel = amqpResponseChannel
 
   mod.setting = setting
+  mod.output = output
+  mod.input = input
   mod.lib = lib
-
-  const OPENAI_CHATGPT_API_KEY = mod.setting.getValue('env.OPENAI_CHATGPT_API_KEY')
-  const openaiClient = new OpenAI({
-    apiKey: OPENAI_CHATGPT_API_KEY,
-  })
-  mod.openaiClient = openaiClient
 }
 
-const _fetchChatgpt = async ({ role, prompt }) => {
-  const stream = await mod.openaiClient.chat.completions.create({
-    // model: 'gpt-4',
-    model: 'gpt-3.5-turbo',
-    messages: [{ role, content: prompt }],
-    stream: true,
-  })
-  let response = ''
-  for await (const part of stream) {
-    // process.stdout.write(part.choices[0]?.delta?.content || '')
-    response += part.choices[0]?.delta?.content || ''
-  }
+const _execTesseract = async ({ pngImgBase64 }) => {
+  const taskTmpDirName = mod.lib.backendServerLib.getUlid()
+  const imageFileName = mod.lib.backendServerLib.getUlid() + '.png'
+  const base64Str = pngImgBase64.replace('data:image/png;base64,', '')
+  mod.output.writeFileBase64({ filePath: `/home/work/${imageFileName}`, content: base64Str })
 
-  const responseObj = { response }
+  const commandList = ['mkdir', '-p', `/home/work/${taskTmpDirName}/out/`, '&&', 'cd', `/home/work/${TASK_TMP_DIR}/out/`, '&&', 'tesseract', `../${imageFileName}`, 'phototest', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
+  const resultList = []
+  await lib.fork({ commandList, resultList })
+
+  const resultTextFilePath = `/home/work/${taskTmpDirName}/out/phototest.txt`
+  const resultText = mod.init.readFileContent({ filePath: resultTextFilePath })
+  const responseObj = { resultText }
 
   return responseObj
 }
@@ -52,11 +47,9 @@ const startConsumer = async () => {
 
       const requestJson = JSON.parse(msg.content.toString())
 
-      const { requestId } = requestJson
-      const role = requestJson.role || mod.setting.getValue('chatgpt.DEFAULT_ROLE')
-      const prompt = requestJson.prompt || mod.setting.getValue('chatgpt.DEFAULT_ROLE')
+      const { requestId, pngImgBase64 } = requestJson
 
-      const responseObj = await _fetchChatgpt({ role, prompt })
+      const responseObj = await _execTesseract({ pngImgBase64 })
       const responseJson = { requestId, response: responseObj }
       const responseJsonStr = JSON.stringify(responseJson)
       mod.amqpResponseChannel.sendToQueue(responseQueue, Buffer.from(responseJsonStr))

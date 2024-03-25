@@ -1,22 +1,24 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
 import amqplib from 'amqplib'
-import OpenAI from 'openai'
 import winston from 'winston'
+import { spawn } from 'child_process'
 
 import setting from './setting.js'
 import core from './core.js'
+import output from './output.js'
+import input from './input.js'
 import lib from './lib/index.js'
 
 const asocial = {
-  setting, core, lib,
+  setting, core, output, input, lib,
 }
 const a = asocial
 
 const init = async () => {
   dotenv.config()
   a.setting.init({ env: process.env })
-  a.lib.init({ winston })
+  a.lib.init({ winston, spawn })
   a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
   const {
     AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port,
@@ -24,8 +26,10 @@ const init = async () => {
   const amqpConnection = await a.lib.createAmqpConnection({
     amqplib, user, pass, host, port,
   })
-  await core.init({
-    setting, lib, amqpConnection, OpenAI,
+  a.input.init({ fs })
+  a.output.init({ fs })
+  await a.core.init({
+    setting, output, input, lib, amqpConnection,
   })
 }
 

@@ -1,7 +1,11 @@
 import backendServerLib from './backendServerLib.js'
 
-const init = ({ winston }) => {
+const mod = {}
+
+const init = ({ winston, spawn }) => {
   backendServerLib.init({ winston })
+
+  mod.spawn = spawn
 }
 
 const createAmqpConnection = async ({
@@ -19,6 +23,26 @@ const awaitSleep = ({ ms }) => {
   })
 }
 
+const fork = ({ commandList, resultList }) => {
+  return new Promise((resolve) => {
+    const proc = mod.spawn(commandList[0], commandList.slice(1), { shell: true })
+
+    proc.stderr.on('data', (err) => {
+      logger.error('fork', err.toString())
+    })
+    proc.stdout.on('data', (data) => {
+      logger.info('fork', data.toString())
+      const result = ((data || '').toString() || '')
+      resultList.push(result)
+    })
+    proc.on('close', (code) => {
+      logger.info('spawn', code)
+      resolve()
+    })
+  })
+}
+
+
 export default {
   backendServerLib,
 
@@ -26,5 +50,6 @@ export default {
 
   createAmqpConnection,
   awaitSleep,
+  fork,
 }
 
