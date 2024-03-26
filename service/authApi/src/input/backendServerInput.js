@@ -51,7 +51,9 @@ const isValidClient = async ({ clientId, redirectUri, execQuery }) => {
  * @return {boolean} クライアントの署名が正しいかどうかDBを確認した結果
  * @memberof input
  */
-const isValidSignature = async ({ clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64 }) => {
+const isValidSignature = async ({
+  clientId, dataToSign, signature, execQuery, paramSnakeToCamel, calcSha256HmacAsB64,
+}) => {
   const query = 'select * from access_info.secret_list where client_id = $1'
   const paramList = [clientId]
 
@@ -81,7 +83,9 @@ const isValidSignature = async ({ clientId, dataToSign, signature, execQuery, pa
  * @return {String} アクセストークンでDBから取得したメールアドレス
  * @memberof input
  */
-const checkPermissionAndGetEmailAddress = async ({ accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission }) => {
+const checkPermissionAndGetEmailAddress = async ({
+  accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+}) => {
   const query = 'select * from access_info.access_token_list where client_id = $1 and access_token = $2'
   const paramList = [clientId, accessToken]
 
@@ -92,7 +96,9 @@ const checkPermissionAndGetEmailAddress = async ({ accessToken, clientId, operat
   }
   const { emailAddress, splitPermissionList: splitPermissionListStr } = paramSnakeToCamel({ paramList: result.rows[0] })
   const splitPermissionList = JSON.parse(splitPermissionListStr)
-  const isAuthorized = checkPermission({ splitPermissionList, operationKey, range, dataType })
+  const isAuthorized = checkPermission({
+    splitPermissionList, operationKey, range, dataType,
+  })
   if (!isAuthorized) {
     return null
   }
@@ -101,13 +107,12 @@ const checkPermissionAndGetEmailAddress = async ({ accessToken, clientId, operat
 }
 
 
-
 export default {
   init,
 
   isValidClient,
   isValidSignature,
-  
+
   checkPermissionAndGetEmailAddress,
 }
 

@@ -18,7 +18,7 @@ const _execTesseract = async ({ imgBase64 }) => {
   const workDirName = mod.lib.backendServerLib.getUlid()
   const imageFileNameWithoutExt = mod.lib.backendServerLib.getUlid()
   let ext = null
-  let imgData = null 
+  let imgData = null
   if (imgBase64.indexOf('data:image/png;base64,') === 0) {
     ext = '.png'
     imgData = imgBase64.replace('data:image/png;base64,', '')
@@ -30,14 +30,14 @@ const _execTesseract = async ({ imgBase64 }) => {
     return responseObj
   }
   const workDirPath = `/app/data/${workDirName}/`
-  const imageFilePath = `${imageFileName}${ext}`
+  const imageFilePath = `${imageFileNameWithoutExt}${ext}`
 
   mod.output.makeDir({ dirPath: workDirPath })
   mod.output.writeFileBase64({ filePath: imageFilePath, content: imgData })
 
   const commandList = ['cd', workDirName, '&&', 'tesseract', imageFilePath, 'result', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
   const resultList = []
-  await lib.fork({ commandList, resultList })
+  await mod.lib.fork({ commandList, resultList })
 
   const resultTextFilePath = `${workDirPath}result.txt`
   const resultText = mod.init.readFileContent({ filePath: resultTextFilePath })
