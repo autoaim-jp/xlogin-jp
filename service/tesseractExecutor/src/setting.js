@@ -2,8 +2,6 @@ const setting = {}
 
 const init = ({ env }) => {
   setting.env = {}
-  setting.env.OPENAI_CHATGPT_API_KEY = env.OPENAI_CHATGPT_API_KEY
-
   setting.env.AMQP_USER = env.AMQP_USER
   setting.env.AMQP_PASS = env.AMQP_PASS
   setting.env.AMQP_HOST = env.AMQP_HOST
@@ -11,13 +9,8 @@ const init = ({ env }) => {
 }
 
 setting.amqp = {}
-setting.amqp.CHATGPT_PROMPT_QUEUE = 'chatgpt-prompt-queue'
-setting.amqp.CHATGPT_RESPONSE_QUEUE = 'chatgpt-response-queue'
-
-setting.chatgpt = {}
-setting.chatgpt.DEFAULT_ROLE = 'user'
-setting.chatgpt.DEFAULT_PROMPT = 'what is chatgpt'
-setting.chatgpt.SLEEP_BEFORE_REQUEST_MS = 5 * 1000
+setting.amqp.TESSERACT_REQUEST_QUEUE = 'tesseract-request-queue'
+setting.amqp.TESSERACT_RESPONSE_QUEUE = 'tesseract-response-queue'
 
 const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */

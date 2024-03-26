@@ -8,8 +8,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt install -y nodejs
 RUN npm install -g yarn
 
-RUN mkdir /home/work
-
 WORKDIR /app
 
 COPY ./service/tesseractExecutor/src/package.json /app/

@@ -14,17 +14,32 @@ const init = async ({
   mod.lib = lib
 }
 
-const _execTesseract = async ({ pngImgBase64 }) => {
-  const taskTmpDirName = mod.lib.backendServerLib.getUlid()
-  const imageFileName = mod.lib.backendServerLib.getUlid() + '.png'
-  const base64Str = pngImgBase64.replace('data:image/png;base64,', '')
-  mod.output.writeFileBase64({ filePath: `/home/work/${imageFileName}`, content: base64Str })
+const _execTesseract = async ({ imgBase64 }) => {
+  const workDirName = mod.lib.backendServerLib.getUlid()
+  const imageFileNameWithoutExt = mod.lib.backendServerLib.getUlid()
+  let ext = null
+  let imgData = null 
+  if (imgBase64.indexOf('data:image/png;base64,') === 0) {
+    ext = '.png'
+    imgData = imgBase64.replace('data:image/png;base64,', '')
+  } else if (imgBase64.indexOf('data:image/jpeg;base64,') === 0) {
+    ext = '.jpg'
+    imgData = imgBase64.replace('data:image/jpeg;base64,', '')
+  } else {
+    const responseObj = { error: 'invalid data' }
+    return responseObj
+  }
+  const workDirPath = `/app/data/${workDirName}/`
+  const imageFilePath = `${imageFileName}${ext}`
 
-  const commandList = ['mkdir', '-p', `/home/work/${taskTmpDirName}/out/`, '&&', 'cd', `/home/work/${TASK_TMP_DIR}/out/`, '&&', 'tesseract', `../${imageFileName}`, 'phototest', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
+  mod.output.makeDir({ dirPath: workDirPath })
+  mod.output.writeFileBase64({ filePath: imageFilePath, content: imgData })
+
+  const commandList = ['cd', workDirName, '&&', 'tesseract', imageFilePath, 'result', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
   const resultList = []
   await lib.fork({ commandList, resultList })
 
-  const resultTextFilePath = `/home/work/${taskTmpDirName}/out/phototest.txt`
+  const resultTextFilePath = `${workDirPath}result.txt`
   const resultText = mod.init.readFileContent({ filePath: resultTextFilePath })
   const responseObj = { resultText }
 
@@ -33,23 +48,19 @@ const _execTesseract = async ({ pngImgBase64 }) => {
 
 
 const startConsumer = async () => {
-  const promptQueue = mod.setting.getValue('amqp.CHATGPT_PROMPT_QUEUE')
-  await mod.amqpPromptChannel.assertQueue(promptQueue)
+  const requestQueue = mod.setting.getValue('amqp.TESSERACT_REQUEST_QUEUE')
+  await mod.amqpPromptChannel.assertQueue(requestQueue)
 
-  const responseQueue = mod.setting.getValue('amqp.CHATGPT_RESPONSE_QUEUE')
+  const responseQueue = mod.setting.getValue('amqp.TESSERACT_RESPONSE_QUEUE')
   await mod.amqpResponseChannel.assertQueue(responseQueue)
 
-  mod.amqpPromptChannel.consume(promptQueue, async (msg) => {
+  mod.amqpPromptChannel.consume(requestQueue, async (msg) => {
     if (msg !== null) {
-      const SLEEP_BEFORE_REQUEST_MS = mod.setting.getValue('chatgpt.SLEEP_BEFORE_REQUEST_MS')
-      console.log(`sleep ${SLEEP_BEFORE_REQUEST_MS}s`)
-      await mod.lib.awaitSleep({ ms: SLEEP_BEFORE_REQUEST_MS })
-
       const requestJson = JSON.parse(msg.content.toString())
 
-      const { requestId, pngImgBase64 } = requestJson
+      const { requestId, imgBase64 } = requestJson
 
-      const responseObj = await _execTesseract({ pngImgBase64 })
+      const responseObj = await _execTesseract({ imgBase64 })
       const responseJson = { requestId, response: responseObj }
       const responseJsonStr = JSON.stringify(responseJson)
       mod.amqpResponseChannel.sendToQueue(responseQueue, Buffer.from(responseJsonStr))
