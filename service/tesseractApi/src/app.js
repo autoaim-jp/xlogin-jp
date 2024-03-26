@@ -5,6 +5,7 @@ import { ulid } from 'ulid'
 import pg from 'pg'
 import express from 'express'
 import amqplib from 'amqplib'
+import multer from 'multer'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import expressUseragent from 'express-useragent'
@@ -46,8 +47,8 @@ const _getFunctionRouter = () => {
     core: [a.core.backendServerCore.isValidSignature],
   }))
 
-  const registerRequestHandler = a.action.getHandlerRegisterRequest({
-    handleRegisterRequest: a.core.handleRegisterRequest,
+  const registerRequestHandler = a.action.getHandlerRegisterRequestAndFileSave({
+    handleRegisterRequestAndFileSave: a.core.handleRegisterRequestAndFileSave,
   })
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/tesseract/request`, checkSignature, registerRequestHandler)
 
@@ -78,9 +79,9 @@ const startServer = ({ app, port }) => {
 
 const init = async () => {
   dotenv.config()
-  a.lib.init({ ulid, crypto, winston })
+  a.lib.init({ ulid, crypto, winston, multer })
   a.setting.init({ env: process.env })
-  a.output.init({ setting })
+  a.output.init({ setting, fs })
   const {
     AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port,
   } = a.setting.getList('env.AMQP_USER', 'env.AMQP_PASS', 'env.AMQP_HOST', 'env.AMQP_PORT')
@@ -94,6 +95,7 @@ const init = async () => {
   const pgPool = a.core.createPgPool({ pg })
   a.lib.backendServerLib.setPgPool({ pgPool })
   a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
+  a.output.createUploadDir({ uploadDirDiskPath: a.setting.getValue('server.FORM_UPLOAD_DIR') })
 }
 
 const main = async () => {

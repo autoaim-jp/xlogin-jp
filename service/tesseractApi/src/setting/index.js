@@ -25,6 +25,11 @@ setting.url.ERROR_PAGE = '/error'
 setting.url.AFTER_CONNECT = '/login'
 setting.url.AFTER_CHECK_CREDENTIAL = '/confirm'
 
+setting.key = {}
+setting.key.FORM_UPLOAD = 'file'
+
+setting.server = {}
+setting.server.FORM_UPLOAD_DIR = 'data/upload/'
 
 const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */

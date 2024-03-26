@@ -38,7 +38,7 @@ const createPgPool = ({ pg }) => {
   return new pg.Pool(dbCredential)
 }
 
-const handleRegisterRequest = async ({ clientId, accessToken, prompt }) => {
+const handleRegisterRequestAndFileSave = async ({ clientId, accessToken, }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'w'
   const range = clientId
@@ -53,13 +53,29 @@ const handleRegisterRequest = async ({ clientId, accessToken, prompt }) => {
     return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const queue = mod.setting.getValue('amqp.TESSERACT_PROMPT_QUEUE')
+  const { FORM_UPLOAD, FORM_UPLOAD_DIR } = mod.setting.getList('key.FORM_UPLOAD', 'server.FORM_UPLOAD_DIR')
+  const uploadResult = await mod.lib.parseMultipartFileUpload({ req, formKey: FORM_UPLOAD })
+  const diskFilePath = mod.lib.getUlid()
+  const filePath = `${FORM_UPLOAD_DIR}${diskFilePath}`
+  mod.output.writeFile({ filePath, buffer: req.file.buffer })
+  // TODO mime check
+  let header = null
+  if ( filePath is jpg ) {
+    header = 'data:image/jpeg;base64,'
+  } else if (filePath is png) {
+    header = 'data:image/png;base64,'
+  }
+
+  const imgData = Buffer.from(req.file.buffer).toString('base64')
+  const imgBase64 = `${header}${imgData}`
+
+  const queue = mod.setting.getValue('amqp.TESSERACT_REQUEST_QUEUE')
   await mod.amqpChannel.assertQueue(queue)
 
   const requestId = mod.lib.getUlid()
   const requestObj = {
     requestId,
-    prompt,
+    imgBase64,
   }
   const requestObjStr = JSON.stringify(requestObj)
 
@@ -123,7 +139,7 @@ export default {
   backendServerCore,
   init,
   createPgPool,
-  handleRegisterRequest,
+  handleRegisterRequestAndFileSave,
   handleLookupChatgptResponse,
   startConsumer,
 }

@@ -14,9 +14,10 @@ const mod = {}
  * @return {undefined} 戻り値なし
  * @memberof lib
  */
-const init = ({ crypto, ulid, winston }) => {
+const init = ({ crypto, ulid, winston, multer }) => {
   mod.crypto = crypto
   mod.ulid = ulid
+  mod.multer = multer
   backendServerLib.init({ crypto, ulid, winston })
 }
 
@@ -32,10 +33,31 @@ const getUlid = () => {
   return mod.ulid()
 }
 
+const parseMultipartFileUpload = ({ req, formKey }) => {
+  const upload = mod.multer({
+    storage: mod.multer.memoryStorage(),
+    limits: { fileSize: 2 * 1024 * 1024 },
+  })
+
+  return new Promise((resolve) => {
+    upload.single(formKey)(req, null, (error) => {
+      if (error instanceof mod.multer.MulterError) {
+        return resolve({ error: true, message: error.message })
+      } if (error) {
+        return resolve({ error: true, message: 'unkown error' })
+      }
+
+      return resolve({ error: false, message: 'success' })
+    })
+  })
+}
+
+
 export default {
   backendServerLib,
   init,
   createAmqpConnection,
   getUlid,
+  parseMultipartFileUpload,
 }
 

@@ -1,12 +1,14 @@
-const getHandlerRegisterRequest = ({ handleRegisterRequest }) => {
+const getHandlerRegisterRequestAndFileSave = ({
+  handleRegisterRequestAndFileSave, endResponse,
+}) => {
   return async (req, res) => {
-    const { prompt } = req.body
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
 
-    const handleResult = await handleRegisterRequest({ prompt, accessToken, clientId })
-
-    res.json({ result: handleResult })
+    const resultHandleRegisterRequest = await handleRegisterRequestAndFileSave({
+      req, clientId, accessToken,
+    })
+    endResponse({ req, res, handleResult: resultHandleRegisterRequest })
   }
 }
 
@@ -66,7 +68,7 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
 
 
 export default {
-  getHandlerRegisterRequest,
+  getHandlerRegisterRequestAndFileSave,
   getHandlerLookupChatgptResponse,
   getHandlerCheckSignature,
 }
