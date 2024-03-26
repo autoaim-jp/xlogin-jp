@@ -176,7 +176,7 @@ services:
     working_dir: /app
     volumes:
       - ../../service/chatgptApi/src:/app
-      - xlapp-volume-as-nm:/app/node_modules
+      - xlapp-volume-ca-nm:/app/node_modules
     command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
     healthcheck:
       test: ls /tmp/setup.done
@@ -247,6 +247,26 @@ services:
       rabbitmq_container:
         condition: service_healthy
 
+  tesseract_api_container:
+    container_name: xlapp-container-tesseract-api
+    build:
+      context: ../../
+      dockerfile: ./service/tesseractApi/docker/Dockerfile
+    tty: true
+    working_dir: /app
+    volumes:
+      - ../../service/tesseractApi/src:/app
+      - xlapp-volume-ta-nm:/app/node_modules
+    command: sh -c "rm /tmp/setup.done || true && yarn run start-watch"
+    healthcheck:
+      test: ls /tmp/setup.done
+      interval: 5s
+      timeout : 5s
+      retries: 10
+    depends_on:
+      tesseract_executor_container:
+        condition: service_healthy
+
   reverse_proxy_container:
     container_name: xlapp-container-reverse-proxy
     build:
@@ -267,16 +287,16 @@ services:
         condition: service_healthy
       text_lib_api_container:
         condition: service_healthy
-
-
+ 
 volumes:
   xlapp-volume-aac-nm:
   xlapp-volume-sac-nm:
   xlapp-volume-swc-nm:
-  xlapp-volume-as-nm:
+  xlapp-volume-ca-nm:
   xlapp-volume-cg-nm:
   xlapp-volume-me-nm:
   xlapp-volume-tl-nm:
   xlapp-volume-tg-nm:
+  xlapp-volume-ta-nm:
 
 
