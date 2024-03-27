@@ -1,5 +1,6 @@
 import backendServerOutput from './backendServerOutput.js'
 
+const mod = {}
 /**
  * init.
  *
@@ -14,7 +15,7 @@ const init = ({ setting, fs }) => {
 }
 
 const writeFile = ({ filePath, buff }) => {
-  mod.fs.writeFileSync(filePath, buf)
+  mod.fs.writeFileSync(filePath, buff)
 }
 
 const createUploadDir = ({ uploadDirDiskPath }) => {
