@@ -16,26 +16,14 @@ const init = async ({
 
 const _execTesseract = async ({ imgBase64 }) => {
   const workDirName = mod.lib.backendServerLib.getUlid()
-  const imageFileNameWithoutExt = mod.lib.backendServerLib.getUlid()
-  let ext = null
-  let imgData = null
-  if (imgBase64.indexOf('data:image/png;base64,') === 0) {
-    ext = '.png'
-    imgData = imgBase64.replace('data:image/png;base64,', '')
-  } else if (imgBase64.indexOf('data:image/jpeg;base64,') === 0) {
-    ext = '.jpg'
-    imgData = imgBase64.replace('data:image/jpeg;base64,', '')
-  } else {
-    const responseObj = { error: 'invalid data' }
-    return responseObj
-  }
   const workDirPath = `/app/data/${workDirName}/`
-  const imageFilePath = `${imageFileNameWithoutExt}${ext}`
+  const imageFileName = mod.lib.backendServerLib.getUlid()
+  const imageFilePath = `${workDirPath}${imageFileName}`
 
   mod.output.makeDir({ dirPath: workDirPath })
-  mod.output.writeFileBase64({ filePath: imageFilePath, content: imgData })
+  mod.output.writeFileBase64({ filePath: imageFilePath, content: imgBase64 })
 
-  const commandList = ['cd', workDirName, '&&', 'tesseract', imageFilePath, 'result', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
+  const commandList = ['cd', workDirPath, '&&', 'tesseract', imageFilePath, 'result', '-l', 'jpn', '--psm', '1', '--oem', '3', 'txt', 'pdf', 'hocr']
   const resultList = []
   await mod.lib.fork({ commandList, resultList })
 
