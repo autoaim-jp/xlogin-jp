@@ -287,6 +287,8 @@ services:
         condition: service_healthy
       text_lib_api_container:
         condition: service_healthy
+      tesseract_api_container:
+        condition: service_healthy
  
 volumes:
   xlapp-volume-aac-nm:
