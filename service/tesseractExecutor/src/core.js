@@ -28,8 +28,10 @@ const _execTesseract = async ({ imgBase64 }) => {
   await mod.lib.fork({ commandList, resultList })
 
   const resultTextFilePath = `${workDirPath}result.txt`
-  const resultText = mod.init.readFileContent({ filePath: resultTextFilePath })
+  const resultText = mod.input.readFileContent({ filePath: resultTextFilePath })
   const responseObj = { resultText }
+
+  console.log({ debug: true, resultText })
 
   return responseObj
 }

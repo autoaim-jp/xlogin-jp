@@ -47,9 +47,10 @@ const _getFunctionRouter = () => {
     core: [a.core.backendServerCore.isValidSignature],
   }))
 
-  const registerRequestHandler = a.action.getHandlerRegisterRequestAndFileSave({
-    handleRegisterRequestAndFileSave: a.core.handleRegisterRequestAndFileSave,
-  })
+  const registerRequestHandler = a.action.getHandlerRegisterRequestAndFileSave(argNamed({
+    core: [a.core.handleRegisterRequestAndFileSave],
+    output: [a.output.backendServerOutput.endResponse],
+  }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/tesseract/request`, checkSignature, registerRequestHandler)
 
   const lookupChatgptResponseHandler = a.action.getHandlerLookupChatgptResponse({

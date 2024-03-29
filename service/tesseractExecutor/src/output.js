@@ -8,13 +8,13 @@ const makeDir = ({ dirPath }) => {
   mod.fs.mkdirSync(dirPath, { recursive: true })
 }
 
-const writeFileContent = ({ filePath, content }) => {
+const writeFileBase64 = ({ filePath, content }) => {
   return mod.fs.writeFileSync(filePath, content, { encoding: 'base64' })
 }
 
 export default {
   init,
   makeDir,
-  writeFileContent,
+  writeFileBase64,
 }
 

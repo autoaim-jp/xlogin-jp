@@ -2,8 +2,8 @@ import backendServerLib from './backendServerLib.js'
 
 const mod = {}
 
-const init = ({ winston, spawn }) => {
-  backendServerLib.init({ winston })
+const init = ({ winston, spawn, ulid }) => {
+  backendServerLib.init({ winston, ulid })
 
   mod.spawn = spawn
 }
@@ -28,10 +28,10 @@ const fork = ({ commandList, resultList }) => {
     const proc = mod.spawn(commandList[0], commandList.slice(1), { shell: true })
 
     proc.stderr.on('data', (err) => {
-      logger.error('fork', err.toString())
+      logger.error({ at: 'lib.fork', error: err.toString() })
     })
     proc.stdout.on('data', (data) => {
-      logger.info('fork', data.toString())
+      logger.info({ at: 'lib.fork', data: data.toString() })
       const result = ((data || '').toString() || '')
       resultList.push(result)
     })

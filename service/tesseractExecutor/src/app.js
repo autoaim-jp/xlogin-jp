@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import amqplib from 'amqplib'
 import winston from 'winston'
 import { spawn } from 'child_process'
+import { ulid } from 'ulid'
 
 import setting from './setting.js'
 import core from './core.js'
@@ -18,7 +19,7 @@ const a = asocial
 const init = async () => {
   dotenv.config()
   a.setting.init({ env: process.env })
-  a.lib.init({ winston, spawn })
+  a.lib.init({ ulid, winston, spawn })
   a.lib.backendServerLib.monkeyPatch({ SERVICE_NAME: a.setting.getValue('env.SERVICE_NAME') })
   const {
     AMQP_USER: user, AMQP_PASS: pass, AMQP_HOST: host, AMQP_PORT: port,
