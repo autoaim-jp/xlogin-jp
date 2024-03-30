@@ -1,2 +1,167 @@
-<html lang="ja"><meta charset="utf-8"><meta name="viewport"content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>error | xlogin.jp</title><meta name="author"content="autoaim_jp"><meta name="description"content="error page"><link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined"rel="stylesheet"><link rel="apple-touch-icon"sizes="180x180"href="/img/logo/apple-touch-icon.webp"><link rel="icon"type="image/webp"sizes="32x32"href="/img/logo/favicon-32x32.webp"><link rel="icon"type="image/webp"sizes="16x16"href="/img/logo/favicon-16x16.webp"><link rel="mask-icon"href="/img/logo/safari-pinned-tab.svg"color="#5bbad5"><link rel="shortcut icon"href="/img/logo/favicon.ico"><meta name="msapplication-TileColor"content="#ffffff"><meta name="theme-color"content="#ffffff"><link href="/css/tailwind.css"rel="stylesheet"><body class="flex flex-col"><nav class="w-full z-30 top-0 py-1"><div class="max-w-3xl container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-2"><div class="pl-4 flex items-center"><a class="font-bold text-2xl"href="/"><img class="inline-block align-bottom"src="/img/xlogin_logo3.png"width="128px"height="72px"><div class="inline-block ml-2"><span>xlogin.jp</span><br><span class="text-sm">simple login service</span></div></a></div><div class="pl-4 flex items-center z-40"><div class="block xl:hidden pr-4"><button id="commonNavToggle"class="flex items-center px-3 py-2 rounded text-gray-500 hover:text-gray-800 appearance-none bg-white focus:outline-none"><svg viewBox="0 0 100 80"width="40"height="70"><rect width="100"height="20"></rect><rect y="30"width="100"height="20"></rect><rect y="60"width="100"height="20"></rect><text x="50%"y="90"text-anchor="middle"dominant-baseline="central"font-family="Meiryo"font-size="30">Menu</text></svg></button></div></div><div class="xl:relative absolute w-full left-0 xl:top-auto top-24 flex items-center grid xl:w-auto"><div class="xl:flex xl:items-center xl:w-auto xl:block mt-2 xl:mt-0 p-1 xl:p-0 z-20 bg-gray-100 border-2 xl:bg-transparent xl:border-0 rounded hidden"id="commonNavContent"><ul class="lg:flex justify-end flex-1 xl:flex-row flex-col items-center text-center text-xl"><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a data-id="notificationBtn"class="inline-block py-2 px-4 font-bold no-underline"href="#">Notification</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="/f/logout">Logout</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="/serviceList"target="_blank">Service</a><li class="xl:m-0 mr-3 mt-2 w-full border-b-2 border-white"><a class="inline-block py-2 px-4 font-bold no-underline"href="https://github.com/autoaim-jp/xlogin-jp"target="_blank">GitHub</a></ul></div></div></div></nav><div id="notificationContainer"class="z-50 mt-20 p-4 absolute right-0 top-0 flex-col"></div><a id="notificationTemplate"data-id="notification"class="flex flex-col block bg-white max-w-md rounded-lg p-6 shadow mb-4 w-80 hidden"href="#"><p data-id="subject"class="text-xl text-slate-700 font-medium">Login at 2022/01/01 00:00:00<div class="flex justify-end"><div class="text-sm inline-flex space-x-1 items-center"><span>show detail</span> <svg class="w-3 h-3"fill="none"stroke="currentColor"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round"stroke-linejoin="round"stroke-width="2"d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg></div></div></a><div class="section1 min-h-80 flex flex-col text-black md:flex items-center justify-center flex-grow p-2"><div class="max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full"><ul class="inline-flex space-x-1 md:space-x-3"><li class="inline-flex items-center"><a href="/"class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"><svg class="w-4 h-4 mr-2"fill="currentColor"viewBox="0 0 20 20"xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg> ホーム</a><li class="inline-flex items-center"><a href="/error"class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"><svg class="w-6 h-6 text-gray-400"fill="currentColor"viewBox="0 0 20 20"xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd"d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"clip-rule="evenodd"></path></svg> エラー</a></ul></div></div><div class="section1 min-h-80 flex flex-col text-center text-black md:flex items-center justify-center flex-grow p-2"><div class="font-bold text-4xl max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full"><div id="memoContentWrap"class="w-full"></div><div class=""><p>Error</p><a href="/">トップページ</a></div></div></div><img id="loading"class="fixed -translate-x-1/2 -translate-y-1/2 inset-1/2 transform hidden"src="/img/loading.svg"><div id="modalBackground"data-id="modalClose"class="fixed bg-white bg-opacity-50 w-full h-full z-40 inset-0 hidden"></div><div id="modalTemplate"data-id="modal"class="transition-opacity duration-500 fixed w-11/12 lg:w-5/12 h-full left-0 right-0 m-auto flex font-extrabold z-50 hidden"><div data-id="modalCard"class="card relative m-auto w-4/5 shadow-lg rounded-2xl"><div class="p-4 bg-gray-200 text-black rounded-t-2xl"><span data-id="modalClose"class="float-right text-lg font-bold hover:text-gray-500 no-underline cursor-pointer">&times;</span><h2 data-id="modalTitle">Modal Title</h2></div><div data-id="modalContent"class="p-8 bg-gray-100"></div><div class="p-2 text-white bg-gray-200 flex justify-end rounded-b-2xl"><button data-id="modalCancelButton"class="bg-gray-800 hover:underline font-extrabold rounded py-4 px-8 shadow">キャンセル</button> <button data-id="modalConfirmButton"class="bg-green-400 hover:underline font-extrabold rounded py-4 px-8 ml-2 shadow">確認</button></div></div></div><div id="hiddenForTailwindByJs"class="hidden w-full h-96 p-1"></div><script>(()=>{var r=Object.defineProperty,t=(e,t)=>r(e,"name",{value:t,configurable:!0}),e=(e,t)=>{for(var o in t)r(e,o,{get:t[o],enumerable:!0})},n={apiEndpoint:"/f",labelList:{scopeBody:{global:{notification:{label:"すべての通知",summary:"すべてのサービスの通知に関する権限です。ログイン時刻などを含みます。"}},auth:{emailAddress:{label:"メールアドレス",summary:"ログインに使用するメールアドレスに関する権限です。バックアップメールアドレスは含みません。"},backupEmailAddress:{label:"バックアップメールアドレス",summary:"バックアップメールアドレスに関する権限です。ログインに使用するメールアドレスは含みません。"},userName:{label:"ユーザー名",summary:"一般公開されているユーザーの名前です。"}},service:{serviceUserId:{label:"ユーザーID",summary:"連携するサービスに提供する、あなたのアカウントのIDです。サービス毎に異なります。"},notification:{label:"サービス内通知",summary:"連携するサービス内で、通知機能を利用するための権限です。"},json_v1:{label:"テキスト",summary:"連携するサービスで、あなたがデータを保存できます。"},file_v1:{label:"ファイル",summary:"連携するサービスで、あなたがデータを保存できます。"},chatgpt:{label:"ChatGPT",summary:"連携するサービスで、ChatGPTを利用するための権限です。"},text_lib_v1:{label:"テキスト変換",summary:"連携するサービスで、テキスト変換機能を利用するための権限です。"}}},scopeOperation:{operation:{read:"取得",write:"保存",append:"追記"},prefix:{isRequired:"必須"}},error:{undefined:"error",handle_credential_credential:"メールアドレスまたはパスワードが違います。",handle_user_add_register:"メールアドレスは既に登録されています。",handle_xlogin_code_session:"セッションが不正です。"}},statusList:{OK:1,SUCCESS:100,LOGIN_SUCCESS:101,INVALID:1e3,NOT_ENOUGH_PARAM:1001,INVALID_SESSION:1002,INVALID_CREDENTIAL:1003,API_ERROR:1100,INVALID_OIDC_ISSUER:1101,NOT_FOUND:1200,SERVER_ERROR:1300},userReadableDateFormat:{full:"YYYY/MM/DD hh:mm:ss",day:"YYYY/MM/DD",hourMinute:"hh:mm",time:"hh:mm:ss"}},o={getList:t((...e)=>{var t=e.reduce((e,t)=>{let o=n;for(const r of t.split("."))o=o[r];return e[t.slice(t.lastIndexOf(".")+1)]=o,e},{});for(const o of e)if(void 0===t[o.slice(o.lastIndexOf(".")+1)])throw new Error("[error] undefined setting constant: "+o);return t},"getList"),getValue:t(e=>{let t=n;for(const o of e.split("."))t=t[o];return t},"getValue")},i={userHmacSecret:"xlogin20220630",scopeExtraConfigList:{"auth:backupEmailAddress":{templateId:"#permissionCheckBlackTemplate",dialogConfirm:!0}}},o={getList:t((...e)=>{var t=e.reduce((e,t)=>{let o=i;for(const r of t.split("."))o=o[r];return e[t.slice(t.lastIndexOf(".")+1)]=o,e},{});for(const o of e)if(void 0===t[o.slice(o.lastIndexOf(".")+1)])throw new Error("[error] undefined setting constant: "+o);return t},"getList"),getValue:t(e=>{let t=i;for(const o of e.split("."))t=t[o];return t},"getValue"),browserServerSetting:o},a={},l=(e(a,{buf2Hex:()=>I,calcHmac512:()=>G,calcPbkdf2:()=>X,common:()=>H,genSalt:()=>F,getCaller:()=>U,monkeyPatch:()=>V,redirect:()=>Y,xdevkit:()=>j}),{}),s=(e(l,{lib:()=>w,output:()=>S}),{}),d=(e(s,{getRandomStr:()=>d,getSearchQuery:()=>c}),t(e=>btoa(crypto.getRandomValues(new Uint8Array(e))).slice(0,e),"getRandomStr")),c=t(()=>{const o={};return window.location.search.replace(/^\?/,"").split("&").forEach(e=>{var[e,t]=e.split("=");o[e]=t}),o},"getSearchQuery"),m={},u=(e(m,{applyElmList:()=>u,createTabMenuContainer:()=>h,getErrorModalElmAndSetter:()=>g,reloadXloginLoginBtn:()=>C,showModal:()=>y,showTabButton:()=>f,switchLoading:()=>v}),t((e,t,o=document)=>{Object.values(o.querySelectorAll(e)).forEach(e=>{t(e)})},"applyElmList")),p=t(()=>{u('[data-id="modal"], #modalBackground',e=>{e.classList.add("hidden")})},"_closeModal"),y=t((e,o=!1)=>new Promise(t=>{"modalTemplate"===e.id&&(e.id=""),document.body.appendChild(e),p(),setTimeout(()=>{u('[data-id="modalClose"], [data-id="modalCancelButton"]',e=>{e.onclick=()=>(p(),t(!1))},document),o?e.querySelector('[data-id="modalCancelButton"]').classList.remove("hidden"):e.querySelector('[data-id="modalCancelButton"]').classList.add("hidden"),e.querySelector('[data-id="modalConfirmButton"]').onclick=()=>(p(),t(!0)),e.classList.remove("hidden"),document.querySelector("#modalBackground").classList.remove("hidden"),e.querySelector('[data-id="modalContent"]').scrollTop=0,e.querySelector('[data-id="modalCard"]').onclick=e=>{e.stopPropagation()},e.onclick=e=>(e.stopPropagation(),p(),t(!1))},100)}),"showModal"),g=t(()=>{var e=document.querySelector("#modalTemplate").cloneNode(!0);const r=e.querySelector('[data-id="modalTitle"]'),n=(r.innerText="エラー",document.createElement("p"));return n.innerText="エラーが発生しました。",e.querySelector('[data-id="modalContent"]').appendChild(n),{modalElm:e,setContent:t((e,t=null,o="エラー")=>{n.innerText=t&&t[e]||e,r.innerText=o},"setContent")}},"getErrorModalElmAndSetter"),h=t(()=>{var e=document.querySelector("#tabMenuContainerTemplate").cloneNode(!0);return e.id="",e.classList.remove("hidden"),e},"createTabMenuContainer"),b=t(({activeTabContainerId:e,tabList:t})=>{Object.keys(t).forEach(e=>{document.querySelector("#"+e).classList.add("hidden")}),document.querySelector("#"+e).classList.remove("hidden")},"_showTabContainer"),f=t(({tabMenuContainerElm:r,tabList:n,activeTabContainerId:i})=>{const a=t(({newActiveTabContainerId:t})=>e=>{e&&e.preventDefault(),f({tabMenuContainerElm:r,tabList:n,activeTabContainerId:t}),b({tabList:n,activeTabContainerId:t})},"getOnClickTabButton");r.clearChildren(),Object.entries(n).forEach(([e,t])=>{let o=null;(o=(e===i?document.querySelector("#tabActiveItemTemplate"):document.querySelector("#tabItemTemplate")).cloneNode(!0)).id="",o.classList.remove("hidden"),o.children[0].innerText=t,o.children[0].onclick=a({newActiveTabContainerId:e}),r.appendChild(o),e===i&&b({tabList:n,activeTabContainerId:e})})},"showTabButton"),v=t(e=>{var t=document.querySelector("#loading");t&&(e?t.classList.remove("hidden"):t.classList.add("hidden"))},"switchLoading"),C=t(o=>{var e=t(()=>{return t(e=>{e=e.dataset.permission;let t="";return void 0!==e&&(t+="&requestScope="+e.replace(/\$CLIENT_ID/g,o)),()=>{window.location.href="/f/xlogin/connect?redirectAfterAuth=/mypage"+t}},"handler")},"getOnClickXloginButtonHandler");t(({onClickXloginButtonHandler:t})=>{document.querySelectorAll('[data-id="xloginLoginBtn"]').forEach(e=>{e.onclick=t(e)})},"setOnClickXloginButton")({onClickXloginButtonHandler:e()})},"reloadXloginLoginBtn"),w=s,S=m,s={},m=(e(s,{input:()=>R,output:()=>_}),{}),T=(e(m,{getModalElmAndSetter:()=>A,postRequest:()=>T,setOnClickNavManu:()=>E,setOnClickNotification:()=>P,showGlobalNotification:()=>k,slideDown:()=>O,slideToggle:()=>x,slideUp:()=>q}),t((e,t={})=>{var o={method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},timeout:3e4};return t&&(o.body=JSON.stringify(t)),fetch(e,o).then(e=>!e.error&&e.body&&e.json?e.json():null).catch(e=>(console.error("[fatal] error @postRequest:",e),null))},"postRequest")),E=t(()=>{var e=document.querySelector("#commonNavToggle");const t=document.querySelector("#commonNavContent");e.onclick=()=>{0<=[...t.classList.values()].indexOf("hidden")?t.classList.remove("hidden"):t.classList.add("hidden")}},"setOnClickNavManu"),L=!1,k=t(async(e,t,r)=>{t=await t(e+"/notification/global/list");const n=document.querySelector("#notificationContainer"),i=(n.clearChildren(),document.querySelector("#notificationTemplate")),a=Object.values(t?.result?.globalNotificationList||{}).reverse();a.forEach((t,e)=>{const o=i.cloneNode(!0);o.classList.remove("hidden"),o.querySelector('[data-id="subject"]').innerText=t.subject,o.onclick=e=>{e.preventDefault(),e.stopPropagation();e=document.querySelector("#modalTemplate").cloneNode(!0);e.classList.remove("hidden"),e.querySelector('[data-id="modalTitle"]').innerText=t.subject,e.querySelector('[data-id="modalContent"]').appendChild(document.createTextNode(t.detail)),r(e)},setTimeout(()=>{o.style.transitionDuration="0.5s",o.style.opacity=0,n.appendChild(o),setTimeout(()=>{o.style.opacity=1},100)},.5*e*1e3),setTimeout(()=>{o.style.transitionDuration="0.2s",o.style.opacity=0},.5*a.length*1e3+3e3+.2*e*1e3)}),setTimeout(()=>{n.clearChildren(),L=!1},.7*a.length*1e3+3e3)},"showGlobalNotification"),P=t((t,e,o,r)=>{e('[data-id="notificationBtn"]',e=>{e.onclick=e=>{e.preventDefault(),e.stopPropagation(),L||(L=!0,k(t,o,r))}})},"setOnClickNotification"),A=t(()=>{var e=document.querySelector("#modalTemplate").cloneNode(!0);const o=e.querySelector('[data-id="modalTitle"]'),r=e.querySelector('[data-id="modalContent"]');return{modalElm:e,setContentElm:t((e,t)=>{o.innerText=e,r.clearChildren(),r.appendChild(t)},"setContentElm")}},"getModalElmAndSetter"),q=t((e,t=300)=>{e.style.height=e.offsetHeight+"px",null!==e.offsetHeight&&(e.style.transitionProperty="height, margin, padding",e.style.transitionDuration=t+"ms",e.style.transitionTimingFunction="ease",e.style.overflow="hidden",e.style.height=0,e.style.paddingTop=0,e.style.paddingBottom=0,e.style.marginTop=0,e.style.marginBottom=0,setTimeout(()=>{e.style.display="none",e.style.removeProperty("height"),e.style.removeProperty("padding-top"),e.style.removeProperty("padding-bottom"),e.style.removeProperty("margin-top"),e.style.removeProperty("margin-bottom"),e.style.removeProperty("overflow"),e.style.removeProperty("transition-duration"),e.style.removeProperty("transition-property"),e.style.removeProperty("transition-timing-function")},t))},"slideUp"),O=t((e,t=300)=>{e.style.removeProperty("display");let o=window.getComputedStyle(e)["display"];"none"===o&&(o="block"),e.style.display=o;var r=e.offsetHeight;e.style.overflow="hidden",e.style.height=0,e.style.paddingTop=0,e.style.paddingBottom=0,e.style.marginTop=0,e.style.marginBottom=0,null!==e.offsetHeight&&(e.style.transitionProperty="height, margin, padding",e.style.transitionDuration=t+"ms",e.style.transitionTimingFunction="ease",e.style.height=r+"px",e.style.removeProperty("padding-top"),e.style.removeProperty("padding-bottom"),e.style.removeProperty("margin-top"),e.style.removeProperty("margin-bottom"),setTimeout(()=>{e.style.removeProperty("height"),e.style.removeProperty("overflow"),e.style.removeProperty("transition-duration"),e.style.removeProperty("transition-property"),e.style.removeProperty("transition-timing-function")},t))},"slideDown"),x=t((e,t=300,o=!1)=>{"none"===window.getComputedStyle(e).display?O(e,t):o||q(e,t)},"slideToggle"),N={},M=(e(N,{fetchSplitPermissionList:()=>D,getRequest:()=>M}),t((e,t={})=>{var o=t&&Object.keys(t).map(e=>e+"="+t[e]).join("&");return fetch(o?e+"?"+o:e,{method:"GET",credentials:"same-origin",timeout:3e4}).then(e=>!e.error&&e.body&&e.json?e.json():null).catch(e=>(console.error("[fatal] error @getRequest:",e),null))},"getRequest")),D=t(e=>{return M(e+"/session/splitPermissionList")},"fetchSplitPermissionList"),_=m,R=N,j=l,H=s,U=t(()=>{return(new Error).stack.replace(/^Error\n.*\n.*\n/,"")},"getCaller"),V=t(()=>{void 0===Element.prototype.clearChildren&&Object.defineProperty(Element.prototype,"clearChildren",{configurable:!0,enumerable:!1,value(){for(;this.firstChild;)this.removeChild(this.lastChild)}}),void 0===window.argNamed&&(window.argNamed=e=>{const t={};return Object.keys(e).forEach(o=>{Array.isArray(e[o])?Object.assign(t,e[o].reduce((e,t)=>{if(void 0===t)throw new Error(`[error] flat argument by list can only contain function but: ${typeof t} @${o}
-===== maybe you need make func exported like  module.exports = { func, } =====`);if("function"!=typeof t)throw new Error(`[error] flat argument by list can only contain function but: ${typeof t} @`+o);return e[t.name]=t,e},{})):"object"==typeof e[o]&&null!==e[o]?Object.assign(t,e[o]):t[o]=e[o]}),t})},"monkeyPatch"),Y=t(e=>{e&&e.redirect&&(window.location.href=e.redirect)},"redirect"),I=t(e=>Array.prototype.map.call(new Uint8Array(e),e=>("00"+e.toString(16)).slice(-2)).join(""),"buf2Hex"),G=t((r,e)=>new Promise(t=>{const o=new TextEncoder("utf-8");window.crypto.subtle.importKey("raw",o.encode(e),{name:"HMAC",hash:{name:"SHA-512"}},!1,["sign","verify"]).then(e=>{window.crypto.subtle.sign("HMAC",e,o.encode(r)).then(e=>{e=new Uint8Array(e);t(I(e))})})}),"calcHmac512"),F=t(()=>window.crypto.getRandomValues(new Uint8Array(64)),"genSalt"),X=t((o,r)=>new Promise(t=>{var e=new Uint8Array(Array.prototype.map.call(o,e=>e.charCodeAt(0)));window.crypto.subtle.importKey("raw",e,{name:"PBKDF2"},!1,["deriveBits"]).then(e=>{return window.crypto.subtle.deriveBits({name:"PBKDF2",salt:r,iterations:1e6,hash:{name:"SHA-512"}},e,512).then(e=>{t(I(e))})})}),"calcPbkdf2"),m={},K=(e(m,{default:()=>Q,showErrorModal:()=>K}),t(({getSearchQuery:e,getErrorModalElmAndSetter:t,showModal:o,labelList:r})=>{var e=e().error,{modalElm:t,setContent:n}=t();n(e,r.error),o(t)},"showErrorModal")),Q={},N={},B=(N.setting=o,N.lib=a,N.output=m,N),l=t(()=>{B.output.showErrorModal(argNamed({lib:[B.lib.xdevkit.lib.getSearchQuery,B.lib.xdevkit.output.getErrorModalElmAndSetter,B.lib.xdevkit.output.showModal],setting:B.setting.browserServerSetting.getList("labelList")}))},"loadErrorMessage"),s=t(async()=>{B.lib.xdevkit.output.switchLoading(!0),B.lib.common.output.setOnClickNavManu(),B.lib.common.output.setOnClickNotification(B.setting.browserServerSetting.getValue("apiEndpoint"),B.lib.xdevkit.output.applyElmList,B.lib.common.input.getRequest,B.lib.xdevkit.output.showModal),B.lib.monkeyPatch(),B.app.loadErrorMessage(),setTimeout(()=>{B.lib.xdevkit.output.switchLoading(!1)},300)},"main");B.app={main:s,loadErrorMessage:l},B.app.main()})();</script>
+<html lang='ja'>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    
+    <title>error | xlogin.jp</title> 
+    
+    <meta name='author' content='autoaim_jp'> 
+    
+    <meta name='description' content='error page'> 
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <link rel='apple-touch-icon' sizes='180x180' href='/img/logo/apple-touch-icon.webp'>
+    <link rel='icon' type='image/webp' sizes='32x32' href='/img/logo/favicon-32x32.webp'>
+    <link rel='icon' type='image/webp' sizes='16x16' href='/img/logo/favicon-16x16.webp'>
+    <link rel='mask-icon' href='/img/logo/safari-pinned-tab.svg' color='#5bbad5'>
+    <link rel='shortcut icon' href='/img/logo/favicon.ico'>
+    <meta name='msapplication-TileColor' content='#ffffff'>
+    <meta name='theme-color' content='#ffffff'>
+
+
+
+      
+      
+      <link href='/css/tailwind.css' rel='stylesheet' /> 
+    
+    
+
+
+
+  <body class='flex flex-col'>
+
+        <nav class='w-full z-30 top-0 py-1'>
+      <div class='max-w-3xl container mx-auto flex flex-wrap items-center justify-between mt-0 px-2 py-2'>
+
+        <div class='pl-4 flex items-center'>
+          <a class='font-bold text-2xl' href='/'>
+            <img class='inline-block align-bottom' src='/img/xlogin_logo3.png' width='128px' height='72px'>
+            <div class='inline-block ml-2'>
+              <span>xlogin.jp</span>
+              <br />
+              <span class='text-sm'>simple login service</span>
+            </div>
+          </a>
+        </div>
+
+        <div class='pl-4 flex items-center z-40'>
+          <div class='block xl:hidden pr-4'>
+            <button id='commonNavToggle' class='flex items-center px-3 py-2 rounded text-gray-500 hover:text-gray-800 appearance-none bg-white focus:outline-none'>
+              <svg viewBox='0 0 100 80' width='40' height='70'>
+                <rect width='100' height='20'></rect>
+                <rect y='30' width='100' height='20'></rect>
+                <rect y='60' width='100' height='20'></rect>
+                <text x='50%' y='90' text-anchor='middle' dominant-baseline='central' font-family='Meiryo' font-size='30'>Menu</text>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class='xl:relative absolute w-full left-0 xl:top-auto top-24 flex items-center grid xl:w-auto'>
+          <div class='xl:flex xl:items-center xl:w-auto xl:block mt-2 xl:mt-0 p-1 xl:p-0 z-20 bg-gray-100 border-2 xl:bg-transparent xl:border-0 rounded hidden' id='commonNavContent'>
+            <ul class='lg:flex justify-end flex-1 xl:flex-row flex-col items-center text-center text-xl'>
+              <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a data-id='notificationBtn' class='inline-block py-2 px-4 font-bold no-underline' href='#'>Notification</a></li>
+              <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='/f/logout'>Logout</a></li>
+              <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='/serviceList' target='_blank'>Service</a></li>
+              <li class='xl:m-0 mr-3 mt-2 w-full border-b-2 border-white'><a class='inline-block py-2 px-4 font-bold no-underline' href='https://github.com/autoaim-jp/xlogin-jp' target='_blank'>GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+
+    <!-- https://tailwindcomponents.com/component/simple-notification -->
+<div id='notificationContainer' class='z-50 mt-20 p-4 absolute right-0 top-0 flex-col'>
+</div>
+<a id='notificationTemplate' data-id='notification' class='flex flex-col block bg-white max-w-md rounded-lg p-6 shadow mb-4 w-80 hidden' href='#'>
+  <p data-id='subject' class='text-xl text-slate-700 font-medium'>Login at 2022/01/01 00:00:00</p>
+  <div class='flex justify-end'>
+    <div class='text-sm inline-flex space-x-1 items-center'>
+      <span>show detail</span>
+      <svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 8l4 4m0 0l-4 4m4-4H3'></path></svg>
+    </div>
+  </div>
+</a>
+
+
+    <div class='section1 min-h-80 flex flex-col text-black md:flex items-center justify-center flex-grow p-2'>
+  <div class='max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full'>
+    <ul class='inline-flex space-x-1 md:space-x-3'>
+      
+        <li class='inline-flex items-center'>
+          
+          <a href='/' class='inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'> 
+            
+              <svg class='w-4 h-4 mr-2' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z'></path></svg>
+            
+            ホーム
+          </a>
+        </li>
+      
+        <li class='inline-flex items-center'>
+          
+          <a href='/error' class='inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'> 
+            
+              <svg class='w-6 h-6 text-gray-400' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z' clip-rule='evenodd'></path></svg>
+            
+            エラー
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+    <div class='section1 min-h-80 flex flex-col text-center text-black md:flex items-center justify-center flex-grow p-2'>
+     <div class='font-bold text-4xl max-w-lg bg-gray-100 p-6 rounded shadow-xl max-w-4xl w-full'>
+        <div id='memoContentWrap' class='w-full'>
+        </div>
+        <div class=''>
+          <p>Error</p>
+          <a href='/'>トップページ</a>
+        </div>
+      </div>
+
+    </div><!-- section1 -->
+
+    <img id='loading' class='fixed -translate-x-1/2 -translate-y-1/2 inset-1/2 transform hidden' src='/img/loading.svg' />
+
+
+    <div id='modalBackground' data-id='modalClose' class='fixed bg-white bg-opacity-50 w-full h-full z-40 inset-0 hidden'></div>
+<div id='modalTemplate' data-id='modal' class='transition-opacity duration-500 fixed w-11/12 lg:w-5/12 h-full left-0 right-0 m-auto flex font-extrabold z-50 hidden'>
+  <div data-id='modalCard' class='card relative m-auto w-4/5 shadow-lg rounded-2xl'>
+    <div class='p-4 bg-gray-200 text-black rounded-t-2xl'>
+      <span data-id='modalClose' class='float-right text-lg font-bold hover:text-gray-500 no-underline cursor-pointer'>&times;</span>
+      <h2 data-id='modalTitle'>Modal Title</h2>
+    </div>
+    <div data-id='modalContent' class='p-8 bg-gray-100'>
+    </div>
+    <div class='p-2 text-white bg-gray-200 flex justify-end rounded-b-2xl'>
+      <button data-id='modalCancelButton' class='bg-gray-800 hover:underline font-extrabold rounded py-4 px-8 shadow'>
+        キャンセル
+      </button>
+      <button data-id='modalConfirmButton' class='bg-green-400 hover:underline font-extrabold rounded py-4 px-8 ml-2 shadow'>
+        確認
+      </button>
+    </div>
+  </div>
+</div>
+
+
+    <div id='hiddenForTailwindByJs' class='hidden w-full h-96 p-1'></div>
+  </body>
+      
+
+    
+      
+        
+        <script type='module' src='/js/error/app.js'></script> 
+      
+    
+
+
+
+
+

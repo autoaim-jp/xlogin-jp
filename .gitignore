@@ -27,6 +27,7 @@ doc/jsdoc/html/
 
 data/redis/
 service/storageApi/src/data/
+service/tesseractExecutor/src/data/
 
 yarn.lock
 yarn-error.log
