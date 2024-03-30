@@ -12,7 +12,7 @@ const getHandlerRegisterRequestAndFileSave = ({
   }
 }
 
-const getHandlerLookupChatgptResponse = ({ handleLookupChatgptResponse }) => {
+const getHandlerLookupResponse = ({ handleLookupResponse }) => {
   return async (req, res) => {
     const { requestIdListStr } = req.query
     const accessToken = req.headers.authorization.slice('Bearer '.length)
@@ -20,7 +20,7 @@ const getHandlerLookupChatgptResponse = ({ handleLookupChatgptResponse }) => {
 
     const requestIdList = requestIdListStr.split(',')
 
-    const handleResult = await handleLookupChatgptResponse({ clientId, accessToken, requestIdList })
+    const handleResult = await handleLookupResponse({ clientId, accessToken, requestIdList })
 
     res.json({ result: handleResult })
   }
@@ -69,7 +69,7 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
 
 export default {
   getHandlerRegisterRequestAndFileSave,
-  getHandlerLookupChatgptResponse,
+  getHandlerLookupResponse,
   getHandlerCheckSignature,
 }
 

@@ -31,6 +31,12 @@ setting.key.FORM_UPLOAD = 'file'
 setting.server = {}
 setting.server.FORM_UPLOAD_DIR = 'data/upload/'
 
+setting.api = {}
+setting.api.deprecated = {
+  // '/api/v0.1.0/file/update': { deprecated: { start: '2023/08/28', end: '2023/09/31', message: 'move to /text API with same interface without path' } },
+}
+
+
 const getList = (...keyList) => {
   /* eslint-disable no-param-reassign */
   const constantList = keyList.reduce((prev, key) => {

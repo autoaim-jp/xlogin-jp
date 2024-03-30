@@ -53,10 +53,10 @@ const _getFunctionRouter = () => {
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/tesseract/request`, checkSignature, registerRequestHandler)
 
-  const lookupChatgptResponseHandler = a.action.getHandlerLookupChatgptResponse({
-    handleLookupChatgptResponse: a.core.handleLookupChatgptResponse,
+  const lookupResponseHandler = a.action.getHandlerLookupResponse({
+    handleLookupResponse: a.core.handleLookupResponse,
   })
-  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/tesseract/response`, checkSignature, lookupChatgptResponseHandler)
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/tesseract/response`, checkSignature, lookupResponseHandler)
 
   return expressRouter
 }

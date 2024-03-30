@@ -72,11 +72,13 @@ const handleRegisterRequestAndFileSave = async ({ req, clientId, accessToken }) 
 
   responseList[requestId] = { emailAddress }
 
-  const handleResult = { isRegistered: true, requestId }
-  return handleResult
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { isRegistered: true, requestId } }, redirect: null,
+  }
 }
 
-const handleLookupChatgptResponse = async ({ clientId, accessToken, requestIdList }) => {
+const handleLookupResponse = async ({ clientId, accessToken, requestIdList }) => {
   const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
   const operationKey = 'r'
   const range = clientId
@@ -129,7 +131,7 @@ export default {
   init,
   createPgPool,
   handleRegisterRequestAndFileSave,
-  handleLookupChatgptResponse,
+  handleLookupResponse,
   startConsumer,
 }
 
