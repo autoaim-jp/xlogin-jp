@@ -124,7 +124,7 @@ const getHandlerNotificationSelectList = ({ paramSnakeToCamel, handleNotificatio
   return async (req, res) => {
     const accessToken = req.headers.authorization.slice('Bearer '.length)
     const clientId = req.headers['x-xlogin-client-id']
-    const { notificationRange, notificationId } = paramSnakeToCamel({ paramSelectList: req.query })
+    const { notificationRange, notificationId } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleNotification = await handleNotificationSelectList(clientId, accessToken, notificationRange, notificationId)
     endResponse({ req, res, handleResult: resultHandleNotification })

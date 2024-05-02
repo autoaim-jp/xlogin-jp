@@ -307,7 +307,7 @@ const handleNotificationSelectList = async (clientId, accessToken, notificationR
   })
 
   if (!emailAddress) {
-    const status = mod.setting.browserServerSetting.getValue('statusSelectList.SERVER_ERROR')
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
     const error = 'handle_notification_list_select_access_token'
     return backendServerCore.getErrorResponse({ status, error })
   }
@@ -316,7 +316,7 @@ const handleNotificationSelectList = async (clientId, accessToken, notificationR
     emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId
   })
 
-  const status = mod.setting.browserServerSetting.getValue('statusSelectList.OK')
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
     status, session: null, response: { result: { notificationSelectList } }, redirect: null,
   }
