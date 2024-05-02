@@ -275,6 +275,42 @@ const getNotification = async ({
   return filteredNotificationList
 }
 
+
+/**
+ * getNotificationSelect.
+ *
+ * @param {} emailAddress
+ * @param {} notificationRange
+ * @param {} execQuery
+ * @param {} paramSnakeToCamel
+ * @return {Array} メールアドレスでDBから取得した通知一覧
+ * @memberof input
+ */
+const getNotificationSelect = async ({
+  emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId,
+}) => {
+  let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1 and notification_id > $2'
+  const paramSelectListGetNotification = [emailAddress, notificationId]
+  if (notificationRange !== mod.setting.getValue('notification.ALL_NOTIFICATION')) {
+    queryGetNotification += ' and notification_range = $3'
+    paramSelectListGetNotification.push(notificationRange)
+  }
+
+  const { err: errGetNotification, result: resultGetNotification } = await execQuery({ query: queryGetNotification, paramSelectList: paramSelectListGetNotification })
+  if (errGetNotification) {
+    return null
+  }
+  const filteredNotificationSelectList = {}
+  if (resultGetNotification && resultGetNotification.rows) {
+    resultGetNotification.rows.forEach((_row) => {
+      const row = paramSnakeToCamel({ paramSelectList: _row })
+      filteredNotificationSelectList[row.notificationId] = row
+    })
+  }
+
+  return filteredNotificationSelectList
+}
+
 export default {
   backendServerInput,
 
@@ -289,5 +325,6 @@ export default {
   getCheckedRequiredPermissionList,
 
   getNotification,
+  getNotificationSelect,
 }
 

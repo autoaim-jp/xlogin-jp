@@ -126,13 +126,19 @@ const _getNotificationApiRouter = () => {
     core: [a.core.backendServerCore.isValidSignature],
   }))
 
-
   const notificationListHandler = a.action.getHandlerNotificationList(argNamed({
     output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleNotificationList],
     lib: [a.lib.backendServerLib.paramSnakeToCamel],
   }))
   expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/notification/list`, checkSignature, notificationListHandler)
+
+  const notificationSelectListHandler = a.action.getHandlerNotificationSelectList(argNamed({
+    output: [a.output.backendServerOutput.endResponse],
+    core: [a.core.handleNotificationSelectList],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/notification/select`, checkSignature, notificationSelectListHandler)
 
   const notificationAppendHandler = a.action.getHandlerNotificationAppend(argNamed({
     output: [a.output.backendServerOutput.endResponse],

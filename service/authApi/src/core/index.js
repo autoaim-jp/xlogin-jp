@@ -288,6 +288,41 @@ const handleNotificationList = async (clientId, accessToken, notificationRange) 
   }
 }
 
+/**
+ * handleNotificationSelectList.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} notificationRange
+ * @return {HandleResult} 取得した通知一覧
+ * @memberof core
+ */
+const handleNotificationSelectList = async (clientId, accessToken, notificationRange, notificationId) => {
+  const operationKey = 'r'
+  const range = notificationRange
+  const dataType = 'notification'
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusSelectList.SERVER_ERROR')
+    const error = 'handle_notification_list_select_access_token'
+    return backendServerCore.getErrorResponse({ status, error })
+  }
+
+  const notificationSelectList = await mod.input.getNotificationSelect({
+    emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId
+  })
+
+  const status = mod.setting.browserServerSetting.getValue('statusSelectList.OK')
+  return {
+    status, session: null, response: { result: { notificationSelectList } }, redirect: null,
+  }
+}
+
+
 /* POST /api/$apiVersion/notification/append */
 /**
  * handleNotificationAppend.
@@ -700,6 +735,7 @@ export default {
   handleUserInfoUpdate,
 
   handleNotificationList,
+  handleNotificationSelectList,
   handleNotificationAppend,
   handleNotificationOpen,
 
