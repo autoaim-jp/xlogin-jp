@@ -312,13 +312,13 @@ const handleNotificationSelectList = async (clientId, accessToken, notificationR
     return backendServerCore.getErrorResponse({ status, error })
   }
 
-  const notificationSelectList = await mod.input.getNotificationSelect({
+  const notificationList = await mod.input.getNotificationSelect({
     emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')
   return {
-    status, session: null, response: { result: { notificationSelectList } }, redirect: null,
+    status, session: null, response: { result: { notificationList } }, redirect: null,
   }
 }
 

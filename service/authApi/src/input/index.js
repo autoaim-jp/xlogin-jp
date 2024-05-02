@@ -309,15 +309,15 @@ const getNotificationSelect = async ({
   if (errGetNotification) {
     return null
   }
-  const filteredNotificationSelectList = {}
+  const filteredNotificationList = {}
   if (resultGetNotification && resultGetNotification.rows) {
     resultGetNotification.rows.forEach((_row) => {
       const row = paramSnakeToCamel({ paramList: _row })
-      filteredNotificationSelectList[row.notificationId] = row
+      filteredNotificationList[row.notificationId] = row
     })
   }
 
-  return filteredNotificationSelectList
+  return filteredNotificationList
 }
 
 export default {
