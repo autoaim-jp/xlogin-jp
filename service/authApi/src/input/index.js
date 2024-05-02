@@ -303,7 +303,7 @@ const getNotificationSelect = async ({
     paramListGetNotification.push(notificationRange)
   }
 
-  queryGetNotification += ` limit ${mod.setting.getValue('notification.MAX_ROW_COUNT_N')}`
+  queryGetNotification += ` order by notification_id desc limit ${mod.setting.getValue('notification.MAX_ROW_COUNT_N')}`
 
   const { err: errGetNotification, result: resultGetNotification } = await execQuery({ query: queryGetNotification, paramList: paramListGetNotification })
   if (errGetNotification) {
