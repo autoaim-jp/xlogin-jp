@@ -290,27 +290,29 @@ const getNotificationSelect = async ({
   emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId,
 }) => {
   let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1'
-  const paramSelectListGetNotification = [emailAddress]
+  const paramListGetNotification = [emailAddress]
   let paramIndex = 1
   if (notificationId !== '') {
     paramIndex += 1
     queryGetNotification += ` and notification_id > $${paramIndex}`
-    paramSelectListGetNotification.push(notificationId)
+    paramListGetNotification.push(notificationId)
   }
   if (notificationRange !== mod.setting.getValue('notification.ALL_NOTIFICATION')) {
     paramIndex += 1
     queryGetNotification += ` and notification_range = $${paramIndex}`
-    paramSelectListGetNotification.push(notificationRange)
+    paramListGetNotification.push(notificationRange)
   }
 
-  const { err: errGetNotification, result: resultGetNotification } = await execQuery({ query: queryGetNotification, paramSelectList: paramSelectListGetNotification })
+  queryGetNotification += ` limit ${mod.setting.getValue('notification.MAX_ROW_COUNT_N')}`
+
+  const { err: errGetNotification, result: resultGetNotification } = await execQuery({ query: queryGetNotification, paramList: paramListGetNotification })
   if (errGetNotification) {
     return null
   }
   const filteredNotificationSelectList = {}
   if (resultGetNotification && resultGetNotification.rows) {
     resultGetNotification.rows.forEach((_row) => {
-      const row = paramSnakeToCamel({ paramSelectList: _row })
+      const row = paramSnakeToCamel({ paramList: _row })
       filteredNotificationSelectList[row.notificationId] = row
     })
   }
