@@ -244,17 +244,17 @@ const getNotification = async ({
   const queryGetLastOpenedNotificationId = 'select * from notification_info.opened_notification_list where email_address = $1 and notification_range = $2'
   const paramListGetLastOpenedNotificationId = [emailAddress, notificationRange]
   const { err: errGetLastOpenedNotificationId, result: resultGetLastOpenedNotificationId } = await execQuery({ query: queryGetLastOpenedNotificationId, paramList: paramListGetLastOpenedNotificationId })
-  let lastOpendNoticationId = '0'
+  let lastOpenedNoticationId = '0'
   if (errGetLastOpenedNotificationId) {
     return null
   }
   if (!errGetLastOpenedNotificationId && resultGetLastOpenedNotificationId && resultGetLastOpenedNotificationId.rows[0]) {
-    lastOpendNoticationId = paramSnakeToCamel({ paramList: resultGetLastOpenedNotificationId.rows[0] }).notificationId
+    lastOpenedNoticationId = paramSnakeToCamel({ paramList: resultGetLastOpenedNotificationId.rows[0] }).notificationId
   }
 
 
   let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1 and notification_id > $2'
-  const paramListGetNotification = [emailAddress, lastOpendNoticationId]
+  const paramListGetNotification = [emailAddress, lastOpenedNoticationId]
   if (notificationRange !== mod.setting.getValue('notification.ALL_NOTIFICATION')) {
     queryGetNotification += ' and notification_range = $3'
     paramListGetNotification.push(notificationRange)
