@@ -292,7 +292,7 @@ const getNotificationSelect = async ({
   let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1'
   const paramSelectListGetNotification = [emailAddress]
   let paramIndex = 1
-  if (notificationId !== null) {
+  if (notificationId !== '') {
     paramIndex += 1
     queryGetNotification += ` and notification_id > $${paramIndex}`
     paramSelectListGetNotification.push(notificationId)
