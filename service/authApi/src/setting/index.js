@@ -56,6 +56,8 @@ setting.notification = {}
  */
 setting.notification.ALL_NOTIFICATION = 'global'
 
+setting.notification.MAX_ROW_COUNT_N = 15
+
 /**
  * xdevkitからコピーしたbrowserServerSettingをここから呼び出す。
  * @param setting.browserServerSetting

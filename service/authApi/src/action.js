@@ -112,6 +112,27 @@ const getHandlerNotificationList = ({ paramSnakeToCamel, handleNotificationList,
 }
 
 /**
+ * getHandlerNotificationSelectList.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleNotificationSelectList
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
+const getHandlerNotificationSelectList = ({ paramSnakeToCamel, handleNotificationSelectList, endResponse }) => {
+  return async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { notificationRange, notificationId } = paramSnakeToCamel({ paramList: req.query })
+
+    const resultHandleNotification = await handleNotificationSelectList(clientId, accessToken, notificationRange, notificationId)
+    endResponse({ req, res, handleResult: resultHandleNotification })
+  }
+}
+
+
+/**
  * getHandlerNotificationAppend.
  *
  * @param {} paramSnakeToCamel
@@ -317,6 +338,7 @@ export default {
   getHandlerUserInfo,
   getHandlerUserInfoUpdate,
   getHandlerNotificationList,
+  getHandlerNotificationSelectList,
   getHandlerNotificationAppend,
   getHandlerNotificationOpen,
 
