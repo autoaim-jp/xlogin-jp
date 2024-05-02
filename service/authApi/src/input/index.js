@@ -289,10 +289,17 @@ const getNotification = async ({
 const getNotificationSelect = async ({
   emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId,
 }) => {
-  let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1 and notification_id > $2'
-  const paramSelectListGetNotification = [emailAddress, notificationId]
+  let queryGetNotification = 'select * from notification_info.notification_list where email_address = $1'
+  const paramSelectListGetNotification = [emailAddress]
+  let paramIndex = 1
+  if (notificationId !== null) {
+    paramIndex += 1
+    queryGetNotification += ` and notification_id > $${paramIndex}`
+    paramSelectListGetNotification.push(notificationId)
+  }
   if (notificationRange !== mod.setting.getValue('notification.ALL_NOTIFICATION')) {
-    queryGetNotification += ' and notification_range = $3'
+    paramIndex += 1
+    queryGetNotification += ` and notification_range = $${paramIndex}`
     paramSelectListGetNotification.push(notificationRange)
   }
 
