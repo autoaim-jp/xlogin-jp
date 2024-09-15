@@ -65,6 +65,13 @@ const _getFileRouter = () => {
   }))
   expressRouter.post(`/api/${a.setting.getValue('url.API_VERSION')}/json/update`, checkSignature, jsonUpdateHandler)
 
+  const jsonListHandler = a.action.getHandlerJsonList(argNamed({
+    output: [a.output.backendServerOutput.endResponse],
+    core: [a.core.handleJsonList],
+    lib: [a.lib.backendServerLib.paramSnakeToCamel],
+  }))
+  expressRouter.get(`/api/${a.setting.getValue('url.API_VERSION')}/json/list`, checkSignature, jsonListHandler)
+
   const jsonContentHandler = a.action.getHandlerJsonContent(argNamed({
     output: [a.output.backendServerOutput.endResponse],
     core: [a.core.handleJsonContent],

@@ -113,6 +113,45 @@ const handleJsonUpdate = async ({
   }
 }
 
+/* GET /api/$apiVersion/json/list */
+/**
+ * handleJsonList.
+ *
+ * @param {} clientId
+ * @param {} accessToken
+ * @param {} owner
+ * @param {} jsonPath
+ * @memberof core
+ */
+const handleJsonList = async ({
+  clientId, accessToken, owner, jsonPath,
+}) => {
+  const { execQuery, paramSnakeToCamel, checkPermission } = mod.lib.backendServerLib
+  const operationKey = 'r'
+  const range = owner
+  const dataType = 'json_v1'
+  const emailAddress = await mod.input.backendServerInput.checkPermissionAndGetEmailAddress({
+    accessToken, clientId, operationKey, range, dataType, execQuery, paramSnakeToCamel, checkPermission,
+  })
+
+
+  if (!emailAddress) {
+    const status = mod.setting.browserServerSetting.getValue('statusList.SERVER_ERROR')
+    const error = 'handle_json_content_access_token'
+    return backendServerCore.getErrorResponse({ status, error })
+  }
+
+  const jsonList = await mod.input.getJsonList({
+    emailAddress, owner, jsonPath,
+  })
+
+  const status = mod.setting.browserServerSetting.getValue('statusList.OK')
+  return {
+    status, session: null, response: { result: { jsonList } }, redirect: null,
+  }
+}
+
+
 /* GET /api/$apiVersion/json/content */
 /**
  * handleJsonContent.
@@ -349,6 +388,7 @@ export default {
 
   handleJsonUpdate,
   handleJsonContent,
+  handleJsonList,
   handleJsonDelete,
 
   handleFileList,
