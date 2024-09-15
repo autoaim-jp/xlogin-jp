@@ -66,7 +66,7 @@ const getHandlerJsonList = ({ paramSnakeToCamel, handleJsonList, endResponse }) 
     const { owner, jsonPath } = paramSnakeToCamel({ paramList: req.query })
 
     const resultHandleJsonList = await handleJsonList({
-      clientId, accessToken, owner, jsonPath
+      clientId, accessToken, owner, jsonPath,
     })
     endResponse({ req, res, handleResult: resultHandleJsonList })
   }
