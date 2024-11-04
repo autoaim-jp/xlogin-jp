@@ -313,7 +313,7 @@ const handleNotificationSelectList = async (clientId, accessToken, notificationR
   }
 
   const notificationList = await mod.input.getNotificationSelect({
-    emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId
+    emailAddress, notificationRange, execQuery, paramSnakeToCamel, notificationId,
   })
 
   const status = mod.setting.browserServerSetting.getValue('statusList.OK')

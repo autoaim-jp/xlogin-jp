@@ -67,6 +67,7 @@ const getJsonList = async ({
     if (_jsonPath.indexOf(jsonPath) === 0) {
       const jsonObj = { ...jsonList[emailAddress][owner][_jsonPath] }
       delete jsonObj.content
+      jsonObj.jsonPath = _jsonPath
       return jsonObj
     }
     return null

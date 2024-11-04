@@ -51,6 +51,29 @@ const getHandlerJsonContent = ({ paramSnakeToCamel, handleJsonContent, endRespon
 }
 
 /**
+ * getHandlerJsonList.
+ *
+ * @param {} paramSnakeToCamel
+ * @param {} handleJsonContent
+ * @param {} endResponse
+ * @return {Promise()} Promise内の戻り値なし
+ * @memberof action
+ */
+const getHandlerJsonList = ({ paramSnakeToCamel, handleJsonList, endResponse }) => {
+  return async (req, res) => {
+    const accessToken = req.headers.authorization.slice('Bearer '.length)
+    const clientId = req.headers['x-xlogin-client-id']
+    const { owner, jsonPath } = paramSnakeToCamel({ paramList: req.query })
+
+    const resultHandleJsonList = await handleJsonList({
+      clientId, accessToken, owner, jsonPath,
+    })
+    endResponse({ req, res, handleResult: resultHandleJsonList })
+  }
+}
+
+
+/**
  * getHandlerJsonDelete.
  *
  * @param {} paramSnakeToCamel
@@ -184,6 +207,7 @@ const getHandlerCheckSignature = ({ isValidSignature, INVALID_CREDENTIAL, endRes
 export default {
   getHandlerJsonUpdate,
   getHandlerJsonContent,
+  getHandlerJsonList,
   getHandlerJsonDelete,
 
   getHandlerFileList,
